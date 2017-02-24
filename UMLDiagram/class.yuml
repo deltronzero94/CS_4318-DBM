@@ -1,0 +1,24 @@
+// {type:class}
+// {direction:topDown}
+
+//**************************************
+// Classes
+//**************************************
+[User|Username:String;Password:String;firstName:String;lastName:String|get();set();]
+[Client]
+[Administrator]
+[DeckList]
+[Deck]
+[CardList]
+[Card]
+
+//Deck List
+[DeckList |name:String;]
+[Client]++-[DeckList]
+[DeckList]++-[Deck]
+[Deck]++-[CardList]
+[CardList]++-[Card]
+
+[User]^[Client]
+[note: Example of notes in yUML.{bg:cornsilk}]->[User]
+[User]^[Administrator]

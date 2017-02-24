@@ -1,0 +1,57 @@
+// {type:usecase}
+// {direction:leftToRight}
+
+//****************************************
+// Users of the System
+//****************************************
+[Client]
+[Administrator]
+
+//****************************************
+// Cases of Client
+//****************************************
+
+//Login
+    [Client]-(Login)
+    [Login]>(Create Account)
+
+//Searching Cards
+    [Client]-(Search Database)
+
+//Deck
+    [Client]-(Manage Deck)
+
+//Modifying Deck
+    [Manage Deck]>(Modify Deck)
+    [Manage Deck]>(Modify Format)
+    [Manage Deck]>(Create Deck)
+    [Manage Deck]>(Add Cards)
+    [Manage Deck]>(Remove Cards)
+    [Manage Deck]>(Remove Deck)
+    [Manage Deck]>(Modify Cards)
+    
+
+//****************************************
+// Cases of Administrator
+//****************************************
+
+//Login
+    [Administrator]-(Login)
+
+//Database
+    [Administrator]-(Manage Database)
+    [Manage Database]>(Add Card info.)
+    [Manage Database]>(Add Rules)
+    [Manage Database]>(Add Sets)
+    [Manage Database]>(Add Fomrat)
+    [Manage Database]>(Remove Card)
+    [Manage Database]>(Remove Rules)
+    [Manage Database]>(Remove Format)
+    [Manage Database]>(Remove Set)
+    [Manage Database]>(Update Card)
+    [Manage Database]>(Update Rules)
+    [Manage Database]>(Update Format)
+    [Manage Database]>(Update Set)
+
+//Notes
+(note: Should there be a relationship b/w Client and Administrator?)
