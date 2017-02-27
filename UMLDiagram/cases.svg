@@ -267,15 +267,5 @@
 <path fill="none" stroke="black" stroke-dasharray="5,2" d="M256.087,-324.908C278.621,-307.577 315.306,-280.59 349.386,-261 355.22,-257.646 361.545,-254.386 367.811,-251.359"/>
 <polygon fill="black" stroke="black" points="376.889,-247.106 369.742,-255.424 372.361,-249.228 367.833,-251.349 367.833,-251.349 367.833,-251.349 372.361,-249.228 365.924,-247.274 376.889,-247.106 376.889,-247.106"/>
 </g>
-<!-- A26 -->
-<g id="node27" class="node"><title>A26</title>
-<polygon fill="none" stroke="black" points="106.152,-965 5.30547,-965 5.30547,-909 112.152,-909 112.152,-959 106.152,-965"/>
-<polyline fill="none" stroke="black" points="106.152,-965 106.152,-959 "/>
-<polyline fill="none" stroke="black" points="112.152,-959 106.152,-959 "/>
-<text text-anchor="middle" x="58.7285" y="-952" font-family="Helvetica,sans-Serif" font-size="10.00">Should there be a</text>
-<text text-anchor="middle" x="58.7285" y="-940" font-family="Helvetica,sans-Serif" font-size="10.00">relationship b/w</text>
-<text text-anchor="middle" x="58.7285" y="-928" font-family="Helvetica,sans-Serif" font-size="10.00">Client and</text>
-<text text-anchor="middle" x="58.7285" y="-916" font-family="Helvetica,sans-Serif" font-size="10.00">Administrator?</text>
-</g>
 </g>
 </svg>

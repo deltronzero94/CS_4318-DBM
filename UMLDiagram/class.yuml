@@ -8,18 +8,14 @@
 [User|Username:String;Password:String;firstName:String;lastName:String|get();set();]
 [Client]
 [Administrator]
-[DeckList]
-[Deck]
-[CardList]
-[Card]
+[Deck|name:String;format:String;| ]
+[Card|name:String;artist:String;cmc:int;mana:String;superType:String;subType:String;set:String;flavorText:String;rulesText:String;power:int;toughness:int|]
 
-//Deck List
-[DeckList |name:String;]
-[Client]++-[DeckList]
-[DeckList]++-[Deck]
-[Deck]++-[CardList]
-[CardList]++-[Card]
+
+[Client]++-[Deck]
+[Deck]++-[Card]
+
 
 [User]^[Client]
-[note: Example of notes in yUML.{bg:cornsilk}]->[User]
+//[note: Example of notes in yUML.{bg:cornsilk}]->[User]
 [User]^[Administrator]

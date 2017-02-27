@@ -53,6 +53,3 @@
     [Manage Database]>(Update Rules)
     [Manage Database]>(Update Format)
     [Manage Database]>(Update Set)
-
-//Notes
-(note: Should there be a relationship b/w Client and Administrator?)
