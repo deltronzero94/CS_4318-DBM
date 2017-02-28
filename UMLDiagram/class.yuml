@@ -5,17 +5,20 @@
 //**************************************
 // Classes
 //**************************************
-[User|Username:String;Password:String;firstName:String;lastName:String|get();set();]
-[Client]
-[Administrator]
-[Deck|name:String;format:String;| ]
-[Card|name:String;artist:String;cmc:int;mana:String;superType:String;subType:String;set:String;flavorText:String;rulesText:String;power:int;toughness:int|]
+[User|Username:String;Password:String|]
+[Client|getDeck();removeDeck();modifyDeck();addDeck();]
+[Administrator|]
+[Deck|name:String;format:String;|getCard();addCard();removeCard();checkBanList();]
+[Card|name:String;artist:String;cmc:int;mana:String;superType:String;subType:String;set:String;flavorText:String;rulesText:String;power:String;toughness:String|]
 
 
+//**************************************
+// Relationships
+//**************************************
 [Client]++-[Deck]
 [Deck]++-[Card]
 
-
 [User]^[Client]
-//[note: Example of notes in yUML.{bg:cornsilk}]->[User]
 [User]^[Administrator]
+
+[note: Should we add the getDeck() method here?.{bg:cornsilk}]->[Client]

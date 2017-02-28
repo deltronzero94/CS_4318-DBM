@@ -9,14 +9,17 @@
 //  search a database for the card game "Magic the Gathering"
 //  and create decks from those cards via clients interface/login,
 //  and allow administrators to add, remove, or modify current database.
-// 
-// 
+
+package mtg_dbm;
 
 public class main
 {
     public static void main (String args[])
     {
         System.out.println("Hello World\n");
+        
+        LoginMenu gui = new LoginMenu();
+        gui.setVisible(true);
     }
 
 }
