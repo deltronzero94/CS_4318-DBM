@@ -5,12 +5,13 @@
 //**************************************
 // Classes
 //**************************************
-[User|Username:String;Password:String|]
-[Client|getDeck();removeDeck();modifyDeck();addDeck();]
+[User|-Username:String;-Password:String|]
+[Client|-deckList:List<Deck>|+getDeck();+removeDeck();+modifyDeck();+addDeck();]
 [Administrator|]
-[Deck|name:String;format:String;|getCard();addCard();removeCard();checkBanList();]
-[Card|name:String;artist:String;cmc:int;mana:String;superType:String;subType:String;set:String;flavorText:String;rulesText:String;power:String;toughness:String|]
-
+[Deck|-cardList:List<Card>;-name:String;-format:String;|+getCard();+addCard();+removeCard();-checkBanList();]
+[Card|-name:String;-artist:String;-cmc:int;-mana:String;-superType:String;-subType:String;-set:String;-flavorText:String;-rulesText:String;-power:String;-toughness:String|]
+[Database]
+[Login]
 
 //**************************************
 // Relationships
