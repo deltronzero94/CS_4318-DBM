@@ -29,5 +29,12 @@ CREATE TABLE Cards
     SetName VARCHAR(30),
         FOREIGN KEY(SetName) REFERENCES MTG_Set(SetName),
     ID INT NOT NULL AUTO_INCREMENT,
-        PRIMARY KEY (ID)
+        PRIMARY KEY (ID),
+    CardName VARCHAR(30), 
+    Mana VARCHAR(15), 
+    ConvertedManaCost SMALLINT, 
+    CardText VARCHAR(1000), 
+    SuperType VARCHAR(15), 
+    SubType VARCHAR(15), 
+    Power_Toughness VARCHAR(10)  
 );
