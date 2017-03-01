@@ -23,11 +23,10 @@ CREATE TABLE MTG_Set
     TypeOfSet VARCHAR(20) 
 );
 
-
 CREATE TABLE Cards
 (
     SetName VARCHAR(30),
-        FOREIGN KEY(SetName) REFERENCES MTG_Set(SetName),
+        CONSTRAINT FOREIGN KEY(SetName) REFERENCES MTG_Set(SetName),
     ID INT NOT NULL AUTO_INCREMENT,
         PRIMARY KEY (ID),
     CardName VARCHAR(30), 
