@@ -1,0 +1,46 @@
+*****************************************
+Pattern Matching example
+*****************************************
+Select <columns> 
+    from <table> 
+    where <condition> 
+    LIKE '%<SearchWord>%';
+
+    -No pattern matching on numbers
+    -% represnts 0 or more characters
+    -_(underscore) for exactly 1 characters
+
+*****************************************
+Search On Null
+*****************************************
+Select <columns>
+    from <table>
+    where <condition>
+    AND <column> IS NULL; <------- Key to searching Null
+
+*****************************************
+Single Column Ordering
+*****************************************
+SELECT <columns>
+    FROM <table>
+    ORDER BY <Column> <Order(DESC/ASC)>
+    
+*****************************************
+Multi Column Ordering
+*****************************************
+SELECT <columns>
+    FROM <table>
+        ORDER BY <column>,<column> <Order>; <----- Has Multiple Order. Seperated by comma. Default Order = ASCENDING
+
+*****************************************
+SELECT Statements - Aggregates
+*****************************************
+    -DISTINCT key word eliminates duplicates
+    -Can only be used in SELECT list and HAVING clause
+
+    COUNT EXAMPLE
+    ---------------
+    SELECT COUNT(*) AS <nameOfNewColumn>
+        FROM <table>
+        WHERE <condition>;
+        

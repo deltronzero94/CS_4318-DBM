@@ -162,6 +162,7 @@ public class CreateUser extends javax.swing.JFrame {
             public void run() {
                 new CreateUser().setVisible(true);
             }
+            
         });
     }
 

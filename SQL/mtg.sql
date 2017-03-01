@@ -1,85 +1,33 @@
-CREATE TABLE Administrator
-(
-    Username NVARCHAR(20) NOT NULL PRIMARY KEY,
-    passwordHash BINARY(64) NOT NULL
-);
+SET foreign_key_checks = 0;
 
-CREATE TABLE Client
-(
-    Username NVARCHAR(20) PRIMARY KEY,
-    passwordHash BINARY(64) NOT NULL
-);
+drop table if exists Administrator;
+drop table if exists Client;
+drop table if exists MTG_Set;
+drop table if exists Format;
+drop table if exists Cards;
+drop table if exists Rulings;
+drop table if exists Deck;
+drop table if exists Set_Cards;
+drop table if exists Set_Format;
+drop table if exists Format_Cards;
+drop table if exists Deck_Cards;
+
+SET foreign_key_checks = 1;
+
 
 CREATE TABLE MTG_Set
 (
     SetName VARCHAR(30) PRIMARY KEY,
     ReleasedYear SMALLINT,
     Code VARCHAR(6),
-    TypeOfSet VARCHAR(20) PRIMARY KEY
+    TypeOfSet VARCHAR(20) 
 );
 
-CREATE TABLE Format
-(
-    FormatName VARCHAR(25) PRIMARY KEY
-);  
 
 CREATE TABLE Cards
 (
-    CardName VARCHAR(30) PRIMARY KEY,
-    Mana VARCHAR(15),
-    ConvertedManaCost SMALLINT,
-    CardText TEXT,
-    SuperType VARCHAR(15),
-    SubType VARCHAR(15),
-    Power_Toughness VARCHAR(10) 
-);
-
-CREATE TABLE Rulings
-(
-    CardName VARCHAR(30),
-    TextRuling TEXT,
-    RulingYear SMALLINT,
-    PRIMARY KEY (CardName, TextRuling)
-);
-
-CREATE TABLE Deck
-(
-    Username NVARCHAR(20),
-    DeckName VARCHAR(30),
-    FormatName VARCHAR(25),
-    PRIMARY KEY (Username, DeckName)
-);
-
-CREATE TABLE Set_Card
-(
     SetName VARCHAR(30),
-    CardName VARCHAR(30),
-    Rarity VARCHAR(15),
-    Artist VARCHAR(30),
-    FlavorText TEXT,
-    PRIMARY KEY (SetName, CardName)
-);
-
-CREATE TABLE Set_Format
-(
-    SetName VARCHAR(30),
-    FormatName VARCHAR(25),
-    PRIMARY KEY(SetName, FormatName)
-);
-
-CREATE TABLE Format_Card
-(
-    FormatName VARCHAR(25),
-    CardName VARCHAR(30),
-    PRIMARY KEY(FormatName, CardName)
-);
-
-CREATE TABLE Deck_Card
-(
-    DeckName VARCHAR(30),
-    Username NVARCHAR(20),
-    CardName VARCHAR(30),
-    MainboardQty SMALLINT,
-    SideboadrdQty SMALLINT,
-    PRIMARY KEY (DeckName,Username)
+        FOREIGN KEY(SetName) REFERENCES MTG_Set(SetName),
+    ID INT NOT NULL AUTO_INCREMENT,
+        PRIMARY KEY (ID)
 );
