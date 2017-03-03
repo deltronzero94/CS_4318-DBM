@@ -5,6 +5,13 @@
  */
 package mtg_dbm;
 
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement; 
+
 /**
  *
  * @author reticent
@@ -153,7 +160,16 @@ public class LoginMenu extends javax.swing.JFrame {
     // of this one. 
     //********************************************************************
     private void loginBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_loginBtnActionPerformed
-        // TODO add your handling code here:
+        
+        char [] temp = passWordJField.getPassword();
+        String pass = new String(temp);
+        
+        if (userNameJField.getText().toLowerCase().equals("test") && pass.equals("test"))
+        {
+            this.dispose();
+            ClientGUI gui = new ClientGUI();
+            gui.setVisible(true);
+        }
     }//GEN-LAST:event_loginBtnActionPerformed
 
     //********************************************************************
