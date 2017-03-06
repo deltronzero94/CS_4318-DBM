@@ -5,6 +5,8 @@
  */
 package mtg_dbm;
 
+import java.awt.image.BufferedImage;
+import java.net.URL;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -14,7 +16,9 @@ import java.sql.Statement;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import javax.imageio.ImageIO;
 import javax.swing.DefaultCellEditor;
+import javax.swing.ImageIcon;
 import javax.swing.JComboBox;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
@@ -46,6 +50,7 @@ public class ClientGUI extends javax.swing.JFrame {
         jLabel1 = new javax.swing.JLabel();
         jScrollPane2 = new javax.swing.JScrollPane();
         cardListJTable = new javax.swing.JTable();
+        lblPictureTest = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Client GUI");
@@ -75,7 +80,7 @@ public class ClientGUI extends javax.swing.JFrame {
                 java.lang.String.class, java.lang.Integer.class
             };
             boolean[] canEdit = new boolean [] {
-                false, true
+                false, false
             };
 
             public Class getColumnClass(int columnIndex) {
@@ -88,22 +93,28 @@ public class ClientGUI extends javax.swing.JFrame {
         });
         jScrollPane2.setViewportView(cardListJTable);
 
+        lblPictureTest.setText("Picture");
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap(49, Short.MAX_VALUE)
+                .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addGroup(layout.createSequentialGroup()
+                        .addGap(0, 0, Short.MAX_VALUE)
                         .addComponent(jLabel1)
                         .addGap(18, 18, 18)
-                        .addComponent(cardNameJTxtField, javax.swing.GroupLayout.PREFERRED_SIZE, 226, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addComponent(cardNameJTxtField, javax.swing.GroupLayout.PREFERRED_SIZE, 226, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(202, 202, 202))
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 648, Short.MAX_VALUE)
                         .addGap(37, 37, 37)
-                        .addComponent(searchJBtn)))
-                .addGap(202, 202, 202))
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(searchJBtn)
+                            .addComponent(lblPictureTest, javax.swing.GroupLayout.PREFERRED_SIZE, 223, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(40, 40, 40))))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -114,7 +125,10 @@ public class ClientGUI extends javax.swing.JFrame {
                     .addComponent(jLabel1))
                 .addGap(41, 41, 41)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(searchJBtn)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(searchJBtn)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(lblPictureTest, javax.swing.GroupLayout.PREFERRED_SIZE, 310, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
@@ -122,10 +136,15 @@ public class ClientGUI extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    //**************************************************************************
+    //
+    //
+    //**************************************************************************
+    
     private void searchJBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_searchJBtnActionPerformed
        
         //Create Variables
-        String searchCard = cardNameJTxtField.getText().toLowerCase();  //Card Being Searched
+        String searchCard = cardNameJTxtField.getText();  //Card Being Searched
         Connection connect = null;
         Statement statement = null;
         PreparedStatement preparedStatement = null;
@@ -137,24 +156,60 @@ public class ClientGUI extends javax.swing.JFrame {
                                                 + "user=root&password=q1w2e3r4");
             statement = connect.createStatement();
             
-            // Result set get the result of the SQL query
-            resultSet = statement.executeQuery("select * from mtg_dbm.cards");
-            
-             //Instanced Variables
-            DefaultTableModel tbl = (DefaultTableModel)cardListJTable.getModel();
-
-            tbl.setRowCount(0); //Set Table Row Count = 0
-
-           
-            while (resultSet.next())
+            if (searchCard.equals(""))
             {
-                String CardName = resultSet.getString("CardName");
-                int ID = resultSet.getInt("ID");
-                Object [] arr = {};
-                tbl.addRow(arr);
-                System.out.println(CardName +":" +ID +"\n");
+                // Result set get the result of the SQL query
+                resultSet = statement.executeQuery("select * from mtg_dbm.cards");
+
+                 //Instanced Variables
+                DefaultTableModel tbl = (DefaultTableModel)cardListJTable.getModel();
+
+                tbl.setRowCount(0); //Set Table Row Count = 0
+
+
+                while (resultSet.next())
+                {
+                    String CardName = resultSet.getString("CardName");
+                    int ID = resultSet.getInt("ID");
+                    Object [] arr = {CardName, ID};
+                    tbl.addRow(arr);
+                    //System.out.println(CardName +":" +ID +"\n");
+                }
+                cardListJTable.setModel(tbl);
             }
-            cardListJTable.setModel(tbl);
+            else if (searchCard.isEmpty() == false) //If User inputs anything in the search
+            {
+                preparedStatement = connect.prepareStatement("select * from mtg_dbm.cards where CardName= ? ");
+                preparedStatement.setString(1, searchCard);
+                resultSet = preparedStatement.executeQuery();
+                
+                 //Instanced Variables
+                DefaultTableModel tbl = (DefaultTableModel)cardListJTable.getModel();
+
+                tbl.setRowCount(0); //Set Table Row Count = 0
+
+                while (resultSet.next())
+                {
+                    String CardName = resultSet.getString("CardName");
+                    int ID = resultSet.getInt("ID");
+                    Object [] arr = {CardName, ID};
+                    tbl.addRow(arr);
+                }
+                cardListJTable.setModel(tbl);
+            }
+            
+            //Displaying Images on JLabels
+            URL url = new URL("http://gatherer.wizards.com/Handlers/Image.ashx?multiverseid=2478&type=card");
+            BufferedImage img = ImageIO.read(url);
+            ImageIcon i = new ImageIcon(img);
+//            System.out.println("X: " + lblPictureTest.getLocation().x +
+//                               "\nY: " + lblPictureTest.getLocation().y +
+//                               "\nDimensions of Picture: (" + img.getHeight()+","+img.getWidth()+")"+
+//                                "\nDimensions of Label: (" + lblPictureTest.getHeight()+","+lblPictureTest.getWidth()+")");
+//            lblPictureTest.setBounds(539, 253, img.getWidth(), img.getHeight());
+//            lblPictureTest.setSize();
+            
+            lblPictureTest.setIcon(i);
         }
         catch(Exception e)
         {
@@ -203,6 +258,7 @@ public class ClientGUI extends javax.swing.JFrame {
     private javax.swing.JTextField cardNameJTxtField;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JLabel lblPictureTest;
     private javax.swing.JButton searchJBtn;
     // End of variables declaration//GEN-END:variables
 }
