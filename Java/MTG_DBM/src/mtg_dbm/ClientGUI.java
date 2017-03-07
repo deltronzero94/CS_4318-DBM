@@ -137,6 +137,8 @@ public class ClientGUI extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     //**************************************************************************
+    // Search Button Event
+    //-------------------------------------------------------------------------
     //
     //
     //**************************************************************************
@@ -156,7 +158,7 @@ public class ClientGUI extends javax.swing.JFrame {
                                                 + "user=root&password=q1w2e3r4");
             statement = connect.createStatement();
             
-            if (searchCard.equals(""))
+            if (searchCard.equals("")) //Blank search pulls all cards in database
             {
                 // Result set get the result of the SQL query
                 resultSet = statement.executeQuery("select * from mtg_dbm.cards");
