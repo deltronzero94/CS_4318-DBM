@@ -31,75 +31,58 @@ public class main {
         Gson gson = new Gson();
         
         try
-        {
+        {            
+            //Declared Variables
+            ArrayList<String> cardNames = new ArrayList<String>();  //Holds name of all cards
+            ArrayList<Integer> cardID = new ArrayList<Integer>();   //Holds multiverseid of all card
+            ArrayList <String> ls = new ArrayList<String>();    //Holds code name for all sets
+            Set s;  //Temporarily holds the JObject as a set to substring the code name for each set
+
             BufferedReader br = new BufferedReader(
-                new FileReader("/home/reticent/Downloads/AllSets-x.json"));
-            
-            
-            //**********************Testing************************************
-            // ---------------------------------------------------------------
-            // Figured out how to search through specific set and find specific
-            // information on those cards.
-            //*****************************************************************
-            BufferedReader t = new BufferedReader(
-               new FileReader("/home/reticent/Downloads/AllSets-x.json"));
-            
+                new FileReader("/home/reticent/Downloads/AllSets-x.json")); //BufferedReader to read from JSON file
+
             JsonParser parser = new JsonParser();
-//            JsonObject rootObj = parser.parse(t).getAsJsonObject();
-//            
-//            //Grabs Set
-//            JsonObject details = rootObj.getAsJsonObject("LEA");
-//           
-//            //Gets cards in specific set
-//            JsonArray card = details.getAsJsonArray("cards");
-//            JsonElement c = card.get(0);
-//           
-//            //Gets information of card
-//            System.out.println(c.getAsJsonObject().get("multiverseid"));
-//            System.out.println(card.get(0).getAsJsonObject().get("name"));
-            
-            //****************************************************************
-            // TODO: Substring each codeName into an array of strings and use
-            //       to search for Sets and Cards.
-            //****************************************************************
-
-            
             JsonObject test = parser.parse(br).getAsJsonObject();
+            s = test.entrySet();
 
-            Set s = test.entrySet();
 
+            //Subtring each set code name to be able to pull from JSON File
             for (Object o : s)
             {   
-                String q =o.toString();
-                
-                System.out.println(q.substring(0,60));
+                String str = o.toString();
+                ls.add(str.substring(0,str.indexOf("=")));
+
+                //System.out.println(str.substring(0,str.indexOf("=")));
             }
-            
-            //*****************************************************************
-            
-            
-            //JsonElement rootNode = parser.parse(t);
-            
-//            if (rootNode.isJsonObject())
-//            {
-//                JsonObject details = rootNode.getAsJsonObject();
-//                
-//                String temp = details.getAsString();
-//                JsonElement nameNode = details.get("LEA");
-//                System.out.println("NameNode: " + temp);
-//            }
-            
-            //*********************END OF TESTING*******************************
-            
-            
-            //System.out.println("\nName: " + rootNode); 
-            
-            //Object list = gson.fromJson(br, Object.class);
-            
-            //System.out.println("Name of List: "+ list);
-            
-            //String jsonOutput = gson.toJson(list);
-            //System.out.println("Name of List: "+ jsonOutput);
+
+            //Pulling Card info from set
+            for (int x = 0; x < ls.size(); x++) //1st For used to iterate through each set in ArrayList ls
+            {
+                JsonObject set = test.getAsJsonObject(ls.get(x));
+                JsonArray card = set.getAsJsonArray("cards");
+                int size_of_card = card.size();
+
+                //System.out.println(size_of_card + " : Set(" + x + ")");
+
+                //
+                for (int i = 0; i < size_of_card; i++)  //2nd For used to iterate through each card in set
+                {
+                    JsonElement c = card.get(i);
+
+                    if (c.getAsJsonObject().get("multiverseid") != null)    //If card has multiverseid, then add to ArrayList
+                    {
+                        cardNames.add(c.getAsJsonObject().get("name").getAsString());
+                        cardID.add(c.getAsJsonObject().get("multiverseid").getAsInt());
+                    }        
+                }
+            } 
+
+            //Diplays all cards and their multiverseid
+            for (int x = 0; x < cardNames.size(); x++)
+            {
+                System.out.println(cardNames.get(x) + ":" + cardID.get(x));
+                
+            }
             
         }
         catch (Exception e)
