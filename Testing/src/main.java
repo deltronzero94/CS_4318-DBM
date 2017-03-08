@@ -1,3 +1,17 @@
+// Name: Carlos A. Rios
+// Date: Mar 8, 2017
+// Purpose: The purpose of this program is to learn how to look up data and pull that data
+//          from the MTG JSON file. Also, to add this information into MYSQL Database.
+//
+// Notes: To run this program through command lines, use the following lines
+//          Compile:
+//              javac -cp gson.jar: -d ./ main.java
+//          Running:
+//              java -cp gson.jar: testing/java
+//      *ASSUMING THAT YOU ARE IN FOLDER THAT MAIN.JAVA IS IN (which is .../Testing/src)
+//
+
+
 package testing;
 
 import java.io.FileReader;
@@ -7,9 +21,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.google.gson.JsonPrimitive;
 import java.io.BufferedReader;
-import java.io.FileWriter;
 import java.util.*;
 
 /*
@@ -45,7 +57,6 @@ public class main {
             JsonObject test = parser.parse(br).getAsJsonObject();
             s = test.entrySet();
 
-
             //Subtring each set code name to be able to pull from JSON File
             for (Object o : s)
             {   
@@ -64,7 +75,6 @@ public class main {
 
                 //System.out.println(size_of_card + " : Set(" + x + ")");
 
-                //
                 for (int i = 0; i < size_of_card; i++)  //2nd For used to iterate through each card in set
                 {
                     JsonElement c = card.get(i);
@@ -77,13 +87,11 @@ public class main {
                 }
             } 
 
-            //Diplays all cards and their multiverseid
+            //Diplays all cards and their multiverseid (OPTIONAL | FOR TESTING)
             for (int x = 0; x < cardNames.size(); x++)
             {
                 System.out.println(cardNames.get(x) + ":" + cardID.get(x));
-                
             }
-            
         }
         catch (Exception e)
         {
