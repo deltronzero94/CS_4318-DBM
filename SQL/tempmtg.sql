@@ -8,6 +8,6 @@ CREATE TABLE Cards
 (
     ID INT NOT NULL AUTO_INCREMENT,
         PRIMARY KEY (ID),
-    CardName VARCHAR(100),
-    MultiverseID SMALLINT 
+    CardName VARCHAR(500),
+    MultiverseID INT 
 );

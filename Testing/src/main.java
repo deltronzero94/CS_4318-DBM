@@ -5,10 +5,12 @@
 //
 // Notes: To run this program through command lines, use the following lines
 //          Compile:
-//              javac -cp gson.jar: -d ./ main.java
+//              javac -cp gson.jar:/home/reticent/netbeans-8.2/ide/modules/ext/mysql-connector-java-5.1.23-bin.jar: -d ./ main.java
 //          Running:
-//              java -cp gson.jar: testing/java
+//              java -cp gson.jar:/home/reticent/netbeans-8.2/ide/modules/ext/mysql-connector-java-5.1.23-bin.jar: testing/java
 //      *ASSUMING THAT YOU ARE IN FOLDER THAT MAIN.JAVA IS IN (which is .../Testing/src)
+//      *Replace .jar paths with wherever .jar file is found on computer & the dir for the JSON file
+//      * .jar files include the Google GSON.jar file & the mysql connector .jar file
 //
 
 
@@ -23,6 +25,13 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import java.io.BufferedReader;
 import java.util.*;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 
 /*
  * To change this license header, choose License Headers in Project Properties.
@@ -40,15 +49,17 @@ public class main {
     {
         System.out.println("Hello World!");
         
-        Gson gson = new Gson();
+        //Declared Variables
+        ArrayList<String> cardNames = new ArrayList<String>();  //Holds name of all cards
+        ArrayList<Integer> cardID = new ArrayList<Integer>();   //Holds multiverseid of all card
         
+        //Reading from JSON
         try
         {            
             //Declared Variables
-            ArrayList<String> cardNames = new ArrayList<String>();  //Holds name of all cards
-            ArrayList<Integer> cardID = new ArrayList<Integer>();   //Holds multiverseid of all card
             ArrayList <String> ls = new ArrayList<String>();    //Holds code name for all sets
             Set s;  //Temporarily holds the JObject as a set to substring the code name for each set
+            Gson gson = new Gson();
 
             BufferedReader br = new BufferedReader(
                 new FileReader("/home/reticent/Downloads/AllSets-x.json")); //BufferedReader to read from JSON file
@@ -86,16 +97,39 @@ public class main {
                     }        
                 }
             } 
+        }
+        catch (Exception e)
+        {
+            System.out.println("Error with JSON!");
+        }
 
-            //Diplays all cards and their multiverseid (OPTIONAL | FOR TESTING)
+        //Storing Card information into the Database
+        try
+        {
+            Connection connect = null;
+            Statement statement = null;
+            PreparedStatement preparedStatement = null;
+            ResultSet resultSet = null;
+
+            connect = DriverManager.getConnection("jdbc:mysql://localhost/mtg_testing?" + "user=root&password=q1w2e3r4");
+
+            statement = connect.createStatement();
+
+            //System.out.println(cardNames.get(11558) + ":" + cardID.get(11558));
+
+
             for (int x = 0; x < cardNames.size(); x++)
             {
-                System.out.println(cardNames.get(x) + ":" + cardID.get(x));
+                preparedStatement = connect.prepareStatement("insert into mtg_testing.Cards values (default, ?, ?)");
+
+                preparedStatement.setString(1,cardNames.get(x));
+                preparedStatement.setInt(2,cardID.get(x));
+                preparedStatement.executeUpdate();
             }
         }
         catch (Exception e)
         {
-            System.out.println("Error!");
+            System.out.println("Error with Database!");
         }
         
     }
