@@ -103,6 +103,8 @@ public class main {
             System.out.println("Error with JSON!");
         }
 
+        
+
         //Storing Card information into the Database
         try
         {

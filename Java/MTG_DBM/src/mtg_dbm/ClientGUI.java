@@ -11,17 +11,11 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.sql.Statement; 
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
 import javax.imageio.ImageIO;
-import javax.swing.DefaultCellEditor;
 import javax.swing.ImageIcon;
-import javax.swing.JComboBox;
+import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableColumn;
 
 /**
  *
@@ -91,6 +85,11 @@ public class ClientGUI extends javax.swing.JFrame {
                 return canEdit [columnIndex];
             }
         });
+        cardListJTable.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                cardListJTableMouseClicked(evt);
+            }
+        });
         jScrollPane2.setViewportView(cardListJTable);
 
         lblPictureTest.setText("Picture");
@@ -154,14 +153,14 @@ public class ClientGUI extends javax.swing.JFrame {
         
         try 
         {
-            connect = DriverManager.getConnection("jdbc:mysql://localhost/mtg_dbm?" 
+            connect = DriverManager.getConnection("jdbc:mysql://localhost/mtg_testing?" 
                                                 + "user=root&password=q1w2e3r4");
             statement = connect.createStatement();
             
             if (searchCard.equals("")) //Blank search pulls all cards in database
             {
                 // Result set get the result of the SQL query
-                resultSet = statement.executeQuery("select * from mtg_dbm.cards");
+                resultSet = statement.executeQuery("select * from mtg_testing.Cards");
 
                  //Instanced Variables
                 DefaultTableModel tbl = (DefaultTableModel)cardListJTable.getModel();
@@ -172,7 +171,7 @@ public class ClientGUI extends javax.swing.JFrame {
                 while (resultSet.next())
                 {
                     String CardName = resultSet.getString("CardName");
-                    int ID = resultSet.getInt("ID");
+                    int ID = resultSet.getInt("MultiverseID");
                     Object [] arr = {CardName, ID};
                     tbl.addRow(arr);
                     //System.out.println(CardName +":" +ID +"\n");
@@ -181,7 +180,7 @@ public class ClientGUI extends javax.swing.JFrame {
             }
             else if (searchCard.isEmpty() == false) //If User inputs anything in the search
             {
-                preparedStatement = connect.prepareStatement("select * from mtg_dbm.cards where CardName= ? ");
+                preparedStatement = connect.prepareStatement("select * from mtg_testing.Cards where CardName= ? ");
                 preparedStatement.setString(1, searchCard);
                 resultSet = preparedStatement.executeQuery();
                 
@@ -193,7 +192,7 @@ public class ClientGUI extends javax.swing.JFrame {
                 while (resultSet.next())
                 {
                     String CardName = resultSet.getString("CardName");
-                    int ID = resultSet.getInt("ID");
+                    int ID = resultSet.getInt("MultiverseID");
                     Object [] arr = {CardName, ID};
                     tbl.addRow(arr);
                 }
@@ -201,7 +200,7 @@ public class ClientGUI extends javax.swing.JFrame {
             }
             
             //Displaying Images on JLabels
-            URL url = new URL("http://gatherer.wizards.com/Handlers/Image.ashx?multiverseid=2478&type=card");
+            URL url = new URL("http://gatherer.wizards.com/Handlers/Image.ashx?multiverseid=99595959&type=card");
             BufferedImage img = ImageIO.read(url);
             ImageIcon i = new ImageIcon(img);
 //            System.out.println("X: " + lblPictureTest.getLocation().x +
@@ -219,6 +218,32 @@ public class ClientGUI extends javax.swing.JFrame {
         }
         
     }//GEN-LAST:event_searchJBtnActionPerformed
+
+    
+    //**************************************************************************
+    // Mouse Click Event
+    //**************************************************************************    
+    
+    private void cardListJTableMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_cardListJTableMouseClicked
+        JTable tbl = (JTable)evt.getSource();
+        
+        Object temp = tbl.getValueAt(tbl.getSelectedRow(), 1);
+        int x = (int)temp;
+        
+        try
+        {
+            //Displaying Images on JLabels
+            URL url = new URL("http://gatherer.wizards.com/Handlers/Image.ashx?multiverseid=" + x +"&type=card");
+            BufferedImage img = ImageIO.read(url);
+            ImageIcon i = new ImageIcon(img);
+            
+            lblPictureTest.setIcon(i);
+        }
+        catch(Exception e)
+        {
+            
+        }
+    }//GEN-LAST:event_cardListJTableMouseClicked
 
     /**
      * @param args the command line arguments
