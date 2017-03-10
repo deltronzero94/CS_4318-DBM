@@ -103,8 +103,6 @@ public class main {
             System.out.println("Error with JSON!");
         }
 
-        
-
         //Storing Card information into the Database
         try
         {
@@ -116,9 +114,6 @@ public class main {
             connect = DriverManager.getConnection("jdbc:mysql://localhost/mtg_testing?" + "user=root&password=q1w2e3r4");
 
             statement = connect.createStatement();
-
-            //System.out.println(cardNames.get(11558) + ":" + cardID.get(11558));
-
 
             for (int x = 0; x < cardNames.size(); x++)
             {
@@ -132,8 +127,6 @@ public class main {
         catch (Exception e)
         {
             System.out.println("Error with Database!");
-        }
-        
+        }   
     }
-    
 }
