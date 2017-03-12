@@ -180,8 +180,8 @@ public class ClientGUI extends javax.swing.JFrame {
             }
             else if (searchCard.isEmpty() == false) //If User inputs anything in the search
             {
-                preparedStatement = connect.prepareStatement("select * from mtg_testing.Cards where CardName= ? ");
-                preparedStatement.setString(1, searchCard);
+                preparedStatement = connect.prepareStatement("select * from mtg_testing.Cards where CardName like ?");
+                preparedStatement.setString(1, "%" + searchCard + "%");
                 resultSet = preparedStatement.executeQuery();
                 
                  //Instanced Variables
@@ -214,7 +214,7 @@ public class ClientGUI extends javax.swing.JFrame {
         }
         catch(Exception e)
         {
-            
+            System.out.println("Error");
         }
         
     }//GEN-LAST:event_searchJBtnActionPerformed
