@@ -11,7 +11,7 @@
 //      *ASSUMING THAT YOU ARE IN FOLDER THAT MAIN.JAVA IS IN (which is .../Testing/src)
 //      *Replace .jar paths with wherever .jar file is found on computer & the dir for the JSON file
 //      * .jar files include the Google GSON.jar file & the mysql connector .jar file
-//      *Total of 32519 Cards | only 30301 have multiverseid (Difference of 2218)
+//      *Total of 32519 Cards | only 30279 have multiverseid (Difference of 2218)
 
 
 package testing;
@@ -25,6 +25,8 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import java.io.BufferedReader;
 import java.util.*;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -82,6 +84,14 @@ public class main {
         ArrayList<Integer> loyalty = new ArrayList<Integer>();  //Loyalty of the card (Only on planeswalkers)
         ArrayList<String> cardSet = new ArrayList<String>();    //Name of set that card came from.
 
+        //Type Information
+        ArrayList<String> typeName = new ArrayList<String>();   //Holds Name of the type
+        ArrayList<String> typeT = new ArrayList<String>();  //Holds what kind of type the name is (Supertype, Subtype, or Type)
+
+        //Ruling Information
+        ArrayList<ArrayList<String>> rulings = new ArrayList<ArrayList<String>>();
+        ArrayList<ArrayList<String>> rulingsDate = new ArrayList<ArrayList<String>>();
+
         //Reading from JSON
         try
         {            
@@ -123,7 +133,6 @@ public class main {
                 code.add(set.get("code").getAsString()); //Add code of set to ArrayList code
                 releaseDate.add(set.get("releaseDate").getAsString()); //Add release date of set to ArrayList releaseDate
                 setType.add(set.get("type").getAsString()); //Add set type to ArrayList setType
-                
 
                 if (set.get("block")!= null)
                 {
@@ -150,6 +159,31 @@ public class main {
                         rarity.add(c.getAsJsonObject().get("rarity").getAsString());    //Adds card rarity to ArrayList raritys
                         artist.add(c.getAsJsonObject().get("artist").getAsString());    //Adds artist to the ArrayList artist
                         cardSet.add(set.get("name").getAsString()); //Adds set which card belongs to the ArrayList cardSet
+
+                        //********************************************************* */
+                        //Checks if Card has rulings
+                        //********************************************************* */
+                        if (c.getAsJsonObject().get("rulings") != null)
+                        {
+                            JsonArray a = c.getAsJsonObject().get("rulings").getAsJsonArray();   //JsonArray of card rulings
+                            int size = a.size();    //Size of card rulings
+                            ArrayList<String> l = new ArrayList<String>();  //Stores Ruling text
+                            ArrayList<String> d = new ArrayList<String>();  //Stores Date of Ruling
+
+                            for (int counter = 0; counter < size; counter++)
+                            {
+                                l.add(a.get(counter).getAsJsonObject().get("text").getAsString());
+                                d.add(a.get(counter).getAsJsonObject().get("date").getAsString());
+                            }
+                            rulings.add(l);
+                            rulingsDate.add(d);
+                        }
+                        else if (c.getAsJsonObject().get("rulings") == null)
+                        {
+                            rulings.add(null);
+                            rulingsDate.add(null);
+                        }
+
 
                         //****************************************************** */
                         // Checks if manaCost is not null then adds to manCost ArrayList 
@@ -253,6 +287,14 @@ public class main {
                             for (int counter = 0; counter < size; counter++)
                             {
                                 l.add(a.get(counter).getAsString());
+
+                                //Adds name and type(supertype) to typeName & typeT ArrayList if it hasn't been added
+                                if (typeName.contains(a.get(counter).getAsString()) == false)
+                                {
+                                    typeName.add(a.get(counter).getAsString());
+                                    typeT.add("Supertypes");
+                                    //System.out.println(a.get(counter).getAsString());
+                                }
                             }
                             supertypes.add(l);
 
@@ -274,6 +316,14 @@ public class main {
                             for (int counter = 0; counter < size; counter++)
                             {
                                 l.add(a.get(counter).getAsString());
+
+                                //Adds name and type(types) to typeName & typeT ArrayList if it hasn't been added
+                                if (typeName.contains(a.get(counter).getAsString()) == false)
+                                {
+                                    typeName.add(a.get(counter).getAsString());
+                                    typeT.add("Types");
+                                    //System.out.println(a.get(counter).getAsString());
+                                }
                             }
                             types.add(l);
 
@@ -297,6 +347,15 @@ public class main {
                             for (int counter = 0; counter < size; counter++)
                             {
                                 l.add(a.get(counter).getAsString());
+
+                                //Adds name and type(subtypes) to typeName & typeT ArrayList if it hasn't been added
+                                if (typeName.contains(a.get(counter).getAsString()) == false)
+                                {
+                                    typeName.add(a.get(counter).getAsString());
+                                    typeT.add("Subtypes");
+                                    //System.out.println(a.get(counter).getAsString());
+                                }
+                                
                             }
                             subtypes.add(l);
 
@@ -377,7 +436,8 @@ public class main {
                     {
                         //System.out.println(set.get("name"));
                         break;
-                    }        
+                    }
+
                 }
             } 
         }
@@ -388,62 +448,111 @@ public class main {
 
 
 
-        // //Storing Card information into the Database
-        // try
-        // {
-        //     Connection connect = null;
-        //     Statement statement = null;
-        //     PreparedStatement preparedStatement = null;
-        //     ResultSet resultSet = null;
+        //Storing Card information into the Database
+        try
+        {
+            Connection connect = null;
+            Statement statement = null;
+            PreparedStatement preparedStatement = null;
+            ResultSet resultSet = null;
 
-        //     connect = DriverManager.getConnection("jdbc:mysql://localhost/mtg_testing?" + "user=root&password=q1w2e3r4");
+            connect = DriverManager.getConnection("jdbc:mysql://localhost/mtg_testing?" + "user=root&password=q1w2e3r4");
 
-        //     statement = connect.createStatement();
+            statement = connect.createStatement();
 
-        //     for (int x = 0; x < cardName.size(); x++)
-        //     {
-        //         preparedStatement = connect.prepareStatement("insert into mtg_testing.Cards values (default, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+            //Storing Information into MTGSet Table
+            for (int x = 0; x < setName.size(); x++)
+            {
+                SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+                Date parsed = format.parse(releaseDate.get(x));
+                java.sql.Date data = new java.sql.Date(parsed.getTime());
+                
+                preparedStatement = connect.prepareStatement("insert into mtg_testing.MTGSet values (?, ?, ?, ?, ?)");
+                preparedStatement.setString(1, setName.get(x));
+                preparedStatement.setString(2, code.get(x));
+                preparedStatement.setString(3, setType.get(x));
+                preparedStatement.setDate(4, data);
+                preparedStatement.setString(5, block.get(x));
+                preparedStatement.executeUpdate();
+            }
 
-        //         System.out.println(cardName.get(x) + ":" + x);
-        //         preparedStatement.setString(1,cardName.get(x));
-        //         preparedStatement.setInt(2,cardID.get(x));
-        //         preparedStatement.setString(3,layout.get(x));
-        //         preparedStatement.setString(4,manaCost.get(x));
+            //Storing Information to Type Table
+            for (int x =0; x < typeName.size(); x++)
+            {
+                preparedStatement = connect.prepareStatement("insert into mtg_testing.Type values (default, ?, ?)");
+                preparedStatement.setString(1, typeName.get(x));
+                preparedStatement.setString(2, typeT.get(x));
+                preparedStatement.executeUpdate();
+            }
 
-        //         if (cmc.get(x) != null)
-        //         {
-        //             preparedStatement.setFloat(5,cmc.get(x));
-        //         }
-        //         else
-        //         {
-        //             preparedStatement.setNull(5, java.sql.Types.FLOAT);
-        //         }
+            // Storing Information into Card Table
+            for (int x = 0; x < cardName.size(); x++)
+            {
+                preparedStatement = connect.prepareStatement("insert into mtg_testing.Card values (default, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
 
-        //         preparedStatement.setString(6,text.get(x));
-        //         preparedStatement.setString(7,type.get(x));
-        //         preparedStatement.setString(8,rarity.get(x));
-        //         preparedStatement.setString(9,flavor.get(x));
-        //         preparedStatement.setString(10,artist.get(x));
-        //         preparedStatement.setString(11,power.get(x));
-        //         preparedStatement.setString(12,toughness.get(x));
+                System.out.println(cardName.get(x) + ":" + x);
+                preparedStatement.setString(1,cardName.get(x));
+                preparedStatement.setInt(2,cardID.get(x));
+                preparedStatement.setString(3,layout.get(x));
+                preparedStatement.setString(4,manaCost.get(x));
+                if (cmc.get(x) != null)
+                {
+                    preparedStatement.setFloat(5,cmc.get(x));
+                }
+                else
+                {
+                    preparedStatement.setNull(5, java.sql.Types.FLOAT);
+                }
 
-        //         if (loyalty.get(x) != null)
-        //         {
-        //             preparedStatement.setInt(13,loyalty.get(x));
-        //         }
-        //         else
-        //         {
-        //             preparedStatement.setNull(13,java.sql.Types.INTEGER);                    
-        //         }
+                preparedStatement.setString(6,text.get(x));
+                preparedStatement.setString(7,type.get(x));
+                preparedStatement.setString(8,rarity.get(x));
+                preparedStatement.setString(9,flavor.get(x));
+                preparedStatement.setString(10,artist.get(x));
+                preparedStatement.setString(11,power.get(x));
+                preparedStatement.setString(12,toughness.get(x));
+
+                if (loyalty.get(x) != null)
+                {
+                    preparedStatement.setInt(13,loyalty.get(x));
+                }
+                else
+                {
+                    preparedStatement.setNull(13,java.sql.Types.INTEGER);                    
+                }
                      
-        //         preparedStatement.setString(14,cardSet.get(x));
+                preparedStatement.setString(14,cardSet.get(x));
 
-        //         preparedStatement.executeUpdate();
-        //     }
-        // }
-        // catch (Exception e)
-        // {
-        //     System.out.println("Error with Database!");
-        // }   
+                preparedStatement.executeUpdate();
+            }
+
+            // Storing Information into Ruling Table
+            for (int x = 0; x < rulings.size(); x++)
+            {
+                SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+                java.sql.Date data;
+
+                preparedStatement = connect.prepareStatement("insert into mtg_testing.Ruling values (?, ?, ?)");
+
+                if (rulings.get(x) != null)
+                {
+                    for (int counter = 0; counter < rulings.get(x).size(); counter++)
+                    {
+                        Date parsed = format.parse(rulingsDate.get(x).get(counter));
+                        data = new java.sql.Date(parsed.getTime()); 
+
+                        preparedStatement.setInt(1, x+1);
+                        preparedStatement.setString(2, rulings.get(x).get(counter));
+                        preparedStatement.setDate(3, data);
+
+                        preparedStatement.executeUpdate();
+                    } 
+                }               
+            }
+        }
+        catch (Exception e)
+        {
+            System.out.println("Error with Database!");
+        }   
     }
 }

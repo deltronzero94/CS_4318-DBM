@@ -1,14 +1,36 @@
 SET foreign_key_checks = 0;
 
-drop table if exists Cards;
+drop table if exists Card;
+drop table if exists MTGSet;
+drop table if exists Format;
+drop table if exists Set_Format;
+drop table if exists Format_Card;
+drop table if exists Type;
+drop table if exists Card_Types;
+drop table if exists Card_Type;
+drop table if exists Color;
+drop table if exists Card_Color;
+drop table if exists Split_Flip_Card;
+drop table if exists Ruling;
+drop table if exists ColorIdentity;
+drop table if exists Card_ColorIdentity;
 
 SET foreign_key_checks = 1;
 
-CREATE TABLE Cards
+create table MTGSet (
+    SetName VARCHAR(150) NOT NULL, 
+    PRIMARY KEY (SetName), 
+    Code VARCHAR(70), 
+    SetType VARCHAR (70), 
+    ReleasedDate DATE, 
+    BlockName VARCHAR(70)
+);
+
+CREATE TABLE Card
 (
     ID INT NOT NULL AUTO_INCREMENT,
         PRIMARY KEY (ID),
-    CardName VARCHAR(500),
+    CardName VARCHAR(500) NOT NULL,
     MultiverseID INT,
     Layout VARCHAR (60),
     ManaCost VARCHAR (60),
@@ -21,5 +43,155 @@ CREATE TABLE Cards
     Power VARCHAR(30),
     Toughness VARCHAR(30),
     Loyalty INT null,
-    cardSet VARCHAR(80)
+    SetName VARCHAR(80),
+        FOREIGN KEY fk_SetName(SetName)
+        REFERENCES MTGSet(SetName)
+        ON UPDATE CASCADE
+        ON DELETE CASCADE
+);
+
+CREATE TABLE Format
+(
+    FormatName VARCHAR (80) NOT NULL PRIMARY KEY
+);
+
+INSERT INTO Format (FormatName) VALUES ("Standard");
+INSERT INTO Format (FormatName) VALUES ("Modern");
+INSERT INTO Format (FormatName) VALUES ("Legacy");
+INSERT INTO Format (FormatName) VALUES ("Vintage");
+INSERT INTO Format (FormatName) VALUES ("Commander");
+
+CREATE TABLE Set_Format
+(
+    SetName VARCHAR(80),
+        FOREIGN KEY fk_SetName(SetName)
+        REFERENCES MTGSet(SetName)
+        ON UPDATE CASCADE
+        ON DELETE CASCADE,
+    FormatName VARCHAR(80),
+        FOREIGN KEY fk_FormatName(FormatName)
+        REFERENCES Format(FormatName)
+        ON UPDATE CASCADE
+        ON DELETE CASCADE,
+    PRIMARY KEY (SetName, FormatName)
+);
+
+CREATE TABLE Format_Card
+(
+    FormatName VARCHAR(80),
+        FOREIGN KEY fk_FormatName(FormatName)
+        REFERENCES Format(FormatName)
+        ON UPDATE CASCADE
+        ON DELETE CASCADE,
+    CardID INT,
+        FOREIGN KEY fk_CardID(CardID)
+        REFERENCES Card(ID)
+        ON UPDATE CASCADE
+        ON DELETE CASCADE,
+    BanType VARCHAR(80),
+    PRIMARY KEY (FormatName, CardID)
+);
+
+CREATE TABLE Type
+(
+    TypeID INT NOT NULL AUTO_INCREMENT,
+        PRIMARY KEY (TypeID),
+    Types VARCHAR (30),
+    TypeName VARCHAR(80)
+);
+
+CREATE Table Card_Type
+(
+    CardID INT,
+        FOREIGN KEY fk_CardID(CardID)
+        REFERENCES Card(ID)
+        ON UPDATE CASCADE
+        ON DELETE CASCADE,
+    TypeID INT,
+        FOREIGN KEY fk_TypeID(TypeID)
+        REFERENCES Type(TypeID)
+        ON UPDATE CASCADE
+        ON DELETE CASCADE,
+    PRIMARY KEY (CardID, TypeID)
+);
+
+CREATE TABLE Color
+(
+    ColorID INT NOT NULL AUTO_INCREMENT,
+        PRIMARY KEY (ColorID),
+    ColorName VARCHAR (40),
+    ColorSymbol VARCHAR (5)
+);
+
+INSERT INTO Color (ColorID, ColorName, ColorSymbol) VALUES (DEFAULT,"Blue", "U");
+INSERT INTO Color (ColorID, ColorName, ColorSymbol) VALUES (DEFAULT, "Black", "B" );
+INSERT INTO Color (ColorID, ColorName, ColorSymbol) VALUES (DEFAULT, "White", "W");
+INSERT INTO Color (ColorID, ColorName, ColorSymbol) VALUES (DEFAULT, "Green", "G" );
+INSERT INTO Color (ColorID, ColorName, ColorSymbol) VALUES (DEFAULT,"Red", "R" );
+
+CREATE TABLE Card_Color
+(
+    ColorID INT NOT NULL,
+        FOREIGN KEY fk_ColorID(ColorID)
+        REFERENCES Color(ColorID)
+        ON UPDATE CASCADE
+        ON DELETE CASCADE,
+    CardID INT,
+        FOREIGN KEY fk_CardID(CardID)
+        REFERENCES Card(ID)
+        ON UPDATE CASCADE
+        ON DELETE CASCADE,
+    PRIMARY KEY (ColorID, CardID)
+);
+
+CREATE TABLE Ruling
+(
+    CardID INT,
+        FOREIGN KEY fk_CardID(CardID)
+        REFERENCES Card(ID)
+        ON UPDATE CASCADE
+        ON DELETE CASCADE,
+    TextRuling VARCHAR(2000),
+    RulingYear DATE,
+    PRIMARY KEY (CardID, TextRuling)
+);
+
+CREATE TABLE Split_Flip_Card
+(
+    CardID INT,
+    FOREIGN KEY fk_CardID(CardID)
+        REFERENCES Card(ID)
+        ON UPDATE CASCADE
+        ON DELETE CASCADE,
+    NamesOnCard VARCHAR(500),
+    PRIMARY KEY (CardID, NamesOnCard)
+);
+
+CREATE TABLE ColorIdentity
+(
+    ColorID INT NOT NULL AUTO_INCREMENT,
+        PRIMARY KEY (ColorID),
+    ColorName VARCHAR (40),
+    ColorSymbol VARCHAR (5)
+);
+
+INSERT INTO ColorIdentity (ColorID, ColorName, ColorSymbol) VALUES (DEFAULT,"Blue", "U");
+INSERT INTO ColorIdentity (ColorID, ColorName, ColorSymbol) VALUES (DEFAULT, "Black", "B" );
+INSERT INTO ColorIdentity (ColorID, ColorName, ColorSymbol) VALUES (DEFAULT, "White", "W");
+INSERT INTO ColorIdentity (ColorID, ColorName, ColorSymbol) VALUES (DEFAULT, "Green", "G" );
+INSERT INTO ColorIdentity (ColorID, ColorName, ColorSymbol) VALUES (DEFAULT,"Red", "R" );
+
+CREATE TABLE Card_ColorIdentity
+(
+    ColorID INT NOT NULL,
+        FOREIGN KEY fk_ColorID(ColorID)
+        REFERENCES ColorIdentity(ColorID)
+        ON UPDATE CASCADE
+        ON DELETE CASCADE,
+    CardID INT,
+        FOREIGN KEY fk_CardID(CardID)
+        REFERENCES Card(ID)
+        ON UPDATE CASCADE
+        ON DELETE CASCADE,
+    PRIMARY KEY (ColorID, CardID)
 );

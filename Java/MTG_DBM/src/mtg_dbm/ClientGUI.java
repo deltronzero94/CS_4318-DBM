@@ -160,7 +160,7 @@ public class ClientGUI extends javax.swing.JFrame {
             if (searchCard.equals("")) //Blank search pulls all cards in database
             {
                 // Result set get the result of the SQL query
-                resultSet = statement.executeQuery("select * from mtg_testing.Cards");
+                resultSet = statement.executeQuery("select * from mtg_testing.Card");
 
                  //Instanced Variables
                 DefaultTableModel tbl = (DefaultTableModel)cardListJTable.getModel();
@@ -180,7 +180,7 @@ public class ClientGUI extends javax.swing.JFrame {
             }
             else if (searchCard.isEmpty() == false) //If User inputs anything in the search
             {
-                preparedStatement = connect.prepareStatement("select * from mtg_testing.Cards where CardName like ?");
+                preparedStatement = connect.prepareStatement("select * from mtg_testing.Card where CardName like ?");
                 preparedStatement.setString(1, "%" + searchCard + "%");
                 resultSet = preparedStatement.executeQuery();
                 
