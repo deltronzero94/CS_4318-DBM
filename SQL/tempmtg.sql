@@ -55,11 +55,6 @@ CREATE TABLE Format
     FormatName VARCHAR (80) NOT NULL PRIMARY KEY
 );
 
-INSERT INTO Format (FormatName) VALUES ("Standard");
-INSERT INTO Format (FormatName) VALUES ("Modern");
-INSERT INTO Format (FormatName) VALUES ("Legacy");
-INSERT INTO Format (FormatName) VALUES ("Vintage");
-INSERT INTO Format (FormatName) VALUES ("Commander");
 
 CREATE TABLE Set_Format
 (
@@ -78,14 +73,14 @@ CREATE TABLE Set_Format
 
 CREATE TABLE Format_Card
 (
-    FormatName VARCHAR(80),
-        FOREIGN KEY fk_FormatName(FormatName)
-        REFERENCES Format(FormatName)
-        ON UPDATE CASCADE
-        ON DELETE CASCADE,
     CardID INT,
         FOREIGN KEY fk_CardID(CardID)
         REFERENCES Card(ID)
+        ON UPDATE CASCADE
+        ON DELETE CASCADE,
+    FormatName VARCHAR(80),
+        FOREIGN KEY fk_FormatName(FormatName)
+        REFERENCES Format(FormatName)
         ON UPDATE CASCADE
         ON DELETE CASCADE,
     BanType VARCHAR(80),
@@ -131,14 +126,14 @@ INSERT INTO Color (ColorID, ColorName, ColorSymbol) VALUES (DEFAULT,"Red", "R" )
 
 CREATE TABLE Card_Color
 (
+     CardID INT,
+        FOREIGN KEY fk_CardID(CardID)
+        REFERENCES Card(ID)
+        ON UPDATE CASCADE
+        ON DELETE CASCADE,
     ColorID INT NOT NULL,
         FOREIGN KEY fk_ColorID(ColorID)
         REFERENCES Color(ColorID)
-        ON UPDATE CASCADE
-        ON DELETE CASCADE,
-    CardID INT,
-        FOREIGN KEY fk_CardID(CardID)
-        REFERENCES Card(ID)
         ON UPDATE CASCADE
         ON DELETE CASCADE,
     PRIMARY KEY (ColorID, CardID)
@@ -158,13 +153,14 @@ CREATE TABLE Ruling
 
 CREATE TABLE Split_Flip_Card
 (
+    SFPairID INT NOT NULL AUTO_INCREMENT,
     CardID INT,
     FOREIGN KEY fk_CardID(CardID)
         REFERENCES Card(ID)
         ON UPDATE CASCADE
         ON DELETE CASCADE,
     NamesOnCard VARCHAR(500),
-    PRIMARY KEY (CardID, NamesOnCard)
+    PRIMARY KEY (SFPairID)
 );
 
 CREATE TABLE ColorIdentity
@@ -183,14 +179,14 @@ INSERT INTO ColorIdentity (ColorID, ColorName, ColorSymbol) VALUES (DEFAULT,"Red
 
 CREATE TABLE Card_ColorIdentity
 (
-    ColorID INT NOT NULL,
-        FOREIGN KEY fk_ColorID(ColorID)
-        REFERENCES ColorIdentity(ColorID)
-        ON UPDATE CASCADE
-        ON DELETE CASCADE,
     CardID INT,
         FOREIGN KEY fk_CardID(CardID)
         REFERENCES Card(ID)
+        ON UPDATE CASCADE
+        ON DELETE CASCADE,
+    ColorID INT NOT NULL,
+        FOREIGN KEY fk_ColorID(ColorID)
+        REFERENCES ColorIdentity(ColorID)
         ON UPDATE CASCADE
         ON DELETE CASCADE,
     PRIMARY KEY (ColorID, CardID)
