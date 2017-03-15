@@ -55,22 +55,6 @@ CREATE TABLE Format
     FormatName VARCHAR (80) NOT NULL PRIMARY KEY
 );
 
-
-CREATE TABLE Set_Format
-(
-    SetName VARCHAR(80),
-        FOREIGN KEY fk_SetName(SetName)
-        REFERENCES MTGSet(SetName)
-        ON UPDATE CASCADE
-        ON DELETE CASCADE,
-    FormatName VARCHAR(80),
-        FOREIGN KEY fk_FormatName(FormatName)
-        REFERENCES Format(FormatName)
-        ON UPDATE CASCADE
-        ON DELETE CASCADE,
-    PRIMARY KEY (SetName, FormatName)
-);
-
 CREATE TABLE Format_Card
 (
     CardID INT,
