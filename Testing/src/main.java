@@ -756,25 +756,25 @@ public class main {
             //     preparedStatement.executeUpdate();   
             // }
 
-            //Storing Information into Format_Card Table
-            for (int x =0; x < legality.size(); x++)
-            {
+            // //Storing Information into Format_Card Table
+            // for (int x =0; x < legality.size(); x++)
+            // {
 
-                //If there exists legality for card(x)
-                if (legality.get(x) != null)
-                {
-                    for (int counter = 0; counter < legality.get(x).size(); counter++)
-                    {
-                        preparedStatement = connect.prepareStatement("insert into mtg_testing.Format_Card values (?, ?, ?)");
-                        preparedStatement.setInt(1, x+1);   //CardID
-                        preparedStatement.setString(2, format.get(x).get(counter));    //Format Name
-                        preparedStatement.setString(3, legality.get(x).get(counter));    //Legality of Card
+            //     //If there exists legality for card(x)
+            //     if (legality.get(x) != null)
+            //     {
+            //         for (int counter = 0; counter < legality.get(x).size(); counter++)
+            //         {
+            //             preparedStatement = connect.prepareStatement("insert into mtg_testing.Format_Card values (?, ?, ?)");
+            //             preparedStatement.setInt(1, x+1);   //CardID
+            //             preparedStatement.setString(2, format.get(x).get(counter));    //Format Name
+            //             preparedStatement.setString(3, legality.get(x).get(counter));    //Legality of Card
 
-                        //System.out.println("Card: " + x + " | Format: " + format.get(x).get(counter) +  " | Legality: " + legality.get(x).get(counter));  //For Testing
-                        preparedStatement.executeUpdate();
-                    }
-                }
-            }
+            //             //System.out.println("Card: " + x + " | Format: " + format.get(x).get(counter) +  " | Legality: " + legality.get(x).get(counter));  //For Testing
+            //             preparedStatement.executeUpdate();
+            //         }
+            //     }
+            // }
 
         }
         catch (Exception e)
