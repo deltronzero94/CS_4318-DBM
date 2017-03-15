@@ -83,6 +83,8 @@ public class main {
         ArrayList<String> toughness = new ArrayList<String>();  //Toughness of the card (Only on creatures)
         ArrayList<Integer> loyalty = new ArrayList<Integer>();  //Loyalty of the card (Only on planeswalkers)
         ArrayList<String> cardSet = new ArrayList<String>();    //Name of set that card came from.
+        ArrayList<ArrayList<String>> banDate = new ArrayList<ArrayList<String>>();
+        ArrayList<ArrayList<String>> banCard = new ArrayList<ArrayList<String>>();
 
         //Type Information
         ArrayList<String> typeName = new ArrayList<String>();   //Holds Name of the type
@@ -91,6 +93,11 @@ public class main {
         //Ruling Information
         ArrayList<ArrayList<String>> rulings = new ArrayList<ArrayList<String>>();
         ArrayList<ArrayList<String>> rulingsDate = new ArrayList<ArrayList<String>>();
+
+        //Legality Information (Card)
+        ArrayList<ArrayList<String>> legality = new ArrayList<ArrayList<String>>(); //Card Legality in Format
+        ArrayList<ArrayList<String>> format = new ArrayList<ArrayList<String>>();   //Card Format (Legality)
+        ArrayList<String> listFormat = new ArrayList<String>(); //Names of Formats
 
         //Reading from JSON
         try
@@ -184,6 +191,29 @@ public class main {
                             rulingsDate.add(null);
                         }
 
+                        //********************************************************* */
+                        //Checks if Card has Legality
+                        //********************************************************* */
+                        if (c.getAsJsonObject().get("legalities") != null)
+                        {
+                            JsonArray a = c.getAsJsonObject().get("legalities").getAsJsonArray();   //JsonArray of card rulings
+                            int size = a.size();    //Size of card rulings
+                            ArrayList<String> f = new ArrayList<String>();  //Stores Ruling text
+                            ArrayList<String> l = new ArrayList<String>();  //Stores Date of Ruling
+
+                            for (int counter = 0; counter < size; counter++)
+                            {
+                                f.add(a.get(counter).getAsJsonObject().get("format").getAsString());
+                                l.add(a.get(counter).getAsJsonObject().get("legality").getAsString());
+                            }
+                            legality.add(l);
+                            format.add(f);
+                        }
+                        else if (c.getAsJsonObject().get("legalities") == null)
+                        {
+                            legality.add(null);
+                            format.add(null);
+                        }
 
                         //****************************************************** */
                         // Checks if manaCost is not null then adds to manCost ArrayList 
@@ -293,7 +323,6 @@ public class main {
                                 {
                                     typeName.add(a.get(counter).getAsString());
                                     typeT.add("Supertypes");
-                                    //System.out.println(a.get(counter).getAsString());
                                 }
                             }
                             supertypes.add(l);
@@ -322,7 +351,6 @@ public class main {
                                 {
                                     typeName.add(a.get(counter).getAsString());
                                     typeT.add("Types");
-                                    //System.out.println(a.get(counter).getAsString());
                                 }
                             }
                             types.add(l);
@@ -353,7 +381,6 @@ public class main {
                                 {
                                     typeName.add(a.get(counter).getAsString());
                                     typeT.add("Subtypes");
-                                    //System.out.println(a.get(counter).getAsString());
                                 }
                                 
                             }
@@ -431,20 +458,39 @@ public class main {
                             loyalty.add(null);
                         }
                         
-                    }
+                    }   
                     else    //Prints set name that include cards with no multiverseid
                     {
                         //System.out.println(set.get("name"));
                         break;
-                    }
+                    }  
 
                 }
-            } 
+            }
+
+
+            //************************************************* */
+            //Stores the name of every format
+            //************************************************* */
+            for (int k = 0; k < legality.size(); k++)
+            {
+                if (format.get(k)!= null)
+                {
+                    for(int y = 0; y < format.get(k).size(); y++)
+                    {
+                        if (listFormat.contains(format.get(k).get(y)) == false)
+                        {
+                            listFormat.add(format.get(k).get(y));
+                        }
+                    }
+                }
+            }
+
         }
         catch (Exception e)
         {
             System.out.println("Error with JSON!");
-        }
+        }  
 
 
         //******************************************************************* */
@@ -491,7 +537,7 @@ public class main {
             // {
             //     preparedStatement = connect.prepareStatement("insert into mtg_testing.Card values (default, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
 
-            //     System.out.println(cardName.get(x) + ":" + x);
+            //     //System.out.println(cardName.get(x) + ":" + x);   //For Testing
             //     preparedStatement.setString(1,cardName.get(x));
             //     preparedStatement.setInt(2,cardID.get(x));
             //     preparedStatement.setString(3,layout.get(x));
@@ -551,84 +597,185 @@ public class main {
             //     }               
             // }
 
-            //Storing Information into Card_Type Table
-            for (int x = 0; x < types.size(); x++)
+            // //Storing Information into Card_Type Table
+            // for (int x = 0; x < types.size(); x++)
+            // {
+            //     //System.out.println("Testing: " + x);   //For Testing
+            //     //If there exists supertypes in card
+            //     if (supertypes.get(x) != null)
+            //     {
+            //         for (int counter = 0; counter < supertypes.get(x).size(); counter ++)
+            //         {
+            //             //Searches for TypeID
+            //             int id = 0;
+            //             preparedStatement = connect.prepareStatement("select * from mtg_testing.Type where Types=?");
+            //             preparedStatement.setString(1,supertypes.get(x).get(counter));
+            //             //System.out.println(supertypes.get(x).get(counter));    //For Testing
+                    
+            //             resultSet = preparedStatement.executeQuery();   //Get TypeID of supertypes
+            //             while (resultSet.next())
+            //             {
+            //                 id = resultSet.getInt("TypeID");
+            //             }
+
+            //             preparedStatement = connect.prepareStatement("insert into mtg_testing.Card_Type values (?, ?)");
+            //             preparedStatement.setInt(1, x+1);   //Card ID
+            //             preparedStatement.setInt(2, id);    //TypeID
+            //             preparedStatement.executeUpdate();
+            //         }
+            //     }
+
+            //     //If there exist types in card
+            //     if (types.get(x) != null)
+            //     {
+            //         for (int counter = 0; counter < types.get(x).size(); counter ++)
+            //         {
+            //             //Searches for TypeID
+            //             int id = 0;
+            //             preparedStatement = connect.prepareStatement("select * from mtg_testing.Type where Types=?");
+            //             preparedStatement.setString(1,types.get(x).get(counter));
+            //             //System.out.println(types.get(x).get(counter)); //FOR TESTING
+                    
+            //             resultSet = preparedStatement.executeQuery();   //Get TypeID of supertypes
+            //             while (resultSet.next())
+            //             {
+            //                 id = resultSet.getInt("TypeID");
+            //             }
+
+            //             preparedStatement = connect.prepareStatement("insert into mtg_testing.Card_Type values (?, ?)");
+            //             preparedStatement.setInt(1, x+1);   //Card ID
+            //             preparedStatement.setInt(2, id);    //TypeID
+            //             preparedStatement.executeUpdate();
+            //         }
+            //     }
+
+            //     //If there exists subtypes in card
+            //     if (subtypes.get(x) != null)
+            //     {
+            //         for (int counter = 0; counter < subtypes.get(x).size(); counter ++)
+            //         {
+            //             //Searches for TypeID
+            //             int id = 0;
+            //             preparedStatement = connect.prepareStatement("select * from mtg_testing.Type where Types=?");
+            //             preparedStatement.setString(1,subtypes.get(x).get(counter));
+            //             //System.out.println(subtypes.get(x).get(counter));  //FOR TESTING
+                    
+            //             resultSet = preparedStatement.executeQuery();   //Get TypeID of supertypes
+            //             while (resultSet.next())
+            //             {
+            //                 id = resultSet.getInt("TypeID");
+            //             }
+
+            //             preparedStatement = connect.prepareStatement("insert into mtg_testing.Card_Type values (?, ?)");
+            //             preparedStatement.setInt(1, x+1);   //Card ID
+            //             preparedStatement.setInt(2, id);    //TypeID
+            //             preparedStatement.executeUpdate();
+            //         }
+            //     }
+            // }
+
+            // //Storing Information into Card_Color Table
+            // for (int x = 0; x < colors.size(); x++)
+            // {
+            //     //System.out.println("Testing: " + x);   //FOR TESTING
+                
+            //     //If there exists colors in card
+            //     if (colors.get(x) != null)
+            //     {
+            //         for(int counter = 0; counter < colors.get(x).size(); counter++)
+            //         {
+            //             //Searches for ColorID
+            //             int id = 0;
+            //             //System.out.println(colors.get(x).get(counter));    //FOR TESTING
+            //             preparedStatement = connect.prepareStatement("select * from mtg_testing.Color where ColorName=?");
+            //             preparedStatement.setString(1,colors.get(x).get(counter));
+                    
+            //             resultSet = preparedStatement.executeQuery();   //Get TypeID of supertypes
+            //             while (resultSet.next())
+            //             {
+            //                 id = resultSet.getInt("ColorID");
+            //             }
+
+            //             preparedStatement = connect.prepareStatement("insert into mtg_testing.Card_Color values (?, ?)");
+            //             preparedStatement.setInt(1, x+1);   //Card ID
+            //             preparedStatement.setInt(2, id);    //TypeID
+            //             preparedStatement.executeUpdate();
+            //         }
+            //     }
+            // } 
+
+            // //Storing Information into Card_ColorIdentity Table
+            // for (int x = 0; x < colorIdentity.size(); x++)
+            // {   
+            //     //If there exists colors in card
+            //     if (colorIdentity.get(x) != null)
+            //     {
+            //         for(int counter = 0; counter < colorIdentity.get(x).size(); counter++)
+            //         {
+            //             //Searches for ColorID
+            //             int id = 0;
+            //             //System.out.println(colorIdentity.get(x).get(counter));    //FOR TESTING
+            //             preparedStatement = connect.prepareStatement("select * from mtg_testing.ColorIdentity where ColorSymbol=?");
+            //             preparedStatement.setString(1,colorIdentity.get(x).get(counter));
+                    
+            //             resultSet = preparedStatement.executeQuery();   //Get TypeID of colorIdentity
+            //             while (resultSet.next())
+            //             {
+            //                 id = resultSet.getInt("ColorID");
+            //             }
+
+            //             preparedStatement = connect.prepareStatement("insert into mtg_testing.Card_ColorIdentity values (?, ?)");
+            //             preparedStatement.setInt(1, x+1);   //Card ID
+            //             preparedStatement.setInt(2, id);    //TypeID
+            //             preparedStatement.executeUpdate();
+            //         }
+            //     }
+            // }    
+
+            // //Storing Information into Split_Flip_Card Table
+            // for (int x = 0; x < names.size(); x++)
+            // {
+            //     //If there exists cards associate with card(x)
+            //     if (names.get(x) != null)
+            //     {
+            //         for(int counter = 0; counter < names.get(x).size(); counter++)
+            //         {
+            //             preparedStatement = connect.prepareStatement("insert into mtg_testing.Split_Flip_Card values (default, ?, ?)");
+            //             preparedStatement.setInt(1, x+1);   //Card ID
+            //             preparedStatement.setString(2, names.get(x).get(counter));    //TypeID
+            //             preparedStatement.executeUpdate();
+            //         }
+            //     }
+            // } 
+
+            // //Storing Information into Format Table
+            // for (int x = 0; x < listFormat.size(); x++)
+            // {
+            //     preparedStatement = connect.prepareStatement("insert into mtg_testing.Format values (?)");
+            //     preparedStatement.setString(1, listFormat.get(x));
+            //     preparedStatement.executeUpdate();   
+            // }
+
+            //Storing Information into Format_Card Table
+            for (int x =0; x < legality.size(); x++)
             {
-                System.out.println("Testing: " + x);
-                //If there exists supertypes in card
-                if (supertypes.get(x) != null)
-                {
-                    for (int counter = 0; counter < supertypes.get(x).size(); counter ++)
-                    {
-                        //Searches for TypeID
-                        int id = 0;
-                        preparedStatement = connect.prepareStatement("select * from mtg_testing.Type where Types=?");
-                        preparedStatement.setString(1,supertypes.get(x).get(counter));
-                        System.out.println(supertypes.get(x).get(counter));
-                    
-                        resultSet = preparedStatement.executeQuery();   //Get TypeID of supertypes
-                        while (resultSet.next())
-                        {
-                            id = resultSet.getInt("TypeID");
-                        }
 
-                        preparedStatement = connect.prepareStatement("insert into mtg_testing.Card_Type values (?, ?)");
-                        preparedStatement.setInt(1, x+1);   //Card ID
-                        preparedStatement.setInt(2, id);    //TypeID
+                //If there exists legality for card(x)
+                if (legality.get(x) != null)
+                {
+                    for (int counter = 0; counter < legality.get(x).size(); counter++)
+                    {
+                        preparedStatement = connect.prepareStatement("insert into mtg_testing.Format_Card values (?, ?, ?)");
+                        preparedStatement.setInt(1, x+1);   //CardID
+                        preparedStatement.setString(2, format.get(x).get(counter));    //Format Name
+                        preparedStatement.setString(3, legality.get(x).get(counter));    //Legality of Card
+
+                        //System.out.println("Card: " + x + " | Format: " + format.get(x).get(counter) +  " | Legality: " + legality.get(x).get(counter));  //For Testing
                         preparedStatement.executeUpdate();
                     }
                 }
-
-                //If there exist types in card
-                if (types.get(x) != null)
-                {
-                    for (int counter = 0; counter < types.get(x).size(); counter ++)
-                    {
-                        //Searches for TypeID
-                        int id = 0;
-                        preparedStatement = connect.prepareStatement("select * from mtg_testing.Type where Types=?");
-                        preparedStatement.setString(1,types.get(x).get(counter));
-                        System.out.println(types.get(x).get(counter));
-                    
-                        resultSet = preparedStatement.executeQuery();   //Get TypeID of supertypes
-                        while (resultSet.next())
-                        {
-                            id = resultSet.getInt("TypeID");
-                        }
-
-                        preparedStatement = connect.prepareStatement("insert into mtg_testing.Card_Type values (?, ?)");
-                        preparedStatement.setInt(1, x+1);   //Card ID
-                        preparedStatement.setInt(2, id);    //TypeID
-                        preparedStatement.executeUpdate();
-                    }
-                }
-
-                //If there exists subtypes in card
-                if (subtypes.get(x) != null)
-                {
-                    for (int counter = 0; counter < subtypes.get(x).size(); counter ++)
-                    {
-                        //Searches for TypeID
-                        int id = 0;
-                        preparedStatement = connect.prepareStatement("select * from mtg_testing.Type where Types=?");
-                        preparedStatement.setString(1,subtypes.get(x).get(counter));
-                        System.out.println(subtypes.get(x).get(counter));
-                    
-                        resultSet = preparedStatement.executeQuery();   //Get TypeID of supertypes
-                        while (resultSet.next())
-                        {
-                            id = resultSet.getInt("TypeID");
-                        }
-
-                        preparedStatement = connect.prepareStatement("insert into mtg_testing.Card_Type values (?, ?)");
-                        preparedStatement.setInt(1, x+1);   //Card ID
-                        preparedStatement.setInt(2, id);    //TypeID
-                        preparedStatement.executeUpdate();
-                    }
-
-                }
-
             }
+
         }
         catch (Exception e)
         {
