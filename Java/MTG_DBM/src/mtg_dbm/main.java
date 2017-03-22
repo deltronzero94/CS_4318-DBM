@@ -18,7 +18,8 @@ public class main
     {
         System.out.println("Hello World\n");
         
-        LoginMenu gui = new LoginMenu();
+        UserGUI gui = new UserGUI();
+        //LoginMenu gui = new LoginMenu();
         gui.setVisible(true);
     }
 
