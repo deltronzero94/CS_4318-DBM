@@ -198,6 +198,11 @@ public class UserGUI extends javax.swing.JFrame {
         });
 
         txtSubtype.setText("Subtype");
+        txtSubtype.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                txtSubtypeMouseClicked(evt);
+            }
+        });
 
         comboSearchType.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "All types", "Any type(s)", "NOT any selected type(s)" }));
 
@@ -240,13 +245,13 @@ public class UserGUI extends javax.swing.JFrame {
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(cbSearchColorIdentityGreen))
                             .addGroup(jPanel1Layout.createSequentialGroup()
-                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addGroup(jPanel1Layout.createSequentialGroup()
                                         .addComponent(txtType, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
                                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                         .addComponent(txtSubtype, javax.swing.GroupLayout.PREFERRED_SIZE, 220, javax.swing.GroupLayout.PREFERRED_SIZE)
                                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(comboSearchType, javax.swing.GroupLayout.PREFERRED_SIZE, 143, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                        .addComponent(comboSearchType, 0, 143, Short.MAX_VALUE))
                                     .addGroup(jPanel1Layout.createSequentialGroup()
                                         .addComponent(txtCardName, javax.swing.GroupLayout.PREFERRED_SIZE, 426, javax.swing.GroupLayout.PREFERRED_SIZE)
                                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -267,7 +272,8 @@ public class UserGUI extends javax.swing.JFrame {
                                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                                             .addComponent(btnResetFormat)
-                                            .addComponent(btnResetSet))))))))
+                                            .addComponent(btnResetSet))))
+                                .addGap(326, 326, 326)))))
                 .addGap(55, 55, 55))
         );
         jPanel1Layout.setVerticalGroup(
@@ -529,6 +535,14 @@ public class UserGUI extends javax.swing.JFrame {
         if (s.equals("(Super)Type"))
             temp.setText("");
     }//GEN-LAST:event_txtTypeMouseClicked
+
+    private void txtSubtypeMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_txtSubtypeMouseClicked
+        JTextField temp = (JTextField)evt.getSource();
+        String s = temp.getText();
+        
+        if (s.equals("Subtype"))
+            temp.setText("");
+    }//GEN-LAST:event_txtSubtypeMouseClicked
 
     /**
      * resizeColumnWidth(JTable table) function
