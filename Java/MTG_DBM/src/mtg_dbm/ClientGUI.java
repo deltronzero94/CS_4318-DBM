@@ -48,7 +48,6 @@ public class ClientGUI extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Client GUI");
-        setResizable(false);
 
         searchJBtn.setText("Search");
         searchJBtn.addActionListener(new java.awt.event.ActionListener() {
@@ -61,20 +60,20 @@ public class ClientGUI extends javax.swing.JFrame {
 
         cardListJTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null},
-                {null, null},
-                {null, null},
-                {null, null}
+                {null, null, null},
+                {null, null, null},
+                {null, null, null},
+                {null, null, null}
             },
             new String [] {
-                "Card Name", "Card ID"
+                "Card Name", "Set Name", "Card ID"
             }
         ) {
             Class[] types = new Class [] {
-                java.lang.String.class, java.lang.Integer.class
+                java.lang.String.class, java.lang.String.class, java.lang.Integer.class
             };
             boolean[] canEdit = new boolean [] {
-                false, false
+                false, false, false
             };
 
             public Class getColumnClass(int columnIndex) {
@@ -92,44 +91,40 @@ public class ClientGUI extends javax.swing.JFrame {
         });
         jScrollPane2.setViewportView(cardListJTable);
 
-        lblPictureTest.setText("Picture");
-
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(0, 0, Short.MAX_VALUE)
-                        .addComponent(jLabel1)
-                        .addGap(18, 18, 18)
-                        .addComponent(cardNameJTxtField, javax.swing.GroupLayout.PREFERRED_SIZE, 226, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(202, 202, 202))
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 648, Short.MAX_VALUE)
-                        .addGap(37, 37, 37)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(searchJBtn)
-                            .addComponent(lblPictureTest, javax.swing.GroupLayout.PREFERRED_SIZE, 223, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(40, 40, 40))))
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 978, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 37, Short.MAX_VALUE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(searchJBtn)
+                    .addComponent(lblPictureTest, javax.swing.GroupLayout.PREFERRED_SIZE, 223, javax.swing.GroupLayout.PREFERRED_SIZE)))
+            .addGroup(layout.createSequentialGroup()
+                .addGap(30, 30, 30)
+                .addComponent(jLabel1)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(cardNameJTxtField, javax.swing.GroupLayout.PREFERRED_SIZE, 338, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(162, 162, 162)
+                .addGap(44, 44, 44)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(cardNameJTxtField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel1))
-                .addGap(41, 41, 41)
+                    .addComponent(jLabel1)
+                    .addComponent(cardNameJTxtField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(141, 141, 141)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(searchJBtn)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(lblPictureTest, javax.swing.GroupLayout.PREFERRED_SIZE, 310, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addComponent(lblPictureTest, javax.swing.GroupLayout.PREFERRED_SIZE, 310, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(0, 231, Short.MAX_VALUE))
+                    .addComponent(jScrollPane2))
+                .addContainerGap())
         );
 
         pack();
@@ -153,14 +148,14 @@ public class ClientGUI extends javax.swing.JFrame {
         
         try 
         {
-            connect = DriverManager.getConnection("jdbc:mysql://localhost/mtg_testing?" 
+            connect = DriverManager.getConnection("jdbc:mysql://localhost/mtg_dbm?" 
                                                 + "user=root&password=q1w2e3r4");
             statement = connect.createStatement();
             
             if (searchCard.equals("")) //Blank search pulls all cards in database
             {
                 // Result set get the result of the SQL query
-                resultSet = statement.executeQuery("select * from mtg_testing.Card");
+                resultSet = statement.executeQuery("select * from mtg_dbm.Card");
 
                  //Instanced Variables
                 DefaultTableModel tbl = (DefaultTableModel)cardListJTable.getModel();
@@ -180,7 +175,7 @@ public class ClientGUI extends javax.swing.JFrame {
             }
             else if (searchCard.isEmpty() == false) //If User inputs anything in the search
             {
-                preparedStatement = connect.prepareStatement("select * from mtg_testing.Card where CardName like ?");
+                preparedStatement = connect.prepareStatement("select * from mtg_dbm.Card where CardName like ?");
                 preparedStatement.setString(1, "%" + searchCard + "%");
                 resultSet = preparedStatement.executeQuery();
                 
@@ -241,7 +236,7 @@ public class ClientGUI extends javax.swing.JFrame {
         }
         catch(Exception e)
         {
-            
+            System.out.println("Error with pulling image...");
         }
     }//GEN-LAST:event_cardListJTableMouseClicked
 

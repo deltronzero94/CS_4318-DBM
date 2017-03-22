@@ -167,7 +167,7 @@ public class LoginMenu extends javax.swing.JFrame {
         if (userNameJField.getText().toLowerCase().equals("test") && pass.equals("test"))
         {
             this.dispose();
-            ClientGUI gui = new ClientGUI();
+            UserGUI gui = new UserGUI();
             gui.setVisible(true);
         }
     }//GEN-LAST:event_loginBtnActionPerformed
