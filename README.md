@@ -17,7 +17,7 @@ Your report should include:
 
 2. Relational Model
 
-  Using the method for translating an E/R diagram to relations, produce a set of relations for your database design. As usual, please be      sure to underline key attributes in your relations.
+  Using the method for translating an E/R diagram to relations, produce a set of relations for your database design. As usual, please be sure to underline key attributes in your relations.
 
 3. Complete Database Functions and User Interface
 
@@ -39,4 +39,4 @@ Your report should include:
 
   (a) List major tasks to a be completed
 
-  (b) For each task, indicate team member responsible for competing task and completion data.
+  (b) For each task, indicate team member responsible for completing task and completion data.

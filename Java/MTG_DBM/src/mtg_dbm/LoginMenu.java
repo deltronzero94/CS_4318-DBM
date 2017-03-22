@@ -153,7 +153,16 @@ public class LoginMenu extends javax.swing.JFrame {
     // of this one. 
     //********************************************************************
     private void loginBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_loginBtnActionPerformed
-        // TODO add your handling code here:
+        
+        char [] temp = passWordJField.getPassword();
+        String pass = new String(temp);
+        
+        if (userNameJField.getText().toLowerCase().equals("test") && pass.equals("test"))
+        {
+            this.dispose();
+            UserGUI gui = new UserGUI();
+            gui.setVisible(true);
+        }
     }//GEN-LAST:event_loginBtnActionPerformed
 
     //********************************************************************
