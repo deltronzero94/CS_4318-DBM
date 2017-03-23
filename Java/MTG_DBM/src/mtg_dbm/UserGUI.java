@@ -80,11 +80,19 @@ public class UserGUI extends javax.swing.JFrame {
         txtSubtype = new javax.swing.JTextField();
         comboSearchType = new javax.swing.JComboBox<>();
         btnResetAll = new javax.swing.JButton();
+        comboSearchColor = new javax.swing.JComboBox<>();
+        comboSearchColorIdentity = new javax.swing.JComboBox<>();
+        jLabel6 = new javax.swing.JLabel();
+        cbSearchCommon = new javax.swing.JCheckBox();
+        cbSearchUncommon = new javax.swing.JCheckBox();
+        cbSearchRare = new javax.swing.JCheckBox();
+        cbSearchMythicRare = new javax.swing.JCheckBox();
         jPanel2 = new javax.swing.JPanel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
         txtCardName.setText("Name");
+        txtCardName.setToolTipText("Name");
         txtCardName.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 txtCardNameMouseClicked(evt);
@@ -191,6 +199,7 @@ public class UserGUI extends javax.swing.JFrame {
         cbSearchColorIdentityGreen.setText("Green");
 
         txtType.setText("(Super)Type");
+        txtType.setToolTipText("(Super)Type");
         txtType.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 txtTypeMouseClicked(evt);
@@ -198,6 +207,7 @@ public class UserGUI extends javax.swing.JFrame {
         });
 
         txtSubtype.setText("Subtype");
+        txtSubtype.setToolTipText("Subtype");
         txtSubtype.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 txtSubtypeMouseClicked(evt);
@@ -206,7 +216,27 @@ public class UserGUI extends javax.swing.JFrame {
 
         comboSearchType.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "All types", "Any type(s)", "NOT any selected type(s)" }));
 
-        btnResetAll.setText("Reset");
+        btnResetAll.setText("Reset All");
+        btnResetAll.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnResetAllActionPerformed(evt);
+            }
+        });
+
+        comboSearchColor.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Match Any Color(s)", "Match Colors Exactly", "Exclude Unselected Colors", "Match Multicolored Cards Only" }));
+
+        comboSearchColorIdentity.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "May include any color(s)", "Exact (all selected and no others)" }));
+
+        jLabel6.setFont(new java.awt.Font("Ubuntu", 1, 14)); // NOI18N
+        jLabel6.setText("Rarity:");
+
+        cbSearchCommon.setText("Common");
+
+        cbSearchUncommon.setText("Uncommon");
+
+        cbSearchRare.setText("Rare");
+
+        cbSearchMythicRare.setText("Mythic Rare");
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -219,61 +249,78 @@ public class UserGUI extends javax.swing.JFrame {
                         .addContainerGap()
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(jPanel1Layout.createSequentialGroup()
-                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addGroup(jPanel1Layout.createSequentialGroup()
-                                        .addComponent(cbSearchColorWhite)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(cbSearchColorBlue)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(cbSearchColorBlack)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(cbSearchColorRed)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(cbSearchColorGreen))
-                                    .addComponent(jLabel2))
-                                .addGap(617, 617, 617)
-                                .addComponent(lblPicture, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                            .addComponent(jLabel1)
-                            .addGroup(jPanel1Layout.createSequentialGroup()
-                                .addComponent(cbSearchColorIdentityWhite)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(cbSearchColorIdentityBlue)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(cbSearchColorIdentityBlack)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(cbSearchColorIdentityRed)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(cbSearchColorIdentityGreen))
+                                .addComponent(jLabel1)
+                                .addGap(0, 0, Short.MAX_VALUE))
                             .addGroup(jPanel1Layout.createSequentialGroup()
                                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                        .addGroup(jPanel1Layout.createSequentialGroup()
+                                            .addComponent(cbSearchColorWhite)
+                                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                            .addComponent(cbSearchColorBlue)
+                                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                            .addComponent(cbSearchColorBlack)
+                                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                            .addComponent(cbSearchColorRed)
+                                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                            .addComponent(cbSearchColorGreen)
+                                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                            .addComponent(comboSearchColor, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                                        .addGroup(jPanel1Layout.createSequentialGroup()
+                                            .addComponent(cbSearchColorIdentityWhite)
+                                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                            .addComponent(cbSearchColorIdentityBlue)
+                                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                            .addComponent(cbSearchColorIdentityBlack)
+                                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                            .addComponent(cbSearchColorIdentityRed)
+                                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                            .addComponent(cbSearchColorIdentityGreen)
+                                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                            .addComponent(comboSearchColorIdentity, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                                        .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel1Layout.createSequentialGroup()
+                                            .addComponent(txtType, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                            .addComponent(txtSubtype, javax.swing.GroupLayout.PREFERRED_SIZE, 220, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                            .addComponent(comboSearchType, 0, 1, Short.MAX_VALUE))
+                                        .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel1Layout.createSequentialGroup()
+                                            .addComponent(txtCardName, javax.swing.GroupLayout.PREFERRED_SIZE, 426, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                            .addComponent(btnSearch)
+                                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                            .addComponent(btnResetAll, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                                     .addGroup(jPanel1Layout.createSequentialGroup()
-                                        .addComponent(txtType, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(txtSubtype, javax.swing.GroupLayout.PREFERRED_SIZE, 220, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(comboSearchType, 0, 143, Short.MAX_VALUE))
-                                    .addGroup(jPanel1Layout.createSequentialGroup()
-                                        .addComponent(txtCardName, javax.swing.GroupLayout.PREFERRED_SIZE, 426, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(btnSearch)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(btnResetAll, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                                        .addComponent(jLabel2)
+                                        .addGap(504, 504, 504)))
                                 .addGap(35, 35, 35)
                                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(jLabel5)
-                                    .addComponent(jLabel4))
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 79, javax.swing.GroupLayout.PREFERRED_SIZE)
                                     .addGroup(jPanel1Layout.createSequentialGroup()
-                                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                            .addComponent(comboSearchFormat, 0, 207, Short.MAX_VALUE)
-                                            .addComponent(comboSearchSet, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                            .addComponent(jLabel4)
+                                            .addComponent(jLabel5))
                                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                            .addComponent(btnResetFormat)
-                                            .addComponent(btnResetSet))))
-                                .addGap(326, 326, 326)))))
+                                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                            .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 79, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                                    .addComponent(comboSearchFormat, 0, 207, Short.MAX_VALUE)
+                                                    .addComponent(comboSearchSet, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                                    .addComponent(btnResetFormat)
+                                                    .addComponent(btnResetSet))))
+                                        .addGap(326, 326, 326))
+                                    .addGroup(jPanel1Layout.createSequentialGroup()
+                                        .addComponent(jLabel6)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                            .addComponent(cbSearchCommon)
+                                            .addComponent(cbSearchUncommon)
+                                            .addComponent(cbSearchRare)
+                                            .addComponent(cbSearchMythicRare))
+                                        .addGap(151, 151, 151)
+                                        .addComponent(lblPicture, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))))))
                 .addGap(55, 55, 55))
         );
         jPanel1Layout.setVerticalGroup(
@@ -286,7 +333,7 @@ public class UserGUI extends javax.swing.JFrame {
                             .addComponent(txtCardName, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(btnSearch)
                             .addComponent(btnResetAll))
-                        .addGap(77, 77, 77)
+                        .addGap(96, 96, 96)
                         .addComponent(lblPicture, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addGap(271, 271, 271))
                     .addGroup(jPanel1Layout.createSequentialGroup()
@@ -309,7 +356,8 @@ public class UserGUI extends javax.swing.JFrame {
                                             .addComponent(cbSearchColorBlue)
                                             .addComponent(cbSearchColorBlack)
                                             .addComponent(cbSearchColorRed)
-                                            .addComponent(cbSearchColorGreen))
+                                            .addComponent(cbSearchColorGreen)
+                                            .addComponent(comboSearchColor, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                                         .addComponent(jLabel1)
                                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -318,22 +366,33 @@ public class UserGUI extends javax.swing.JFrame {
                                             .addComponent(cbSearchColorIdentityBlue)
                                             .addComponent(cbSearchColorIdentityBlack)
                                             .addComponent(cbSearchColorIdentityRed)
-                                            .addComponent(cbSearchColorIdentityGreen)))
+                                            .addComponent(cbSearchColorIdentityGreen)
+                                            .addComponent(comboSearchColorIdentity, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                                     .addGroup(jPanel1Layout.createSequentialGroup()
                                         .addGap(1, 1, 1)
-                                        .addComponent(btnResetFormat)
-                                        .addGap(0, 0, 0)
-                                        .addComponent(btnResetSet)))
-                                .addGap(50, 50, 50)
+                                        .addComponent(btnResetFormat)))
+                                .addGap(48, 48, 48)
                                 .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 415, javax.swing.GroupLayout.PREFERRED_SIZE))
                             .addGroup(jPanel1Layout.createSequentialGroup()
                                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                                     .addComponent(jLabel4)
                                     .addComponent(comboSearchFormat, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addGap(18, 18, 18)
                                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                                     .addComponent(jLabel5)
-                                    .addComponent(comboSearchSet, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                        .addGap(0, 47, Short.MAX_VALUE))))
+                                    .addComponent(comboSearchSet, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(btnResetSet))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                    .addComponent(jLabel6)
+                                    .addComponent(cbSearchCommon))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(cbSearchUncommon)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(cbSearchRare)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(cbSearchMythicRare)))
+                        .addGap(0, 43, Short.MAX_VALUE))))
         );
 
         jTabbedPane1.addTab("Search Card", jPanel1);
@@ -342,7 +401,7 @@ public class UserGUI extends javax.swing.JFrame {
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 1335, Short.MAX_VALUE)
+            .addGap(0, 1372, Short.MAX_VALUE)
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -493,15 +552,29 @@ public class UserGUI extends javax.swing.JFrame {
         }
         }
     }//GEN-LAST:event_tblCardResultMouseClicked
-
+    /**
+     * txtCardName Mouse Click Event
+     * -------------------------------------
+     * Clears any default text on txtCardName, txtType, and txtSubtype
+     */
     private void txtCardNameMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_txtCardNameMouseClicked
         JTextField temp = (JTextField)evt.getSource();
         String s = temp.getText();
         
         if (s.equals("Name"))
             temp.setText("");
+        if (txtType.getText().equals("(Super)Type"))
+            txtType.setText("");
+        if (txtSubtype.getText().equals("Subtype"))
+            txtSubtype.setText("");
     }//GEN-LAST:event_txtCardNameMouseClicked
-
+    
+    /**
+     * txtCardName Key Released
+     * -------------------------------------
+     * If user presses "Enter" key when cursor in the txtCardName JTextField
+     * then btnSearchAction() function is called
+     */
     private void txtCardNameKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtCardNameKeyReleased
 
         if (evt.getKeyCode()== 10)
@@ -527,22 +600,77 @@ public class UserGUI extends javax.swing.JFrame {
     private void btnResetSetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnResetSetActionPerformed
         comboSearchSet.setSelectedIndex(0);
     }//GEN-LAST:event_btnResetSetActionPerformed
-
+    
+    /**
+     * txtType Mouse Click Event
+     * -------------------------------------
+     * Clears any default text on txtCardName, txtType, and txtSubtype JTextFields
+     */
     private void txtTypeMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_txtTypeMouseClicked
         JTextField temp = (JTextField)evt.getSource();
         String s = temp.getText();
         
         if (s.equals("(Super)Type"))
             temp.setText("");
+        if (txtCardName.getText().equals("Name"))
+            txtCardName.setText("");
+        if (txtSubtype.getText().equals("Subtype"))
+            txtSubtype.setText("");
     }//GEN-LAST:event_txtTypeMouseClicked
 
+    /**
+     * txtSubtype Mouse Click Event
+     * -------------------------------------
+     * Clears any default text on txtCardName, txtType, and txtSubtype JTextField
+     */
     private void txtSubtypeMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_txtSubtypeMouseClicked
         JTextField temp = (JTextField)evt.getSource();
         String s = temp.getText();
         
         if (s.equals("Subtype"))
             temp.setText("");
+        if (txtCardName.getText().equals("Name"))
+            txtCardName.setText("");
+        if (txtType.getText().equals("(Super)Type"))
+            txtType.setText("");
     }//GEN-LAST:event_txtSubtypeMouseClicked
+
+    /**
+     * btnResetAll Event
+     * -------------------------------------
+     * Sets every component on search card to default settings
+     */
+    private void btnResetAllActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnResetAllActionPerformed
+        
+        //Reset Text Fields
+        txtCardName.setText("Name");
+        txtType.setText("(Super)Type");
+        txtSubtype.setText("Subtype");
+        
+        //Reset Buttons
+        cbSearchColorWhite.setSelected(false);
+        cbSearchColorBlue.setSelected(false);
+        cbSearchColorBlack.setSelected(false);
+        cbSearchColorRed.setSelected(false);
+        cbSearchColorGreen.setSelected(false);
+        cbSearchColorIdentityWhite.setSelected(false);
+        cbSearchColorIdentityBlue.setSelected(false);
+        cbSearchColorIdentityBlack.setSelected(false);
+        cbSearchColorIdentityRed.setSelected(false);
+        cbSearchColorIdentityGreen.setSelected(false);
+        cbSearchCommon.setSelected(false);
+        cbSearchUncommon.setSelected(false);
+        cbSearchRare.setSelected(false);
+        cbSearchMythicRare.setSelected(false);
+        
+        //Reset Combo Boxes
+        comboSearchType.setSelectedIndex(0);
+        comboSearchFormat.setSelectedIndex(0);
+        comboSearchSet.setSelectedIndex(0);
+        comboSearchColor.setSelectedIndex(0);
+        comboSearchColorIdentity.setSelectedIndex(0);
+        
+    }//GEN-LAST:event_btnResetAllActionPerformed
 
     /**
      * resizeColumnWidth(JTable table) function
@@ -699,6 +827,12 @@ public class UserGUI extends javax.swing.JFrame {
     private javax.swing.JCheckBox cbSearchColorIdentityWhite;
     private javax.swing.JCheckBox cbSearchColorRed;
     private javax.swing.JCheckBox cbSearchColorWhite;
+    private javax.swing.JCheckBox cbSearchCommon;
+    private javax.swing.JCheckBox cbSearchMythicRare;
+    private javax.swing.JCheckBox cbSearchRare;
+    private javax.swing.JCheckBox cbSearchUncommon;
+    private javax.swing.JComboBox<String> comboSearchColor;
+    private javax.swing.JComboBox<String> comboSearchColorIdentity;
     private javax.swing.JComboBox<String> comboSearchFormat;
     private javax.swing.JComboBox<String> comboSearchSet;
     private javax.swing.JComboBox<String> comboSearchType;
@@ -707,6 +841,7 @@ public class UserGUI extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
+    private javax.swing.JLabel jLabel6;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JScrollPane jScrollPane2;
