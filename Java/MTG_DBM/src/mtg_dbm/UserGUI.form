@@ -73,30 +73,82 @@
               <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" attributes="0">
                       <EmptySpace min="-2" max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="1" max="-2" attributes="0">
+                          <Component id="txtFlavorText" alignment="0" max="32767" attributes="0"/>
+                          <Component id="txtText" alignment="0" max="32767" attributes="0"/>
+                          <Component id="txtType" alignment="0" max="32767" attributes="0"/>
+                          <Component id="txtCardName" alignment="0" pref="293" max="32767" attributes="0"/>
+                          <Component id="txtArtist" max="32767" attributes="0"/>
+                      </Group>
+                      <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
-                          <Component id="jLabel2" alignment="0" min="-2" max="-2" attributes="0"/>
-                          <Component id="txtArtist" alignment="0" min="-2" pref="296" max="-2" attributes="0"/>
                           <Group type="102" alignment="0" attributes="0">
-                              <Component id="txtCardName" min="-2" pref="293" max="-2" attributes="0"/>
-                              <EmptySpace max="-2" attributes="0"/>
                               <Component id="btnSearch" min="-2" max="-2" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
                               <Component id="btnResetAll" min="-2" max="-2" attributes="0"/>
                           </Group>
+                          <Component id="comboSearchType" alignment="0" min="-2" pref="117" max="-2" attributes="0"/>
+                          <Component id="comboSearchText" min="-2" pref="117" max="-2" attributes="0"/>
+                          <Component id="comboSearchFlavorText" alignment="0" min="-2" pref="117" max="-2" attributes="0"/>
+                      </Group>
+                      <EmptySpace pref="369" max="32767" attributes="0"/>
+                      <Group type="103" groupAlignment="0" attributes="0">
+                          <Component id="jLabel4" alignment="0" max="32767" attributes="0"/>
+                          <Component id="jLabel5" alignment="0" max="32767" attributes="0"/>
+                          <Component id="jLabel7" alignment="0" max="32767" attributes="0"/>
                           <Group type="102" alignment="0" attributes="0">
-                              <Group type="103" groupAlignment="0" max="-2" attributes="0">
-                                  <Component id="txtType" max="32767" attributes="0"/>
-                                  <Component id="txtText" alignment="1" max="32767" attributes="0"/>
-                                  <Component id="txtFlavorText" alignment="1" pref="296" max="32767" attributes="0"/>
-                              </Group>
-                              <EmptySpace max="-2" attributes="0"/>
-                              <Group type="103" groupAlignment="0" max="-2" attributes="0">
-                                  <Component id="comboSearchText" min="-2" pref="117" max="-2" attributes="0"/>
-                                  <Component id="comboSearchFlavorText" min="-2" pref="117" max="-2" attributes="0"/>
-                                  <Component id="comboSearchType" alignment="0" pref="0" max="32767" attributes="0"/>
-                              </Group>
+                              <Component id="jLabel6" min="-2" pref="60" max="-2" attributes="0"/>
+                              <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
                           </Group>
-                          <Component id="jLabel1" alignment="0" min="-2" max="-2" attributes="0"/>
+                      </Group>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="0" attributes="0">
+                          <Group type="102" attributes="0">
+                              <Group type="103" groupAlignment="0" attributes="0">
+                                  <Group type="102" attributes="0">
+                                      <EmptySpace max="32767" attributes="0"/>
+                                      <Group type="103" groupAlignment="0" max="-2" attributes="0">
+                                          <Component id="comboSearchFormat" max="32767" attributes="0"/>
+                                          <Component id="comboSearchSet" max="32767" attributes="0"/>
+                                          <Component id="comboSearchPrinting" alignment="0" pref="231" max="32767" attributes="0"/>
+                                      </Group>
+                                  </Group>
+                                  <Group type="102" alignment="0" attributes="0">
+                                      <Component id="jLabel3" min="-2" pref="128" max="-2" attributes="0"/>
+                                      <EmptySpace min="0" pref="123" max="32767" attributes="0"/>
+                                  </Group>
+                              </Group>
+                              <EmptySpace type="separate" max="-2" attributes="0"/>
+                              <Group type="103" groupAlignment="0" attributes="0">
+                                  <Component id="btnResetFormat" alignment="0" max="32767" attributes="0"/>
+                                  <Component id="btnResetSet" alignment="0" max="32767" attributes="0"/>
+                                  <Component id="btnResetPrinting" alignment="0" max="32767" attributes="0"/>
+                              </Group>
+                              <EmptySpace min="-2" pref="4" max="-2" attributes="0"/>
+                          </Group>
+                          <Group type="102" attributes="0">
+                              <Group type="103" groupAlignment="0" attributes="0">
+                                  <Component id="cbSearchUncommon" alignment="0" min="-2" max="-2" attributes="0"/>
+                                  <Component id="cbSearchCommon" alignment="0" min="-2" max="-2" attributes="0"/>
+                              </Group>
+                              <EmptySpace min="-2" pref="41" max="-2" attributes="0"/>
+                              <Group type="103" groupAlignment="0" attributes="0">
+                                  <Component id="cbSearchRare" min="-2" max="-2" attributes="0"/>
+                                  <Component id="cbSearchMythicRare" min="-2" max="-2" attributes="0"/>
+                              </Group>
+                              <EmptySpace max="32767" attributes="0"/>
+                          </Group>
+                      </Group>
+                  </Group>
+                  <Group type="102" alignment="0" attributes="0">
+                      <EmptySpace min="653" pref="653" max="-2" attributes="0"/>
+                      <Component id="lblPicture" pref="328" max="32767" attributes="0"/>
+                      <EmptySpace min="-2" pref="287" max="-2" attributes="0"/>
+                  </Group>
+                  <Group type="102" attributes="0">
+                      <EmptySpace min="12" pref="12" max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="0" attributes="0">
+                          <Component id="jScrollPane2" alignment="0" min="-2" pref="623" max="-2" attributes="0"/>
                           <Group type="103" alignment="0" groupAlignment="1" max="-2" attributes="0">
                               <Group type="102" alignment="0" attributes="0">
                                   <Component id="cbSearchColorIdentityWhite" min="-2" max="-2" attributes="0"/>
@@ -125,50 +177,10 @@
                                   <Component id="comboSearchColor" min="-2" max="-2" attributes="0"/>
                               </Group>
                           </Group>
-                          <Component id="jScrollPane2" alignment="0" min="-2" pref="623" max="-2" attributes="0"/>
+                          <Component id="jLabel1" alignment="0" min="-2" max="-2" attributes="0"/>
+                          <Component id="jLabel2" alignment="0" min="-2" max="-2" attributes="0"/>
                       </Group>
-                      <EmptySpace min="-2" pref="121" max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="0" attributes="0">
-                          <Component id="jLabel4" alignment="0" max="32767" attributes="0"/>
-                          <Component id="jLabel5" alignment="0" max="32767" attributes="0"/>
-                          <Component id="jLabel7" alignment="0" max="32767" attributes="0"/>
-                          <Component id="jLabel6" alignment="0" pref="98" max="32767" attributes="0"/>
-                      </Group>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="0" attributes="0">
-                          <Group type="102" attributes="0">
-                              <Group type="103" groupAlignment="0" attributes="0">
-                                  <Component id="comboSearchFormat" alignment="0" max="32767" attributes="0"/>
-                                  <Component id="comboSearchSet" alignment="0" max="32767" attributes="0"/>
-                                  <Component id="comboSearchPrinting" alignment="0" max="32767" attributes="0"/>
-                                  <Component id="jLabel3" alignment="0" max="32767" attributes="0"/>
-                              </Group>
-                              <EmptySpace min="-2" max="-2" attributes="0"/>
-                              <Group type="103" groupAlignment="0" max="-2" attributes="0">
-                                  <Component id="btnResetSet" pref="73" max="32767" attributes="0"/>
-                                  <Component id="btnResetPrinting" max="32767" attributes="0"/>
-                                  <Component id="btnResetFormat" max="32767" attributes="0"/>
-                              </Group>
-                              <EmptySpace min="-2" pref="4" max="-2" attributes="0"/>
-                          </Group>
-                          <Group type="102" attributes="0">
-                              <Group type="103" groupAlignment="0" attributes="0">
-                                  <Component id="cbSearchUncommon" alignment="0" min="-2" max="-2" attributes="0"/>
-                                  <Component id="cbSearchCommon" alignment="0" min="-2" max="-2" attributes="0"/>
-                              </Group>
-                              <EmptySpace min="-2" pref="41" max="-2" attributes="0"/>
-                              <Group type="103" groupAlignment="0" attributes="0">
-                                  <Component id="cbSearchRare" min="-2" max="-2" attributes="0"/>
-                                  <Component id="cbSearchMythicRare" min="-2" max="-2" attributes="0"/>
-                              </Group>
-                              <EmptySpace pref="120" max="32767" attributes="0"/>
-                          </Group>
-                      </Group>
-                  </Group>
-                  <Group type="102" alignment="0" attributes="0">
-                      <EmptySpace min="653" pref="653" max="-2" attributes="0"/>
-                      <Component id="lblPicture" max="32767" attributes="0"/>
-                      <EmptySpace min="-2" pref="287" max="-2" attributes="0"/>
+                      <EmptySpace max="32767" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
@@ -220,10 +232,12 @@
                           </Group>
                           <Group type="102" alignment="0" attributes="0">
                               <EmptySpace max="-2" attributes="0"/>
-                              <Component id="jLabel3" max="32767" attributes="0"/>
+                              <Component id="jLabel3" pref="24" max="32767" attributes="0"/>
                               <Group type="103" groupAlignment="0" attributes="0">
                                   <Group type="102" alignment="0" attributes="0">
-                                      <EmptySpace min="-2" pref="96" max="-2" attributes="0"/>
+                                      <EmptySpace min="-2" pref="51" max="-2" attributes="0"/>
+                                      <Component id="comboSearchSet" min="-2" max="-2" attributes="0"/>
+                                      <EmptySpace min="-2" pref="18" max="-2" attributes="0"/>
                                       <Group type="103" groupAlignment="3" attributes="0">
                                           <Component id="btnResetPrinting" alignment="3" min="-2" max="-2" attributes="0"/>
                                           <Component id="comboSearchPrinting" alignment="3" min="-2" pref="27" max="-2" attributes="0"/>
@@ -240,7 +254,6 @@
                                       <EmptySpace type="separate" max="-2" attributes="0"/>
                                       <Group type="103" groupAlignment="3" attributes="0">
                                           <Component id="jLabel5" alignment="3" min="-2" max="-2" attributes="0"/>
-                                          <Component id="comboSearchSet" alignment="3" min="-2" max="-2" attributes="0"/>
                                           <Component id="btnResetSet" alignment="3" min="-2" max="-2" attributes="0"/>
                                       </Group>
                                   </Group>
@@ -273,7 +286,7 @@
                       <Group type="103" groupAlignment="0" attributes="0">
                           <Component id="jScrollPane2" min="-2" pref="417" max="-2" attributes="0"/>
                           <Group type="102" alignment="0" attributes="0">
-                              <Component id="lblPicture" max="32767" attributes="0"/>
+                              <Component id="lblPicture" pref="192" max="32767" attributes="0"/>
                               <EmptySpace min="228" pref="228" max="-2" attributes="0"/>
                           </Group>
                       </Group>
@@ -682,7 +695,7 @@
           <Layout>
             <DimensionLayout dim="0">
               <Group type="103" groupAlignment="0" attributes="0">
-                  <EmptySpace min="0" pref="1239" max="32767" attributes="0"/>
+                  <EmptySpace min="0" pref="1268" max="32767" attributes="0"/>
               </Group>
             </DimensionLayout>
             <DimensionLayout dim="1">
