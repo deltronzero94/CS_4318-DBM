@@ -896,9 +896,6 @@
               <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
               <SubComponents>
                 <Component class="javax.swing.JTextPane" name="txtPanelInfo">
-                  <Properties>
-                    <Property name="text" type="java.lang.String" value="fdsfsdf&#xa;fsdfd&#xa;fsdf&#xa;sd&#xa;fsd&#xa;fsd&#xa;f&#xa;sd&#xa;sdf&#xa;dsffdssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss&#xa;sdfsdfffffffffffffffffffffffffffffffffddddddddddddddddddddddddddddddddddddddddddddddd&#xa;fsd&#xa;fsd&#xa;fsd&#xa;f&#xa;sdf&#xa;sd&#xa;fsddfffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff&#xa;fds&#xa;f&#xa;sdfsd&#xa;sd&#xa;f&#xa;&#xa;sfsdfsdfd"/>
-                  </Properties>
                 </Component>
               </SubComponents>
             </Container>

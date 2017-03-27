@@ -42,6 +42,9 @@ public class UserGUI extends javax.swing.JFrame {
         comboSearchPower.setModel(new DefaultComboBoxModel(populateComboListNumber().toArray()));
         comboSearchToughness.setModel(new DefaultComboBoxModel(populateComboListNumber().toArray()));
         comboSearchCMC.setModel(new DefaultComboBoxModel(populateComboListNumber().toArray()));
+        
+        txtPanelInfo.setEditable(false);
+        //txtPanelInfo.getCaret().setVisible(true);
     }
 
     /**
@@ -321,7 +324,6 @@ public class UserGUI extends javax.swing.JFrame {
 
         comboSearchCMC.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10" }));
 
-        txtPanelInfo.setText("fdsfsdf\nfsdfd\nfsdf\nsd\nfsd\nfsd\nf\nsd\nsdf\ndsffdssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss\nsdfsdfffffffffffffffffffffffffffffffffddddddddddddddddddddddddddddddddddddddddddddddd\nfsd\nfsd\nfsd\nf\nsdf\nsd\nfsddfffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff\nfds\nf\nsdfsd\nsd\nf\n\nsfsdfsdfd");
         jScrollPane1.setViewportView(txtPanelInfo);
 
         btnSearchDisplayRule.setText("Rules");
@@ -618,7 +620,7 @@ public class UserGUI extends javax.swing.JFrame {
                                                 + "user=root&password=q1w2e3r4");
             statement = connect.createStatement();
             
-            if (searchCard.equals("")) //Blank search pulls all cards in database
+            if (isSearchSettingsDefault() == true) //Blank or Default settings search pulls all cards in database
             {
                 // Result set get the result of the SQL query
                 resultSet = statement.executeQuery("select * from mtg_dbm.Card");
@@ -651,39 +653,44 @@ public class UserGUI extends javax.swing.JFrame {
                 resizeColumnWidth(tblCardResult);
                 
             }
-            else if (searchCard.isEmpty() == false) //If User inputs anything in the search
+            else //If Search Settings are not default
             {
-                preparedStatement = connect.prepareStatement("select * from mtg_dbm.Card where CardName like ?");
-                preparedStatement.setString(1, "%" + searchCard + "%");
-                resultSet = preparedStatement.executeQuery();
                 
-                 //Instanced Variables
-                DefaultTableModel tbl = (DefaultTableModel)tblCardResult.getModel();
-
-                tbl.setRowCount(0); //Set Table Row Count = 0
-
-
-                while (resultSet.next())
-                {
-                    int CardID = resultSet.getInt("ID");
-                    String CardName = resultSet.getString("CardName");
-                    String SetName = resultSet.getString("SetName");
-                    String Mana = resultSet.getString("ManaCost");
-                    float CMC = resultSet.getFloat("CMC");
-                    String Type = resultSet.getString("CardType");
-                    String Power = resultSet.getString("Power");
-                    String Toughness = resultSet.getString(("Toughness"));
-                    String Artist = resultSet.getString("Artist");
-                    int MultiverseID = resultSet.getInt("MultiverseID");
-                    Object [] arr = {CardID, CardName, SetName, Mana, CMC, Type,
-                                     Power, Toughness, Artist, MultiverseID};
-                    tbl.addRow(arr);
-                    //System.out.println(CardName +":" +ID +"\n");
-                }
-                
-                tblCardResult.setModel(tbl);
-                resizeColumnWidth(tblCardResult);
             }
+            
+//            else if (searchCard.isEmpty() == false) //If User inputs anything in the search
+//            {
+//                preparedStatement = connect.prepareStatement("select * from mtg_dbm.Card where CardName like ?");
+//                preparedStatement.setString(1, "%" + searchCard + "%");
+//                resultSet = preparedStatement.executeQuery();
+//                
+//                 //Instanced Variables
+//                DefaultTableModel tbl = (DefaultTableModel)tblCardResult.getModel();
+//
+//                tbl.setRowCount(0); //Set Table Row Count = 0
+//
+//
+//                while (resultSet.next())
+//                {
+//                    int CardID = resultSet.getInt("ID");
+//                    String CardName = resultSet.getString("CardName");
+//                    String SetName = resultSet.getString("SetName");
+//                    String Mana = resultSet.getString("ManaCost");
+//                    float CMC = resultSet.getFloat("CMC");
+//                    String Type = resultSet.getString("CardType");
+//                    String Power = resultSet.getString("Power");
+//                    String Toughness = resultSet.getString(("Toughness"));
+//                    String Artist = resultSet.getString("Artist");
+//                    int MultiverseID = resultSet.getInt("MultiverseID");
+//                    Object [] arr = {CardID, CardName, SetName, Mana, CMC, Type,
+//                                     Power, Toughness, Artist, MultiverseID};
+//                    tbl.addRow(arr);
+//                    //System.out.println(CardName +":" +ID +"\n");
+//                }
+//                
+//                tblCardResult.setModel(tbl);
+//                resizeColumnWidth(tblCardResult);
+//            }
             
             //TODO: Check if there is available connection
             
@@ -1039,6 +1046,11 @@ public class UserGUI extends javax.swing.JFrame {
         return l;
     }
     
+    /**
+     * populateComboListNumber() function
+     * -------------------------------------
+     * Returns ArrayList<String> of empty string and #'s 0-10
+     */
     public ArrayList<String> populateComboListNumber()
     {
         ArrayList<String> l = new ArrayList<String>();
@@ -1050,6 +1062,117 @@ public class UserGUI extends javax.swing.JFrame {
         }
         
         return l;
+    }
+    
+    /**
+     * isSearchSettingsDefault() function
+     * -------------------------------------
+     * Returns boolean true if all setting are default or if 
+     * txtFields are blank and the rest comboBoxes are default, 
+     * else return false
+     */
+    private boolean isSearchSettingsDefault()
+    {
+        boolean b = true;
+        
+        if(txtCardName.getText().equals("Name") || txtCardName.getText().equals(""))
+        {
+            if ((txtType.getText().equals("Type") || txtType.getText().equals(""))
+                    && comboSearchType.getSelectedIndex() == 0)
+            {
+                if((txtText.getText().equals("Text") || txtText.getText().equals(""))
+                        && comboSearchText.getSelectedIndex() == 0)
+                {
+                    if ((txtFlavorText.getText().equals("FlavorText") || txtFlavorText.getText().equals(""))
+                            && comboSearchFlavorText.getSelectedIndex() == 0)
+                    {
+                        if (txtArtist.getText().equals("Artist") || txtArtist.getText().equals(""))
+                        {
+                            if(cbSearchColorWhite.isSelected() == false 
+                                    && cbSearchColorBlue.isSelected() == false
+                                    && cbSearchColorBlack.isSelected() == false
+                                    && cbSearchColorRed.isSelected() == false
+                                    && cbSearchColorGreen.isSelected() == false
+                                    && comboSearchColor.getSelectedIndex() == 0)
+                            {
+                                if (cbSearchColorIdentityWhite.isSelected() == false
+                                        && cbSearchColorIdentityBlue.isSelected() == false
+                                        && cbSearchColorIdentityBlack.isSelected() == false
+                                        && cbSearchColorIdentityRed.isSelected() == false
+                                        && cbSearchColorIdentityGreen.isSelected() == false
+                                        && comboSearchColorIdentity.getSelectedIndex() == 0)
+                                {
+                                    if (comboSearchPowerSign.getSelectedIndex() == 0
+                                            && comboSearchToughnessSign.getSelectedIndex() == 0
+                                            && comboSearchCMCSign.getSelectedIndex() == 0
+                                            && comboSearchPower.getSelectedIndex() == 0
+                                            && comboSearchToughness.getSelectedIndex() == 0
+                                            && comboSearchCMC.getSelectedIndex() == 0)
+                                    {
+                                        if (comboSearchFormat.getSelectedIndex() == 0
+                                                && comboSearchSet.getSelectedIndex() == 0
+                                                && comboSearchPrinting.getSelectedIndex() == 0)
+                                        {
+                                            if (cbSearchCommon.isSelected() == false
+                                                    && cbSearchUncommon.isSelected() == false
+                                                    && cbSearchRare.isSelected() == false
+                                                    && cbSearchMythicRare.isSelected() == false)
+                                            {
+                                                b = true;
+                                            }
+                                            else //Rartiy are not default settings
+                                            {
+                                                b = false;
+                                            }
+                                        }
+                                        else //Format, Set, and Printing are not default settings
+                                        {
+                                            b = false;
+                                        }
+                                    }
+                                    else //Power, Toughness, and CMC settings are not default
+                                    {
+                                        b = false;
+                                    }
+                                }
+                                else //Color Identity settings are not default
+                                {
+                                    b = false;
+                                }
+                            } //Color settings are not default
+                            else
+                            {
+                                b = false;
+                            }
+                        }
+                        else //Artist settings are not default
+                        {
+                            b = false;
+                        }
+                    } //Flavor Text settings are not default
+                    else
+                    {
+                        b = false;
+                    }
+                    
+                } //Text settings are not default
+                else
+                {
+                    b = false;
+                }
+            }//Type settings are not default
+            else
+            {
+                b = false;
+            }
+        }//Name settings are not default
+        else
+        {
+            b = false;
+        }
+        
+        
+        return b;
     }
     
     
