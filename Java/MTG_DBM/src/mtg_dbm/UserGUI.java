@@ -14,6 +14,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Date;
 import javax.imageio.ImageIO;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.ImageIcon;
@@ -326,8 +327,18 @@ public class UserGUI extends javax.swing.JFrame {
         jScrollPane1.setViewportView(txtPanelInfo);
 
         btnSearchDisplayRule.setText("Rules");
+        btnSearchDisplayRule.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnSearchDisplayRuleActionPerformed(evt);
+            }
+        });
 
         btnSearchDisplayText.setText("Card Text");
+        btnSearchDisplayText.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnSearchDisplayTextActionPerformed(evt);
+            }
+        });
 
         btnSearchCardFlip.setText("Flip");
         btnSearchCardFlip.setEnabled(false);
@@ -620,13 +631,13 @@ public class UserGUI extends javax.swing.JFrame {
             {
                 // Result set get the result of the SQL query
                 resultSet = statement.executeQuery("SELECT s1.*\n" +
-                                                    "FROM Card s1\n" +
+                                                    "FROM mtg_dbm.Card s1\n" +
                                                     "JOIN (\n" +
                                                     "  SELECT  MAX(ID) AS ID, CardName\n" +
-                                                    "  FROM Card\n" +
+                                                    "  FROM mtg_dbm.Card\n" +
                                                     "  GROUP BY CardName) AS s2\n" +
                                                     "  ON s1.CardName = s2.CardName AND s1.ID = s2.ID\n" +
-                                                    "  LEFT JOIN MTGSet z ON s1.SetName = z.SetName");
+                                                    "  LEFT JOIN mtg_dbm.MTGSet z ON s1.SetName = z.SetName");
 
                  //Instanced Variables
                 DefaultTableModel tbl = (DefaultTableModel)tblCardResult.getModel();
@@ -989,6 +1000,113 @@ public class UserGUI extends javax.swing.JFrame {
         if(txtFlavorText.getText().equals("FlavorText"))
             txtFlavorText.setText("");
     }//GEN-LAST:event_txtArtistMouseClicked
+
+    /**
+     * btnSearchDisplayRule Action Performed
+     * -------------------------------------
+     * Displays the rules of the Card that is currently selected in the table
+     */
+    private void btnSearchDisplayRuleActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSearchDisplayRuleActionPerformed
+        Connection connect = null;
+        Statement statement = null;
+        PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
+        
+        if (tblCardResult.getSelectedRow() >= 0)
+        {
+            Object o = tblCardResult.getValueAt(tblCardResult.getSelectedRow(), 0);
+            int cID = (int)o;   //Holds Card ID
+            ArrayList<String> t = new ArrayList<String>();  //Holds Text Rulings of a Card
+            ArrayList<Date> y = new ArrayList<Date>();  //Holds Year of those rulings
+            String s = "";   //Used to concatenate both year and ruling
+            
+            try
+            {
+                connect = DriverManager.getConnection("jdbc:mysql://localhost/mtg_dbm?" 
+                                                + "user=root&password=q1w2e3r4");
+                statement = connect.createStatement();
+                
+                preparedStatement = connect.prepareStatement("SELECT TextRuling , RulingYear FROM Ruling WHERE CardID = ?");
+                preparedStatement.setInt(1,  cID);
+                resultSet = preparedStatement.executeQuery();
+                
+                
+                 while (resultSet.next())
+                {
+                    t.add(resultSet.getString("TextRuling"));
+                    y.add(resultSet.getDate("RulingYear"));
+                }
+                 
+                //Concatenates each element of the ArrayList (Date and Ruling) to String s
+                for (int x = 0; x < t.size(); x++)
+                {
+                   String temp;
+                   temp = y.get(x) + ":" + t.get(x) + "\n\n";
+                   s += temp;
+                }
+                 
+                 txtPanelInfo.setText(s); //Sets txtPanelInfo to String s
+                 
+            }
+            catch (Exception e)
+            {
+                e.printStackTrace();
+            }
+        }
+    }//GEN-LAST:event_btnSearchDisplayRuleActionPerformed
+    
+    /**
+     * btnSearchDisplayText Action Performed
+     * -------------------------------------
+     * Displays the Text & Flavor Text of the Card that is currently selected in the table
+     */
+    private void btnSearchDisplayTextActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSearchDisplayTextActionPerformed
+        Connection connect = null;
+        Statement statement = null;
+        PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
+        
+        if (tblCardResult.getSelectedRow() >= 0)
+        {
+            Object o = tblCardResult.getValueAt(tblCardResult.getSelectedRow(), 0);
+            int cID = (int)o;   //Holds Card ID
+            
+            try
+            {
+                connect = DriverManager.getConnection("jdbc:mysql://localhost/mtg_dbm?" 
+                                                + "user=root&password=q1w2e3r4");
+                statement = connect.createStatement();
+                
+                preparedStatement = connect.prepareStatement("SELECT CardText, FlavorText FROM Card WHERE ID = ?");
+                preparedStatement.setInt(1,  cID);
+                resultSet = preparedStatement.executeQuery();
+                
+                
+                 while (resultSet.next())
+                {
+                    String cText = resultSet.getString("CardText");
+                    String fText = resultSet.getString("FlavorText");
+                    
+                    if (cText == null)
+                    {
+                        txtPanelInfo.setText(fText);
+                    }
+                    else if (fText == null)
+                    {
+                        txtPanelInfo.setText(cText);
+                    }
+                    else
+                    {
+                        txtPanelInfo.setText(cText + "\n\n" + fText);
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                e.printStackTrace();
+            }
+        }
+    }//GEN-LAST:event_btnSearchDisplayTextActionPerformed
 
     /**
      * resizeColumnWidth(JTable table) function
