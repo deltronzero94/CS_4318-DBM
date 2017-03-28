@@ -113,7 +113,6 @@ public class UserGUI extends javax.swing.JFrame {
         txtPanelInfo = new javax.swing.JTextPane();
         btnSearchDisplayRule = new javax.swing.JButton();
         btnSearchDisplayText = new javax.swing.JButton();
-        btnSearchDisplayFlavor = new javax.swing.JButton();
         btnSearchCardFlip = new javax.swing.JButton();
         jPanel2 = new javax.swing.JPanel();
 
@@ -330,8 +329,6 @@ public class UserGUI extends javax.swing.JFrame {
 
         btnSearchDisplayText.setText("Card Text");
 
-        btnSearchDisplayFlavor.setText("Flavor Text");
-
         btnSearchCardFlip.setText("Flip");
         btnSearchCardFlip.setEnabled(false);
 
@@ -381,7 +378,7 @@ public class UserGUI extends javax.swing.JFrame {
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jLabel5, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jLabel7, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jLabel7, javax.swing.GroupLayout.DEFAULT_SIZE, 65, Short.MAX_VALUE)
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addComponent(jLabel6, javax.swing.GroupLayout.PREFERRED_SIZE, 60, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(0, 0, Short.MAX_VALUE)))
@@ -408,7 +405,7 @@ public class UserGUI extends javax.swing.JFrame {
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(cbSearchRare)
                             .addComponent(cbSearchMythicRare))
-                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
+                        .addContainerGap(33, Short.MAX_VALUE))))
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addGap(12, 12, 12)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -420,11 +417,11 @@ public class UserGUI extends javax.swing.JFrame {
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
                             .addGroup(jPanel1Layout.createSequentialGroup()
-                                .addComponent(btnSearchDisplayRule, javax.swing.GroupLayout.DEFAULT_SIZE, 77, Short.MAX_VALUE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addGap(35, 35, 35)
+                                .addComponent(btnSearchDisplayRule, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addGap(18, 18, 18)
                                 .addComponent(btnSearchDisplayText)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(btnSearchDisplayFlavor))))
+                                .addGap(44, 44, 44))))
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jLabel1)
@@ -559,8 +556,7 @@ public class UserGUI extends javax.swing.JFrame {
                         .addGap(12, 12, 12)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(btnSearchDisplayRule)
-                            .addComponent(btnSearchDisplayText)
-                            .addComponent(btnSearchDisplayFlavor))
+                            .addComponent(btnSearchDisplayText))
                         .addGap(47, 47, 47))
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -620,10 +616,17 @@ public class UserGUI extends javax.swing.JFrame {
                                                 + "user=root&password=q1w2e3r4");
             statement = connect.createStatement();
             
-            if (isSearchSettingsDefault() == true) //Blank or Default settings search pulls all cards in database
+            if (isSearchSettingsDefault() == true) //Blank or Default settings search pulls all recent cards in database
             {
                 // Result set get the result of the SQL query
-                resultSet = statement.executeQuery("select * from mtg_dbm.Card");
+                resultSet = statement.executeQuery("SELECT s1.*\n" +
+                                                    "FROM Card s1\n" +
+                                                    "JOIN (\n" +
+                                                    "  SELECT  MAX(ID) AS ID, CardName\n" +
+                                                    "  FROM Card\n" +
+                                                    "  GROUP BY CardName) AS s2\n" +
+                                                    "  ON s1.CardName = s2.CardName AND s1.ID = s2.ID\n" +
+                                                    "  LEFT JOIN MTGSet z ON s1.SetName = z.SetName");
 
                  //Instanced Variables
                 DefaultTableModel tbl = (DefaultTableModel)tblCardResult.getModel();
@@ -633,6 +636,7 @@ public class UserGUI extends javax.swing.JFrame {
 
                 while (resultSet.next())
                 {
+                    
                     int CardID = resultSet.getInt("ID");
                     String CardName = resultSet.getString("CardName");
                     String SetName = resultSet.getString("SetName");
@@ -655,7 +659,9 @@ public class UserGUI extends javax.swing.JFrame {
             }
             else //If Search Settings are not default
             {
-                
+                boolean [] c = changedSearchSettings();
+                System.out.println(c[0] + " "+c[1]+ " "+ c[2] +" " +c[3] + " " +c[4]
+                    + " " + c[5] + " " + c[6]);
             }
             
 //            else if (searchCard.isEmpty() == false) //If User inputs anything in the search
@@ -726,8 +732,50 @@ public class UserGUI extends javax.swing.JFrame {
         Object temp = tbl.getValueAt(tbl.getSelectedRow(), 9);
         if (temp != null)
         {
+            Connection connect = null;
+            Statement statement = null;
+            PreparedStatement preparedStatement = null;
+            ResultSet resultSet = null;
+            
+            int cID = (int)tbl.getValueAt(tbl.getSelectedRow(), 0); //Selected Card ID
+            
+            try
+            {
+                connect = DriverManager.getConnection("jdbc:mysql://localhost/mtg_dbm?" 
+                                                + "user=root&password=q1w2e3r4");
+                statement = connect.createStatement();
+                
+                preparedStatement = connect.prepareStatement("select * from mtg_dbm.Card where ID = ?");
+                preparedStatement.setInt(1,  cID);
+                resultSet = preparedStatement.executeQuery();
+                
+                 while (resultSet.next())
+                {
+                    String cText = resultSet.getString("CardText");
+                    String fText = resultSet.getString("FlavorText");
+                    
+                    if (cText == null)
+                    {
+                        txtPanelInfo.setText(fText);
+                    }
+                    else if (fText == null)
+                    {
+                        txtPanelInfo.setText(cText);
+                    }
+                    else
+                    {
+                        txtPanelInfo.setText(cText + "\n\n" + fText);
+                    }
+                    //txtPanelInfo.setText(cText + "\n\n" + fText);
+                }
+            }
+            catch (Exception e)
+            {
+                e.printStackTrace();
+            }
+                
             int x = (int)temp;
-        
+            
             try
             {
                 //Displaying Images on JLabels
@@ -1171,8 +1219,87 @@ public class UserGUI extends javax.swing.JFrame {
             b = false;
         }
         
-        
         return b;
+    }
+    
+    
+    private boolean[] changedSearchSettings()
+    {
+        boolean [] c = new boolean[14]; //Holds 0's and 1's to signal change in each of the settings
+        
+        if (!(txtCardName.getText().equals("Name") ||  txtCardName.getText().equals("")))
+        {
+            c[0] = true; //Name settings are not default
+        }
+        else 
+        {
+            c[0] = false; //Name settings are default
+        }
+        
+        if (!(txtType.getText().equals("Type") || txtType.getText().equals(""))
+                || comboSearchType.getSelectedIndex() != 0)
+        {
+            c[1] = true; //Type setting are not default
+        }
+        else 
+        {
+            c[1] = false; //Type setting are default
+        }
+        
+        if (!(txtText.getText().equals("Text") || txtText.getText().equals(""))
+                || comboSearchText.getSelectedIndex() != 0)
+        {
+            c[2] = true; //Text setting are not default
+        }
+        else 
+        {
+            c[2] = false; //Text setting are default
+        }
+        
+        if (!(txtFlavorText.getText().equals("FlavorText") || txtFlavorText.getText().equals(""))
+                || comboSearchFlavorText.getSelectedIndex() != 0)
+        {
+            c[3] = true; //Flavor Text setting are not default
+        }
+        else 
+        {
+            c[3] = false; //Flavor Text setting are default
+        }
+        
+        if (!(txtArtist.getText().equals("Artist") || txtArtist.getText().equals("")))
+        {
+            c[4] = true; //Artist setting are not default
+        }
+        else 
+        {
+            c[4] = false; //Artist setting are default
+        }
+        
+        if (!(cbSearchColorWhite.isSelected() == false && cbSearchColorBlue.isSelected() == false
+                && cbSearchColorBlack.isSelected() == false && cbSearchColorRed.isSelected() == false
+                && cbSearchColorGreen.isSelected() == false) || comboSearchColor.getSelectedIndex() != 0)
+        {
+            c[5] = true; //Color settings are not default
+        }
+        else
+        {
+            c[5] = false; //Color settings are default
+        }
+        
+        if (!(cbSearchColorIdentityWhite.isSelected() == false && cbSearchColorIdentityBlue.isSelected() == false
+                && cbSearchColorIdentityBlack.isSelected() == false && cbSearchColorIdentityRed.isSelected() == false
+                && cbSearchColorIdentityGreen.isSelected() == false) || comboSearchColorIdentity.getSelectedIndex() != 0)
+        {
+            c[6] = true; //Color Identity settings are not default
+        }
+        else
+        {
+            c[6] = false; //Color Identity settings are not default
+        }
+        
+        
+        
+        return c;
     }
     
     
@@ -1218,7 +1345,6 @@ public class UserGUI extends javax.swing.JFrame {
     private javax.swing.JButton btnResetSet;
     private javax.swing.JButton btnSearch;
     private javax.swing.JButton btnSearchCardFlip;
-    private javax.swing.JButton btnSearchDisplayFlavor;
     private javax.swing.JButton btnSearchDisplayRule;
     private javax.swing.JButton btnSearchDisplayText;
     private javax.swing.JCheckBox cbSearchColorBlack;
