@@ -670,9 +670,108 @@ public class UserGUI extends javax.swing.JFrame {
             }
             else //If Search Settings are not default
             {
-                boolean [] c = changedSearchSettings();
-                System.out.println(c[0] + " "+c[1]+ " "+ c[2] +" " +c[3] + " " +c[4]
-                    + " " + c[5] + " " + c[6]);
+                boolean [] c = changedSearchSettings();                
+                String sqlStatement = "";
+                
+                if (c[12] == true) // Prepare Statement for Cards based on Printings and if setting are not default
+                {
+                    int selection = comboSearchPrinting.getSelectedIndex(); //Currently Selected Option in Printing
+                    
+                    //Card
+                    if (selection == 1) //Original Printing
+                    {
+                        String temp = "SELECT s1.*\n" +
+                                    "FROM mtg_dbm.Card s1\n" +
+                                    "JOIN (\n" +
+                                    "  SELECT  MIN(ID) AS ID, CardName\n" +
+                                    "  FROM mtg_dbm.Card\n" +
+                                    "  GROUP BY CardName) AS s2\n" +
+                                    "  ON s1.CardName = s2.CardName AND s1.ID = s2.ID ";
+                        sqlStatement = temp;
+                    }
+                    else if (selection == 2) //All Printings
+                    {
+                        String temp = "SELECT s1.* FROM mtg_dbm.Card s1 ";
+                        sqlStatement = temp;
+                    }
+                }
+                else    //Create Default Search for Most Recent Printing
+                {
+                    
+                    String temp = "SELECT s1.*\n" +
+                                    "FROM mtg_dbm.Card s1\n" +
+                                    "JOIN (\n" +
+                                    "  SELECT  MAX(ID) AS ID, CardName\n" +
+                                    "  FROM mtg_dbm.Card\n" +
+                                    "  GROUP BY CardName) AS s2\n" +
+                                    "  ON s1.CardName = s2.CardName AND s1.ID = s2.ID ";
+                    sqlStatement = temp;
+                    
+                }
+                
+                //Format
+                if (c[10] == true) //Adds SQLStatement based on Format non-default settings
+                {
+                    String temp = "";
+                    
+                    temp = "\nJOIN(\n" +
+                            "      SELECT CardID,\n" +
+                            "             BanType,\n" +
+                            "             FormatName\n" +
+                            "      FROM Format_Card \n" +
+                            "      WHERE BanType = \"Legal\" AND FormatName = \""+ (String)comboSearchFormat.getSelectedItem() + "\"\n" +
+                            "  ) fc ON fc.CardID = s1.ID ";
+                    sqlStatement +=  temp;
+                }
+                
+                //Color
+                if (c[5] == true) //Adds SQL Statement based on Set non-default settings
+                {
+                    String temp = "";
+                    
+                    temp = "JOIN (\n"
+                            + "      SELECT cc.CardID,\n"
+                            + "             cc.ColorID,\n"
+                            + "             c.ColorName\n"
+                            + "     FROM Card_Color cc, Color c\n"
+                            + "     WHERE cc.ColorID = c.ColorID AND c.ColorName = \""
+                            + cbSearchColorRed.getText() +"\"\n"
+                            + "  ) color ON color.CardID = s1.ID ";
+                    sqlStatement += temp;
+                }
+                
+                System.out.println(sqlStatement);
+                resultSet = statement.executeQuery(sqlStatement + "ORDER BY s1.CardName ASC" ); // + "ORDER BY s1.CardName ASC" <- add this to order from A-Z
+
+                 //Instanced Variables
+                DefaultTableModel tbl = (DefaultTableModel)tblCardResult.getModel();
+
+                tbl.setRowCount(0); //Set Table Row Count = 0
+
+
+                while (resultSet.next())
+                {
+                    
+                    int CardID = resultSet.getInt("ID");
+                    String CardName = resultSet.getString("CardName");
+                    String SetName = resultSet.getString("SetName");
+                    String Mana = resultSet.getString("ManaCost");
+                    float CMC = resultSet.getFloat("CMC");
+                    String Type = resultSet.getString("CardType");
+                    String Power = resultSet.getString("Power");
+                    String Toughness = resultSet.getString(("Toughness"));
+                    String Artist = resultSet.getString("Artist");
+                    int MultiverseID = resultSet.getInt("MultiverseID");
+                    Object [] arr = {CardID, CardName, SetName, Mana, CMC, Type,
+                                     Power, Toughness, Artist, MultiverseID};
+                    tbl.addRow(arr);
+                    //System.out.println(CardName +":" +ID +"\n");
+                }
+                
+                tblCardResult.setModel(tbl);
+                resizeColumnWidth(tblCardResult);
+                
+                
             }
             
 //            else if (searchCard.isEmpty() == false) //If User inputs anything in the search
@@ -749,6 +848,7 @@ public class UserGUI extends javax.swing.JFrame {
             ResultSet resultSet = null;
             
             int cID = (int)tbl.getValueAt(tbl.getSelectedRow(), 0); //Selected Card ID
+            boolean layout = false; //Stores the Layout of the Card
             
             try
             {
@@ -764,6 +864,7 @@ public class UserGUI extends javax.swing.JFrame {
                 {
                     String cText = resultSet.getString("CardText");
                     String fText = resultSet.getString("FlavorText");
+                    String lText = resultSet.getString("Layout");
                     
                     if (cText == null)
                     {
@@ -776,6 +877,11 @@ public class UserGUI extends javax.swing.JFrame {
                     else
                     {
                         txtPanelInfo.setText(cText + "\n\n" + fText);
+                    }
+                    
+                    if (lText.equals("split"))
+                    {
+                        layout = true;
                     }
                     //txtPanelInfo.setText(cText + "\n\n" + fText);
                 }
@@ -790,14 +896,26 @@ public class UserGUI extends javax.swing.JFrame {
             try
             {
                 //Displaying Images on JLabels
-                URL url = new URL("http://gatherer.wizards.com/Handlers/Image.ashx?multiverseid=" + x +"&type=card");
-                BufferedImage img = ImageIO.read(url);
-                ImageIcon i = new ImageIcon(img);
+                if (layout == false)    //If card layout is normal
+                {
+                    URL url = new URL("http://gatherer.wizards.com/Handlers/Image.ashx?multiverseid=" + x +"&type=card");
+                    BufferedImage img = ImageIO.read(url);
+                    ImageIcon i = new ImageIcon(img);
 
-                lblPicture.setSize(i.getIconWidth(), i.getIconHeight());
-                //lblPicture.repaint();
-                lblPicture.setIcon(i);
+                    lblPicture.setSize(i.getIconWidth(), i.getIconHeight());
+                    //lblPicture.repaint();
+                    lblPicture.setIcon(i);
+                }
+                else //If card layout is not normal
+                {
+                    URL url = new URL("http://gatherer.wizards.com/Handlers/Image.ashx?multiverseid=" + x +"&type=card&options=rotate90");
+                    BufferedImage img = ImageIO.read(url);
+                    ImageIcon i = new ImageIcon(img);
 
+                    lblPicture.setSize(i.getIconWidth(), i.getIconHeight());
+                    //lblPicture.repaint();
+                    lblPicture.setIcon(i);
+                }
             }
             catch(Exception e)
             {
@@ -1340,7 +1458,28 @@ public class UserGUI extends javax.swing.JFrame {
         return b;
     }
     
-    
+    /**
+     * changedSearchSetting() function
+     * -------------------------------------
+     * Returns boolean [] c of the Setting in the following Order:
+     *      c[0] = Name
+     *      c[1] = Type
+     *      c[2] = Text
+     *      c[3] = FlavorText
+     *      c[4] = Artist
+     *      c[5] = Color 
+     *      c[6] = Color Identity
+     *      c[7] = Power
+     *      c[8] = Toughness
+     *      c[9] = CMC
+     *      c[10] = Format
+     *      c[11] = Set
+     *      c[12] = Printing
+     *      c[13] = Rarity
+     *  And each of these elements have a boolean that is 
+     *      1) True if the settings have changed 
+     *      2) False is settings are default
+     */
     private boolean[] changedSearchSettings()
     {
         boolean [] c = new boolean[14]; //Holds 0's and 1's to signal change in each of the settings
@@ -1415,7 +1554,69 @@ public class UserGUI extends javax.swing.JFrame {
             c[6] = false; //Color Identity settings are not default
         }
         
+        if (comboSearchPowerSign.getSelectedIndex() != 0 ||comboSearchPower.getSelectedIndex() != 0)
+        {
+            c[7] = true; //Power settings are not default
+        }
+        else
+        {
+            c[7] = false; //Power settings are default
+        }
         
+        if (comboSearchToughnessSign.getSelectedIndex() != 0 ||comboSearchToughness.getSelectedIndex() != 0)
+        {
+            c[8] = true; //Toughness settings are not default
+        }
+        else
+        {
+            c[8] = false; //Toughness settings are default
+        }
+        
+        if (comboSearchCMCSign.getSelectedIndex() != 0 ||comboSearchCMC.getSelectedIndex() != 0)
+        {
+            c[9] = true; //CMC settings are not default
+        }
+        else
+        {
+            c[9] = false; //CMC settings are default
+        }
+        
+        if (comboSearchFormat.getSelectedIndex() != 0)
+        {
+            c[10] = true; //Format Settings are not default
+        }
+        else
+        {
+            c[10] = false; //Format Settings are default   
+        }
+        
+        if (comboSearchSet.getSelectedIndex() != 0)
+        {
+            c[11] = true; //Set Settings are not default
+        }
+        else
+        {
+            c[11] = false; //Set Settings are default   
+        }
+        
+        if (comboSearchPrinting.getSelectedIndex() != 0)
+        {
+            c[12] = true; //Printing Settings are not default
+        }
+        else
+        {
+            c[12] = false; //Printing Settings are default   
+        }
+        
+        if (!(cbSearchCommon.isSelected() == false && cbSearchUncommon.isSelected() == false
+                && cbSearchRare.isSelected() == false && cbSearchMythicRare.isSelected() == false))
+        {
+            c[13] = true; //Rarity settings are not default
+        }
+        else
+        {
+            c[13] = false; //Rarity settings are default
+        }
         
         return c;
     }
