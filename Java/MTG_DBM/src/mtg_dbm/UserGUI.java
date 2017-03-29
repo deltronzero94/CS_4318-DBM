@@ -250,7 +250,7 @@ public class UserGUI extends javax.swing.JFrame {
             }
         });
 
-        comboSearchColor.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Match Any Color(s)", "Match Colors Exactly", "Exclude Unselected Colors", "Match Multicolored Cards Only" }));
+        comboSearchColor.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Match Any Color(s)", "Match Colors Exactly", "Match Multicolored Cards Only" }));
 
         comboSearchColorIdentity.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "May include any color(s)", "Exact (all selected and no others)" }));
 
@@ -309,9 +309,9 @@ public class UserGUI extends javax.swing.JFrame {
         jLabel9.setFont(new java.awt.Font("Ubuntu", 1, 15)); // NOI18N
         jLabel9.setText("Toughness:");
 
-        comboSearchPowerSign.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "<", ">", "<=", ">=" }));
+        comboSearchPowerSign.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "<", ">", "<=", ">=", "=" }));
 
-        comboSearchToughnessSign.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "<", ">", "<=", ">=" }));
+        comboSearchToughnessSign.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "<", ">", "<=", ">=", "=" }));
 
         comboSearchPower.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10" }));
 
@@ -320,7 +320,7 @@ public class UserGUI extends javax.swing.JFrame {
         jLabel10.setFont(new java.awt.Font("Ubuntu", 1, 15)); // NOI18N
         jLabel10.setText("CMC:");
 
-        comboSearchCMCSign.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "<", ">", "<=", ">=" }));
+        comboSearchCMCSign.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "<", ">", "<=", ">=", "=" }));
 
         comboSearchCMC.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10" }));
 
@@ -724,24 +724,512 @@ public class UserGUI extends javax.swing.JFrame {
                     sqlStatement +=  temp;
                 }
                 
+                //Set
+                if (c[11] == true) //Adds SQLStatement based on Set non-default settings
+                {
+                    String temp = "";
+                    
+                    temp = "\nJOIN(\n" +
+                            "      SELECT ID,\n" +
+                            "             SetName\n" +
+                            "      FROM Card \n" +
+                            "      WHERE SetName = \""+ (String)comboSearchSet.getSelectedItem() + "\"\n" +
+                            "  ) sc ON sc.ID = s1.ID ";
+                    sqlStatement +=  temp;
+                }
+                
+                //Color Identity
+                if (c[6] == true) //Adds SQL Statement based on Color Identity non-default settings
+                {
+                    String temp = "";
+                    int i = comboSearchColorIdentity.getSelectedIndex();
+                    boolean [] l = getChangedColors("Color Identity"); //Stores which buttons have been pressed
+                    ArrayList<String> s = new ArrayList<String>();  //Stores Colors selected
+                    
+                    
+                    temp = "JOIN (\n"
+                            + "      SELECT cc.CardID,\n"
+                            + "             cc.ColorID,\n"
+                            + "             c.ColorName\n"
+                            + "     FROM Card_ColorIdentity cc, ColorIdentity c\n"
+                            + "     WHERE cc.ColorID = c.ColorID AND (";
+                    
+                    if (i == 0) //Match Any Color(s)
+                    {
+                        if (l[0] == true)   //White Selected
+                        {
+                            s.add("c.ColorName = \"White\"");
+                        }
+                        
+                        if (l[1] == true)   //Blue Selected
+                        {
+                            s.add("c.ColorName = \"Blue\"");
+                        }
+                        
+                        if (l[2] == true)   //Black Selected
+                        {
+                            s.add("c.ColorName = \"Black\"");
+                        }
+                        
+                        if (l[3] == true)   //Red Selected
+                        {
+                            s.add("c.ColorName = \"Red\"");
+                        }
+                        
+                        if (l[4] == true)   //Green Selected
+                        {
+                            s.add("c.ColorName = \"Green\"");
+                        }
+                        
+                        for (int x = 0; x < s.size(); x++)
+                        {
+                            if (x != s.size()-1)
+                            {
+                                temp += s.get(x) + " OR ";
+                            }
+                            else
+                            {
+                                temp += s.get(x) + ")\n";
+                            }
+                        }
+                        temp += ") colorIdentity ON colorIdentity.CardID = s1.ID ";
+                    }
+                    else if (i == 1) //Match Exact Colors
+                    {
+                        ArrayList<String> e = new ArrayList<String>();  //Stores Colors not selected
+                        
+                        if (l[0] == true)   //White Selected
+                        {
+                            s.add("c.ColorName = \"White\"");
+                            e.add("s1.ManaCost LIKE \"%W%\"");
+                        }
+                        else
+                        {
+                            e.add("s1.ManaCost NOT LIKE \"%W%\"");
+                        }
+                        
+                        if (l[1] == true)   //Blue Selected
+                        {
+                            s.add("c.ColorName = \"Blue\"");
+                            e.add("s1.ManaCost LIKE \"%U%\"");
+                        }
+                        else
+                        {
+                            e.add("s1.ManaCost NOT LIKE \"%U%\"");
+                        }
+                        
+                        if (l[2] == true)   //Black Selected
+                        {
+                            s.add("c.ColorName = \"Black\"");
+                            e.add("s1.ManaCost LIKE \"%B%\"");
+                        }
+                        else
+                        {
+                            e.add("s1.ManaCost NOT LIKE \"%B%\"");
+                        }
+                        
+                        if (l[3] == true)   //Red Selected
+                        {
+                            s.add("c.ColorName = \"Red\"");
+                            e.add("s1.ManaCost LIKE \"%R%\"");
+                        }
+                        else
+                        {
+                            e.add("s1.ManaCost NOT LIKE \"%R%\"");
+                        }
+                        
+                        if (l[4] == true)   //Green Selected
+                        {
+                            s.add("c.ColorName = \"Green\"");
+                            e.add("s1.ManaCost LIKE \"%G%\"");
+                        }
+                        else
+                        {
+                            e.add("s1.ManaCost NOT LIKE \"%G%\"");
+                        }
+                        
+                        for (int x = 0; x < s.size(); x++)
+                        {
+                            if (x != s.size()-1)
+                            {
+                                temp += s.get(x) + " OR ";
+                            }
+                            else 
+                            {
+                                temp += s.get(x) + ")\n";
+                            }
+                        }
+                        
+                        temp += ") colorIdentity ON colorIdentity.CardID = s1.ID AND (";
+                        
+                        for (int x = 0; x < e.size(); x++)
+                        {
+                            if ( x != e.size()-1)
+                            {
+                                temp += e.get(x) + " AND ";
+                            }
+                            else
+                            {
+                                temp += e.get(x) + ") \n";
+                            }   
+                        }
+                    }
+                    
+                    sqlStatement += temp;   //Adds Color SQL Statement to sqlStatement String
+                }
+                
                 //Color
                 if (c[5] == true) //Adds SQL Statement based on Set non-default settings
                 {
                     String temp = "";
+                    int i = comboSearchColor.getSelectedIndex();
+                    boolean [] l = getChangedColors("Color"); //Stores which buttons have been pressed
+                    ArrayList<String> s = new ArrayList<String>();  //Stores Colors selected
+                    
                     
                     temp = "JOIN (\n"
                             + "      SELECT cc.CardID,\n"
                             + "             cc.ColorID,\n"
                             + "             c.ColorName\n"
                             + "     FROM Card_Color cc, Color c\n"
-                            + "     WHERE cc.ColorID = c.ColorID AND c.ColorName = \""
-                            + cbSearchColorRed.getText() +"\"\n"
-                            + "  ) color ON color.CardID = s1.ID ";
-                    sqlStatement += temp;
+                            + "     WHERE cc.ColorID = c.ColorID AND (";
+                    
+                    if (i == 0) //Match Any Color(s)
+                    {
+                        if (l[0] == true)   //White Selected
+                        {
+                            s.add("c.ColorName = \"White\"");
+                        }
+                        
+                        if (l[1] == true)   //Blue Selected
+                        {
+                            s.add("c.ColorName = \"Blue\"");
+                        }
+                        
+                        if (l[2] == true)   //Black Selected
+                        {
+                            s.add("c.ColorName = \"Black\"");
+                        }
+                        
+                        if (l[3] == true)   //Red Selected
+                        {
+                            s.add("c.ColorName = \"Red\"");
+                        }
+                        
+                        if (l[4] == true)   //Green Selected
+                        {
+                            s.add("c.ColorName = \"Green\"");
+                        }
+                        
+                        for (int x = 0; x < s.size(); x++)
+                        {
+                            if (x != s.size()-1)
+                            {
+                                temp += s.get(x) + " OR ";
+                            }
+                            else
+                            {
+                                temp += s.get(x) + ")\n";
+                            }
+                        }
+                        temp += ") color ON color.CardID = s1.ID ";
+                    }
+                    else if (i == 1) //Match Exact Colors
+                    {
+                        ArrayList<String> e = new ArrayList<String>();  //Stores Colors not selected
+                        
+                        if (l[0] == true)   //White Selected
+                        {
+                            s.add("c.ColorName = \"White\"");
+                        }
+                        else
+                        {
+                            e.add("s1.ManaCost NOT LIKE \"%W%\"");
+                        }
+                        
+                        if (l[1] == true)   //Blue Selected
+                        {
+                            s.add("c.ColorName = \"Blue\"");
+                        }
+                        else
+                        {
+                            e.add("s1.ManaCost NOT LIKE \"%U%\"");
+                        }
+                        
+                        if (l[2] == true)   //Black Selected
+                        {
+                            s.add("c.ColorName = \"Black\"");
+                        }
+                        else
+                        {
+                            e.add("s1.ManaCost NOT LIKE \"%B%\"");
+                        }
+                        
+                        if (l[3] == true)   //Red Selected
+                        {
+                            s.add("c.ColorName = \"Red\"");
+                        }
+                        else
+                        {
+                            e.add("s1.ManaCost NOT LIKE \"%R%\"");
+                        }
+                        
+                        if (l[4] == true)   //Green Selected
+                        {
+                            s.add("c.ColorName = \"Green\"");
+                        }
+                        else
+                        {
+                            e.add("s1.ManaCost NOT LIKE \"%G%\"");
+                        }
+                        
+                        for (int x = 0; x < s.size(); x++)
+                        {
+                            if (x != s.size()-1)
+                            {
+                                temp += s.get(x) + " OR ";
+                            }
+                            else 
+                            {
+                                temp += s.get(x) + ")\n ";
+                            }
+                        }
+                        
+                        if(e.size() == 0)
+                        {
+                            temp += ") color ON color.CardID = s1.ID AND ";
+                            temp += "(s1.ManaCost LIKE \"%W%\" AND s1.ManaCost LIKE \"%U%\" "
+                                    + "AND s1.ManaCost LIKE \"%B%\" AND s1.ManaCost LIKE \"%R%\" "
+                                    + "AND s1.ManaCost LIKE \"%G%\") ";
+                        }
+                        else
+                        {
+                            temp += ") color ON color.CardID = s1.ID AND (";
+                            
+                            for (int x = 0; x < e.size(); x++)
+                            {
+                                if ( x != e.size()-1)
+                                {
+                                    temp += e.get(x) + " AND ";
+                                }
+                                else
+                                {
+                                    temp += e.get(x) + ") \n";
+                                }   
+                            }
+                        }
+                    }
+                    else if (i == 2) //Match Multicolored (2+ Colors)
+                    {
+                        int count= 0;   //MUST BE HIGHER THAN 2 TO EXECUTE SQL STATEMENT
+                        ArrayList<String> e = new ArrayList<String>();
+                        
+                        if (l[0] == true)   //White Selected
+                        {
+                            s.add("c.ColorName = \"White\"");
+                            e.add("s1.ManaCost LIKE \"%W%\"");
+                        }
+                        
+                        if (l[1] == true)   //Blue Selected
+                        {
+                            s.add("c.ColorName = \"Blue\"");
+                            e.add("s1.ManaCost LIKE \"%U%\"");
+                        }
+                        
+                        if (l[2] == true)   //Black Selected
+                        {
+                            s.add("c.ColorName = \"Black\"");
+                            e.add("s1.ManaCost LIKE \"%B%\"");
+                        }
+                        
+                        if (l[3] == true)   //Red Selected
+                        {
+                            s.add("c.ColorName = \"Red\"");
+                            e.add("s1.ManaCost LIKE \"%R%\"");
+                        }
+                        
+                        if (l[4] == true)   //Green Selected
+                        {
+                            s.add("c.ColorName = \"Green\"");
+                            e.add("s1.ManaCost LIKE \"%G%\"");
+                        }
+                        
+                        if (s.size() >= 2)
+                        {
+                            for (int x = 0; x < s.size(); x++)
+                            {
+                                if (x != s.size()-1)
+                                {
+                                    temp += s.get(x) + " OR ";
+                                }
+                                else
+                                {
+                                    temp += s.get(x) + ")\n ";
+                                }
+                            }
+                            temp += ") color ON color.CardID = s1.ID AND (";
+
+                            for (int x = 0; x < e.size(); x++)
+                            {
+                                if (x != e.size()-1)
+                                {
+                                    temp += e.get(x) + " AND ";
+                                }
+                                else
+                                {
+                                    temp += e.get(x) + ")\n ";
+                                }
+                            }
+                        }
+                    }
+                    
+                    sqlStatement += temp;   //Adds Color SQL Statement to sqlStatement String
+                }
+                
+                //Power
+                if(c[7] == true) //Adds SQL Statement based on Power non-default settings 
+                {
+                    int i = comboSearchPowerSign.getSelectedIndex();
+                    int p = comboSearchPower.getSelectedIndex();
+                    String temp = "";
+                    
+                    if (i == 0) //Less than
+                    {
+//                       temp = "JOIN (\n "+
+//                               "";
+                    }
+                    else if (i == 1) //Greater Than
+                    {
+                        if (p == 0) //Handle Incorrect Fields
+                        {
+                            
+                        }
+                        else
+                        {
+                            
+                        }
+                    }
+                    else if (i == 2) //Less Than or Equal to
+                    {
+                        if (p == 0) //Handle Incorrect Fields
+                        {
+                            
+                        }
+                        else
+                        {
+                            
+                        }
+                    }
+                    else if (i == 3) //Greater Than or Equal to
+                    {
+                        if (p == 0) //Handle Incorrect Fields
+                        {
+                            
+                        }
+                        else
+                        {
+                            
+                        }
+                    }
+                    else if (i == 4) //Equal to
+                    {
+                        if (p == 0) //Handle Null Fields (Ancestrall Call, Lotus Bloom, etc...)
+                        {
+                            
+                        }
+                        else
+                        {
+                            
+                        }
+                    }
+                }
+                
+                //Toughness
+                if(c[8] == true) //Adds SQL Statement based on Toughness non-default settings 
+                {
+                    int i = comboSearchPowerSign.getSelectedIndex();
+                    
+                    if (i == 0) //Less than
+                    {
+                        
+                    }
+                    else if (i == 1) //Greater Than
+                    {
+                        
+                    }
+                    else if (i == 2) //Less Than or Equal to
+                    {
+                        
+                    }
+                    else if (i == 3) //Greater Than or Equal to
+                    {
+                        
+                    }
+                    else if (i == 4) //Equal to
+                    {
+                        
+                    }
+                }
+                
+                //CMC
+                if(c[9] == true) //Adds SQL Statement based on CMC non-default settings 
+                {
+                    int i = comboSearchPowerSign.getSelectedIndex();
+                    int p = comboSearchPower.getSelectedIndex();
+                    String temp = "";
+                    
+                    if (i == 0) //Less than
+                    {
+                       
+                    }
+                    else if (i == 1) //Greater Than
+                    {
+                        if (p == 0) //Handle Incorrect Fields
+                        {
+                            
+                        }
+                        else
+                        {
+                            
+                        }
+                    }
+                    else if (i == 2) //Less Than or Equal to
+                    {
+                        if (p == 0) //Handle Incorrect Fields
+                        {
+                            
+                        }
+                        else
+                        {
+                            
+                        }
+                    }
+                    else if (i == 3) //Greater Than or Equal to
+                    {
+                        if (p == 0) //Handle Incorrect Fields
+                        {
+                            
+                        }
+                        else
+                        {
+                            
+                        }
+                    }
+                    else if (i == 4) //Equal to
+                    {
+                        if (p == 0) //Handle Null Fields (Ancestrall Call, Lotus Bloom, etc...)
+                        {
+                            
+                        }
+                        else
+                        {
+                            
+                        }
+                    }
                 }
                 
                 System.out.println(sqlStatement);
-                resultSet = statement.executeQuery(sqlStatement + "ORDER BY s1.CardName ASC" ); // + "ORDER BY s1.CardName ASC" <- add this to order from A-Z
+                resultSet = statement.executeQuery(sqlStatement + "GROUP BY s1.ID ORDER BY s1.CardName ASC" ); // + "ORDER BY s1.CardName ASC" <- add this to order from A-Z
 
                  //Instanced Variables
                 DefaultTableModel tbl = (DefaultTableModel)tblCardResult.getModel();
@@ -1462,7 +1950,7 @@ public class UserGUI extends javax.swing.JFrame {
      * changedSearchSetting() function
      * -------------------------------------
      * Returns boolean [] c of the Setting in the following Order:
-     *      c[0] = Name
+     *      c[0] = Name 
      *      c[1] = Type
      *      c[2] = Text
      *      c[3] = FlavorText
@@ -1621,6 +2109,113 @@ public class UserGUI extends javax.swing.JFrame {
         return c;
     }
     
+    /**
+     * getChangedColors(String s) function
+     * -------------------------------------------
+     *  Returns boolean [] l that stores 5 elements, each that represent the color
+     *  of either Color or Color Identity (Depending on the argument passes), that
+     *  are either true or false depending on whether the color is selected
+     */
+    private boolean [] getChangedColors(String s)
+    {
+        boolean [] l = new boolean [5];
+        
+        if (s.equals("Color"))
+        {
+            if (cbSearchColorWhite.isSelected() == true) //Color White Selected
+            {
+                l[0] = true;
+            }
+            else //Color White Not Selected
+            {
+                l[0] = false;
+            }
+            
+            if (cbSearchColorBlue.isSelected() == true) //Color Blue Selected
+            {
+                l[1] = true;
+            }
+            else //Color Blue Not Selected
+            {
+                l[1] = false;
+            }
+            
+            if (cbSearchColorBlack.isSelected() == true) //Color Black Selected
+            {
+                l[2] = true;
+            }
+            else //Color Black Not Selected
+            {
+                l[2] = false;
+            }
+            
+            if (cbSearchColorRed.isSelected() == true) //Color Red Selected
+            {
+                l[3] = true;
+            }
+            else //Color Red Not Selected
+            {
+                l[3] = false;
+            }
+            
+            if (cbSearchColorGreen.isSelected() == true) //Color Green Selected
+            {
+                l[4] = true;
+            }
+            else //Color Green Not Selected
+            {
+                l[4] = false;
+            }
+        }
+        else if (s.equals("Color Identity"))
+        {
+            if (cbSearchColorIdentityWhite.isSelected() == true) //Color Identity White Selected
+            {
+                l[0] = true;
+            }
+            else //Color Identity White Not Selected
+            {
+                l[0] = false;
+            }
+            
+            if (cbSearchColorIdentityBlue.isSelected() == true) //Color Identity Blue Selected
+            {
+                l[1] = true;
+            }
+            else //Color Identity Blue Not Selected
+            {
+                l[1] = false;
+            }
+            
+            if (cbSearchColorIdentityBlack.isSelected() == true) //Color Identity Black Selected
+            {
+                l[2] = true;
+            }
+            else //Color Identity Black Not Selected
+            {
+                l[2] = false;
+            }
+            
+            if (cbSearchColorIdentityRed.isSelected() == true) //Color Identity Red Selected
+            {
+                l[3] = true;
+            }
+            else //Color Identity Red Not Selected
+            {
+                l[3] = false;
+            }
+            
+            if (cbSearchColorIdentityGreen.isSelected() == true) //Color Identity Green Selected
+            {
+                l[4] = true;
+            }
+            else //Color Identity Green Not Selected
+            {
+                l[4] = false;
+            }
+        }
+        return l;
+    }
     
     /**
      * @param args the command line arguments

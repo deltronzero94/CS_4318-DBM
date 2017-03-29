@@ -615,11 +615,10 @@
             <Component class="javax.swing.JComboBox" name="comboSearchColor">
               <Properties>
                 <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
-                  <StringArray count="4">
+                  <StringArray count="3">
                     <StringItem index="0" value="Match Any Color(s)"/>
                     <StringItem index="1" value="Match Colors Exactly"/>
-                    <StringItem index="2" value="Exclude Unselected Colors"/>
-                    <StringItem index="3" value="Match Multicolored Cards Only"/>
+                    <StringItem index="2" value="Match Multicolored Cards Only"/>
                   </StringArray>
                 </Property>
               </Properties>
@@ -771,11 +770,12 @@
             <Component class="javax.swing.JComboBox" name="comboSearchPowerSign">
               <Properties>
                 <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
-                  <StringArray count="4">
+                  <StringArray count="5">
                     <StringItem index="0" value="&lt;"/>
                     <StringItem index="1" value="&gt;"/>
                     <StringItem index="2" value="&lt;="/>
                     <StringItem index="3" value="&gt;="/>
+                    <StringItem index="4" value="="/>
                   </StringArray>
                 </Property>
               </Properties>
@@ -786,11 +786,12 @@
             <Component class="javax.swing.JComboBox" name="comboSearchToughnessSign">
               <Properties>
                 <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
-                  <StringArray count="4">
+                  <StringArray count="5">
                     <StringItem index="0" value="&lt;"/>
                     <StringItem index="1" value="&gt;"/>
                     <StringItem index="2" value="&lt;="/>
                     <StringItem index="3" value="&gt;="/>
+                    <StringItem index="4" value="="/>
                   </StringArray>
                 </Property>
               </Properties>
@@ -853,11 +854,12 @@
             <Component class="javax.swing.JComboBox" name="comboSearchCMCSign">
               <Properties>
                 <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
-                  <StringArray count="4">
+                  <StringArray count="5">
                     <StringItem index="0" value="&lt;"/>
                     <StringItem index="1" value="&gt;"/>
                     <StringItem index="2" value="&lt;="/>
                     <StringItem index="3" value="&gt;="/>
+                    <StringItem index="4" value="="/>
                   </StringArray>
                 </Property>
               </Properties>
