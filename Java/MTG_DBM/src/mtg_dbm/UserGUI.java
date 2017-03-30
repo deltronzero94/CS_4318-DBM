@@ -814,7 +814,7 @@ public class UserGUI extends javax.swing.JFrame {
                         }
                         else
                         {
-                            e.add("1");
+                            e.add("3");
                         }
                         
                         if (l[1] == true)   //Blue Selected
@@ -823,7 +823,7 @@ public class UserGUI extends javax.swing.JFrame {
                         }
                         else
                         {
-                            e.add("2");
+                            e.add("1");
                         }
                         
                         if (l[2] == true)   //Black Selected
@@ -832,7 +832,7 @@ public class UserGUI extends javax.swing.JFrame {
                         }
                         else
                         {
-                            e.add("3");
+                            e.add("2");
                         }
                         
                         if (l[3] == true)   //Red Selected
@@ -907,18 +907,15 @@ public class UserGUI extends javax.swing.JFrame {
                     int i = comboSearchColor.getSelectedIndex();
                     boolean [] l = getChangedColors("Color"); //Stores which buttons have been pressed
                     ArrayList<String> s = new ArrayList<String>();  //Stores Colors selected
-                    
-                    
-                    temp = "JOIN (\n"
-                            + "      SELECT cc.CardID,\n"
-                            + "             cc.ColorID,\n"
-                            + "             c.ColorName\n"
-                            + "     FROM Card_Color cc, Color c\n"
-                            + "     WHERE cc.ColorID = c.ColorID ";
+
                     
                     if (i == 0) //Match Any Color(s)
                     {
-                        temp += "AND (";
+                        temp = "JOIN (\n"
+                            + "      SELECT cc.CardID,\n"
+                            + "             c.ColorName\n"
+                            + "     FROM Card_Color cc, Color c\n"
+                            + "     WHERE cc.ColorID = c.ColorID AND (";
                         
                         if (l[0] == true)   //White Selected
                         {
@@ -962,13 +959,23 @@ public class UserGUI extends javax.swing.JFrame {
                     {
                         ArrayList<String> e = new ArrayList<String>();  //Stores Colors not selected
                         
+                        temp = "JOIN (\n"
+                            + "      SELECT cc.CardID,\n"
+                            + "             c.ColorName\n"
+                            + "     FROM Card_Color cc\n "
+                            + "     JOIN Color c\n"
+                            + "     ON cc.ColorID = c.ColorID\n"
+                            + "     JOIN Card crd\n"
+                            + "     ON crd.ID = cc.CardID\n"
+                            + "     WHERE cc.CardID ";
+                        
                         if (l[0] == true)   //White Selected
                         {
                             s.add("c.ColorName = \"White\"");
                         }
                         else
                         {
-                            e.add("s1.ManaCost NOT LIKE \"%W%\"");
+                            e.add("3");
                         }
                         
                         if (l[1] == true)   //Blue Selected
@@ -977,7 +984,7 @@ public class UserGUI extends javax.swing.JFrame {
                         }
                         else
                         {
-                            e.add("s1.ManaCost NOT LIKE \"%U%\"");
+                            e.add("1");
                         }
                         
                         if (l[2] == true)   //Black Selected
@@ -986,7 +993,7 @@ public class UserGUI extends javax.swing.JFrame {
                         }
                         else
                         {
-                            e.add("s1.ManaCost NOT LIKE \"%B%\"");
+                            e.add("2");
                         }
                         
                         if (l[3] == true)   //Red Selected
@@ -995,7 +1002,7 @@ public class UserGUI extends javax.swing.JFrame {
                         }
                         else
                         {
-                            e.add("s1.ManaCost NOT LIKE \"%R%\"");
+                            e.add("5");
                         }
                         
                         if (l[4] == true)   //Green Selected
@@ -1004,88 +1011,24 @@ public class UserGUI extends javax.swing.JFrame {
                         }
                         else
                         {
-                            e.add("s1.ManaCost NOT LIKE \"%G%\"");
+                            e.add("4");
                         }
                         
-                        for (int x = 0; x < s.size(); x++)
+                        if (s.size() != 5 && s.size() != 0)  //If there are atleast 1 to 4 buttons selected in ColorIdentity
                         {
-                            if (x == 0)
-                            {
-                                temp+= "AND (";
-                            }
+                            temp += "NOT IN (SELECT CardID FROM Card_Color WHERE ColorID IN (";
                             
-                            if (x != s.size()-1)
-                            {
-                                temp += s.get(x) + " OR ";
-                            }
-                            else 
-                            {
-                                temp += s.get(x) + ")\n ";
-                            }
-                        }
-                        
-                        if(e.size() == 0)
-                        {
-                            temp += ") color ON color.CardID = s1.ID AND ";
-                            temp += "(s1.ManaCost LIKE \"%W%\" AND s1.ManaCost LIKE \"%U%\" "
-                                    + "AND s1.ManaCost LIKE \"%B%\" AND s1.ManaCost LIKE \"%R%\" "
-                                    + "AND s1.ManaCost LIKE \"%G%\") ";
-                        }
-                        else
-                        {
-                            temp += ") color ON color.CardID = s1.ID AND (";
-                            
-                            for (int x = 0; x < e.size(); x++)
+                            for (int x = 0; x < e.size(); x++)  //Select Cards with ColorIdentity more than what is currently selected
                             {
                                 if ( x != e.size()-1)
                                 {
-                                    temp += e.get(x) + " AND ";
+                                    temp += e.get(x) + ",";
                                 }
                                 else
                                 {
-                                    temp += e.get(x) + ") \n";
+                                    temp += e.get(x) + ")) AND (";
                                 }   
                             }
-                        }
-                    }
-                    else if (i == 2) //Match Multicolored (2+ Colors)
-                    {
-                        int count= 0;   //MUST BE HIGHER THAN 2 TO EXECUTE SQL STATEMENT
-                        ArrayList<String> e = new ArrayList<String>();
-                        
-                        if (l[0] == true)   //White Selected
-                        {
-                            s.add("c.ColorName = \"White\"");
-                            e.add("s1.ManaCost LIKE \"%W%\"");
-                        }
-                        
-                        if (l[1] == true)   //Blue Selected
-                        {
-                            s.add("c.ColorName = \"Blue\"");
-                            e.add("s1.ManaCost LIKE \"%U%\"");
-                        }
-                        
-                        if (l[2] == true)   //Black Selected
-                        {
-                            s.add("c.ColorName = \"Black\"");
-                            e.add("s1.ManaCost LIKE \"%B%\"");
-                        }
-                        
-                        if (l[3] == true)   //Red Selected
-                        {
-                            s.add("c.ColorName = \"Red\"");
-                            e.add("s1.ManaCost LIKE \"%R%\"");
-                        }
-                        
-                        if (l[4] == true)   //Green Selected
-                        {
-                            s.add("c.ColorName = \"Green\"");
-                            e.add("s1.ManaCost LIKE \"%G%\"");
-                        }
-                        
-                        if (s.size() >= 2)
-                        {
-                            temp+= "AND (";
                             
                             for (int x = 0; x < s.size(); x++)
                             {
@@ -1093,24 +1036,114 @@ public class UserGUI extends javax.swing.JFrame {
                                 {
                                     temp += s.get(x) + " OR ";
                                 }
-                                else
+                                else 
                                 {
-                                    temp += s.get(x) + ")\n ";
+                                    temp += s.get(x) + ")\n";
                                 }
                             }
-                            temp += ") color ON color.CardID = s1.ID AND (";
 
+                            temp += ") color ON color.CardID = s1.ID ";
+                        }
+                        else if (s.size () == 5)    // For all 5 identities
+                        {
+                            temp += "IN (SELECT CardID FROM Card_Color WHERE ColorID IN (1,2,3,4,5))";
+                            temp += ") color ON color.CardID = s1.ID ";
+                        }
+                        else if (s.size() == 0) //For Colorless Search
+                        {
+                            temp = "JOIN (SELECT crd.ID\n" +
+                                   "      FROM Card crd\n" +
+                                   "      WHERE crd.ID NOT IN (SELECT CardID FROM Card_Color)";
+                            temp += ") color ON color.ID = s1.ID ";
+                        }
+                        
+                    }
+                    else if (i == 2) //Match Multicolored (2+ Colors)
+                    {
+                        int count= 0;   //MUST BE HIGHER THAN 2 TO EXECUTE SQL STATEMENT
+                        ArrayList<String> e = new ArrayList<String>();
+                        temp = "JOIN (\n"
+                            + "      SELECT cc.CardID,\n"
+                            + "             c.ColorName\n"
+                            + "     FROM Card_Color cc\n "
+                            + "     JOIN Color c\n"
+                            + "     ON cc.ColorID = c.ColorID\n"
+                            + "     JOIN Card crd\n"
+                            + "     ON crd.ID = cc.CardID\n"
+                            + "     WHERE cc.CardID ";
+                        
+                        if (l[0] == true)   //White Selected
+                        {
+                            s.add("c.ColorName = \"White\"");
+                        }
+                        else
+                        {
+                            e.add("3");
+                        }
+                        
+                        if (l[1] == true)   //Blue Selected
+                        {
+                            s.add("c.ColorName = \"Blue\"");
+                        }
+                        else
+                        {
+                            e.add("1");
+                        }
+                        
+                        if (l[2] == true)   //Black Selected
+                        {
+                            s.add("c.ColorName = \"Black\"");
+                        }
+                        else
+                        {
+                            e.add("2");
+                        }
+                        
+                        if (l[3] == true)   //Red Selected
+                        {
+                            s.add("c.ColorName = \"Red\"");
+                        }
+                        else
+                        {
+                            e.add("5");
+                        }
+                        
+                        if (l[4] == true)   //Green Selected
+                        {
+                            s.add("c.ColorName = \"Green\"");
+                        }
+                        else
+                        {
+                            e.add("4");
+                        }
+                        
+                        if (s.size() >= 2 && s.size() <5)   //Greater Than 2 and Less 5 Colors
+                        {
+                            temp += "NOT IN (SELECT CardID FROM Card_Color WHERE ColorID IN (";
+                            String n = Integer.toString(s.size());
+                            
                             for (int x = 0; x < e.size(); x++)
                             {
                                 if (x != e.size()-1)
                                 {
-                                    temp += e.get(x) + " AND ";
+                                    temp += e.get(x) + ",";
                                 }
                                 else
                                 {
-                                    temp += e.get(x) + ")\n ";
+                                    temp += e.get(x) + ") ";
                                 }
                             }
+                            
+                            temp+= ") AND cc.CardID NOT IN (SELECT CardID FROM Card_Color Group BY CardID HAVING COUNT(*) < " + n + ")";
+                            
+                            temp += ") color ON color.CardID = s1.ID ";
+                        }
+                        else if (s.size() == 5)
+                        {
+                            String n = Integer.toString(s.size());
+                            temp += "IN (SELECT CardID FROM Card_Color WHERE ColorID IN (1,2,3,4,5))\n"
+                                    + "AND cc.CardID NOT IN (SELECT CardID FROM Card_Color Group BY CardID HAVING COUNT(*) < " + n + ")";
+                            temp += ") color ON color.CardID = s1.ID ";
                         }
                         else
                         {
