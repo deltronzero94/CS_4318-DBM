@@ -747,15 +747,15 @@ public class UserGUI extends javax.swing.JFrame {
                     ArrayList<String> s = new ArrayList<String>();  //Stores Colors selected
                     
                     
-                    temp = "JOIN (\n"
+                    if (i == 0) //Match Any Color(s)
+                    {
+                        temp = "JOIN (\n"
                             + "      SELECT cc.CardID,\n"
                             + "             cc.ColorID,\n"
                             + "             c.ColorName\n"
                             + "     FROM Card_ColorIdentity cc, ColorIdentity c\n"
                             + "     WHERE cc.ColorID = c.ColorID AND (";
-                    
-                    if (i == 0) //Match Any Color(s)
-                    {
+                        
                         if (l[0] == true)   //White Selected
                         {
                             s.add("c.ColorName = \"White\"");
@@ -796,82 +796,104 @@ public class UserGUI extends javax.swing.JFrame {
                     }
                     else if (i == 1) //Match Exact Colors
                     {
+                        temp = "JOIN (\n"
+                            + "      SELECT cc.CardID,\n"
+                            + "             c.ColorName\n"
+                            + "     FROM Card_ColorIdentity cc\n "
+                            + "     JOIN ColorIdentity c\n"
+                            + "     ON cc.ColorID = c.ColorID\n"
+                            + "     JOIN Card crd\n"
+                            + "     ON crd.ID = cc.CardID\n"
+                            + "     WHERE cc.CardID ";
+                        
                         ArrayList<String> e = new ArrayList<String>();  //Stores Colors not selected
                         
                         if (l[0] == true)   //White Selected
                         {
                             s.add("c.ColorName = \"White\"");
-                            e.add("s1.ManaCost LIKE \"%W%\"");
                         }
                         else
                         {
-                            e.add("s1.ManaCost NOT LIKE \"%W%\"");
+                            e.add("1");
                         }
                         
                         if (l[1] == true)   //Blue Selected
                         {
                             s.add("c.ColorName = \"Blue\"");
-                            e.add("s1.ManaCost LIKE \"%U%\"");
                         }
                         else
                         {
-                            e.add("s1.ManaCost NOT LIKE \"%U%\"");
+                            e.add("2");
                         }
                         
                         if (l[2] == true)   //Black Selected
                         {
                             s.add("c.ColorName = \"Black\"");
-                            e.add("s1.ManaCost LIKE \"%B%\"");
                         }
                         else
                         {
-                            e.add("s1.ManaCost NOT LIKE \"%B%\"");
+                            e.add("3");
                         }
                         
                         if (l[3] == true)   //Red Selected
                         {
                             s.add("c.ColorName = \"Red\"");
-                            e.add("s1.ManaCost LIKE \"%R%\"");
                         }
                         else
                         {
-                            e.add("s1.ManaCost NOT LIKE \"%R%\"");
+                            e.add("5");
                         }
                         
                         if (l[4] == true)   //Green Selected
                         {
                             s.add("c.ColorName = \"Green\"");
-                            e.add("s1.ManaCost LIKE \"%G%\"");
                         }
                         else
                         {
-                            e.add("s1.ManaCost NOT LIKE \"%G%\"");
+                            e.add("4");
                         }
                         
-                        for (int x = 0; x < s.size(); x++)
+                        if (s.size() != 5 && s.size() != 0)  //If there are atleast 1 to 4 buttons selected in ColorIdentity
                         {
-                            if (x != s.size()-1)
+                            temp += "NOT IN (SELECT CardID FROM Card_ColorIdentity WHERE ColorID IN (";
+                            
+                            for (int x = 0; x < e.size(); x++)  //Select Cards with ColorIdentity more than what is currently selected
                             {
-                                temp += s.get(x) + " OR ";
+                                if ( x != e.size()-1)
+                                {
+                                    temp += e.get(x) + ",";
+                                }
+                                else
+                                {
+                                    temp += e.get(x) + ")) AND (";
+                                }   
                             }
-                            else 
+                            
+                            for (int x = 0; x < s.size(); x++)
                             {
-                                temp += s.get(x) + ")\n";
+                                if (x != s.size()-1)
+                                {
+                                    temp += s.get(x) + " OR ";
+                                }
+                                else 
+                                {
+                                    temp += s.get(x) + ")\n";
+                                }
                             }
+
+                            temp += ") colorIdentity ON colorIdentity.CardID = s1.ID ";
                         }
-                        
-                        temp += ") colorIdentity ON colorIdentity.CardID = s1.ID AND (";
-                        
-                        for (int x = 0; x < e.size(); x++)
+                        else if (s.size () == 5)    // For all 5 identities
                         {
-                            if ( x != e.size()-1)
-                            {
-                                temp += e.get(x) + " AND ";
-                            }
-                            else
-                            {
-                                temp += e.get(x) + ") \n";
-                            }   
+                            temp += "IN (SELECT CardID FROM Card_ColorIdentity WHERE ColorID IN (1,2,3,4,5))";
+                            temp += ") colorIdentity ON colorIdentity.CardID = s1.ID ";
+                        }
+                        else if (s.size() == 0) //For Colorless Search
+                        {
+                            temp = "JOIN (SELECT crd.ID\n" +
+                                   "      FROM Card crd\n" +
+                                   "      WHERE crd.ID NOT IN (SELECT CardID FROM Card_ColorIdentity)";
+                            temp += ") colorIdentity ON colorIdentity.ID = s1.ID ";
                         }
                     }
                     
@@ -892,10 +914,12 @@ public class UserGUI extends javax.swing.JFrame {
                             + "             cc.ColorID,\n"
                             + "             c.ColorName\n"
                             + "     FROM Card_Color cc, Color c\n"
-                            + "     WHERE cc.ColorID = c.ColorID AND (";
+                            + "     WHERE cc.ColorID = c.ColorID ";
                     
                     if (i == 0) //Match Any Color(s)
                     {
+                        temp += "AND (";
+                        
                         if (l[0] == true)   //White Selected
                         {
                             s.add("c.ColorName = \"White\"");
@@ -985,6 +1009,11 @@ public class UserGUI extends javax.swing.JFrame {
                         
                         for (int x = 0; x < s.size(); x++)
                         {
+                            if (x == 0)
+                            {
+                                temp+= "AND (";
+                            }
+                            
                             if (x != s.size()-1)
                             {
                                 temp += s.get(x) + " OR ";
@@ -1056,6 +1085,8 @@ public class UserGUI extends javax.swing.JFrame {
                         
                         if (s.size() >= 2)
                         {
+                            temp+= "AND (";
+                            
                             for (int x = 0; x < s.size(); x++)
                             {
                                 if (x != s.size()-1)
@@ -1080,6 +1111,10 @@ public class UserGUI extends javax.swing.JFrame {
                                     temp += e.get(x) + ")\n ";
                                 }
                             }
+                        }
+                        else
+                        {
+                            temp = "";
                         }
                     }
                     
