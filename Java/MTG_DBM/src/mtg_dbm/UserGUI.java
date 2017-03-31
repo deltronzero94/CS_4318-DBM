@@ -342,6 +342,11 @@ public class UserGUI extends javax.swing.JFrame {
 
         btnSearchCardFlip.setText("Flip");
         btnSearchCardFlip.setEnabled(false);
+        btnSearchCardFlip.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnSearchCardFlipActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -1784,6 +1789,8 @@ public class UserGUI extends javax.swing.JFrame {
      */
     private void tblCardResultMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblCardResultMouseClicked
         JTable tbl = (JTable)evt.getSource();
+        isFlip = false;
+        currentDisplayCard = 0;
         
         Object temp = tbl.getValueAt(tbl.getSelectedRow(), 9);
         if (temp != null)
@@ -1828,6 +1835,15 @@ public class UserGUI extends javax.swing.JFrame {
                     if (lText.equals("split"))
                     {
                         layout = true;
+                    }
+                    
+                    if (lText.equals("double-faced") || lText.equals("flip") || lText.equals("meld"))
+                    {
+                        btnSearchCardFlip.setEnabled(true);
+                    }
+                    else
+                    {
+                        btnSearchCardFlip.setEnabled(false);
                     }
                     //txtPanelInfo.setText(cText + "\n\n" + fText);
                 }
@@ -2084,37 +2100,74 @@ public class UserGUI extends javax.swing.JFrame {
             ArrayList<Date> y = new ArrayList<Date>();  //Holds Year of those rulings
             String s = "";   //Used to concatenate both year and ruling
             
-            try
+            if (currentDisplayCard != 0 && cID != currentDisplayCard)
             {
-                connect = DriverManager.getConnection("jdbc:mysql://localhost/mtg_dbm?" 
-                                                + "user=root&password=q1w2e3r4");
-                statement = connect.createStatement();
-                
-                preparedStatement = connect.prepareStatement("SELECT TextRuling , RulingYear FROM Ruling WHERE CardID = ?");
-                preparedStatement.setInt(1,  cID);
-                resultSet = preparedStatement.executeQuery();
-                
-                
-                 while (resultSet.next())
+                try
                 {
-                    t.add(resultSet.getString("TextRuling"));
-                    y.add(resultSet.getDate("RulingYear"));
+                    connect = DriverManager.getConnection("jdbc:mysql://localhost/mtg_dbm?" 
+                                                    + "user=root&password=q1w2e3r4");
+                    statement = connect.createStatement();
+
+                    preparedStatement = connect.prepareStatement("SELECT TextRuling , RulingYear FROM Ruling WHERE CardID = ?");
+                    preparedStatement.setInt(1,  currentDisplayCard);
+                    resultSet = preparedStatement.executeQuery();
+
+
+                     while (resultSet.next())
+                    {
+                        t.add(resultSet.getString("TextRuling"));
+                        y.add(resultSet.getDate("RulingYear"));
+                    }
+
+                    //Concatenates each element of the ArrayList (Date and Ruling) to String s
+                    for (int x = 0; x < t.size(); x++)
+                    {
+                       String temp;
+                       temp = y.get(x) + ":" + t.get(x) + "\n\n";
+                       s += temp;
+                    }
+
+                     txtPanelInfo.setText(s); //Sets txtPanelInfo to String s
                 }
-                 
-                //Concatenates each element of the ArrayList (Date and Ruling) to String s
-                for (int x = 0; x < t.size(); x++)
+                catch (Exception e)
                 {
-                   String temp;
-                   temp = y.get(x) + ":" + t.get(x) + "\n\n";
-                   s += temp;
+                    e.printStackTrace();
                 }
-                 
-                 txtPanelInfo.setText(s); //Sets txtPanelInfo to String s
-                 
             }
-            catch (Exception e)
+            else
             {
-                e.printStackTrace();
+                try
+                {
+                    connect = DriverManager.getConnection("jdbc:mysql://localhost/mtg_dbm?" 
+                                                    + "user=root&password=q1w2e3r4");
+                    statement = connect.createStatement();
+
+                    preparedStatement = connect.prepareStatement("SELECT TextRuling , RulingYear FROM Ruling WHERE CardID = ?");
+                    preparedStatement.setInt(1,  cID);
+                    resultSet = preparedStatement.executeQuery();
+
+
+                     while (resultSet.next())
+                    {
+                        t.add(resultSet.getString("TextRuling"));
+                        y.add(resultSet.getDate("RulingYear"));
+                    }
+
+                    //Concatenates each element of the ArrayList (Date and Ruling) to String s
+                    for (int x = 0; x < t.size(); x++)
+                    {
+                       String temp;
+                       temp = y.get(x) + ":" + t.get(x) + "\n\n";
+                       s += temp;
+                    }
+
+                     txtPanelInfo.setText(s); //Sets txtPanelInfo to String s
+
+                }
+                catch (Exception e)
+                {
+                    e.printStackTrace();
+                }
             }
         }
     }//GEN-LAST:event_btnSearchDisplayRuleActionPerformed
@@ -2135,21 +2188,205 @@ public class UserGUI extends javax.swing.JFrame {
             Object o = tblCardResult.getValueAt(tblCardResult.getSelectedRow(), 0);
             int cID = (int)o;   //Holds Card ID
             
+            if (currentDisplayCard != 0 && cID != currentDisplayCard) //Card is the flip side
+            {
+                try
+                {
+                    connect = DriverManager.getConnection("jdbc:mysql://localhost/mtg_dbm?" 
+                                                    + "user=root&password=q1w2e3r4");
+                    statement = connect.createStatement();
+
+                    preparedStatement = connect.prepareStatement("SELECT CardText, FlavorText FROM Card WHERE ID = ?");
+                    preparedStatement.setInt(1,  currentDisplayCard);
+                    resultSet = preparedStatement.executeQuery();
+
+
+                     while (resultSet.next())
+                    {
+                        String cText = resultSet.getString("CardText");
+                        String fText = resultSet.getString("FlavorText");
+
+                        if (cText == null)
+                        {
+                            txtPanelInfo.setText(fText);
+                        }
+                        else if (fText == null)
+                        {
+                            txtPanelInfo.setText(cText);
+                        }
+                        else
+                        {
+                            txtPanelInfo.setText(cText + "\n\n" + fText);
+                        }
+                    }
+                }
+                catch (Exception e)
+                {
+                    e.printStackTrace();
+                }
+            }
+            else    //Card is not flipped
+            {
+            
+                try
+                {
+                    connect = DriverManager.getConnection("jdbc:mysql://localhost/mtg_dbm?" 
+                                                    + "user=root&password=q1w2e3r4");
+                    statement = connect.createStatement();
+
+                    preparedStatement = connect.prepareStatement("SELECT CardText, FlavorText FROM Card WHERE ID = ?");
+                    preparedStatement.setInt(1,  cID);
+                    resultSet = preparedStatement.executeQuery();
+
+
+                     while (resultSet.next())
+                    {
+                        String cText = resultSet.getString("CardText");
+                        String fText = resultSet.getString("FlavorText");
+
+                        if (cText == null)
+                        {
+                            txtPanelInfo.setText(fText);
+                        }
+                        else if (fText == null)
+                        {
+                            txtPanelInfo.setText(cText);
+                        }
+                        else
+                        {
+                            txtPanelInfo.setText(cText + "\n\n" + fText);
+                        }
+                    }
+                }
+                catch (Exception e)
+                {
+                    e.printStackTrace();
+                }
+                
+            }
+        }
+    }//GEN-LAST:event_btnSearchDisplayTextActionPerformed
+
+    
+    /**
+     * btnSearchCardFlip Action Performed
+     * -------------------------------------
+     * Changes the image to the other half of the card if it is a flip card
+     * and changes txtPanelInfo accordingly to the other half
+     */
+    private void btnSearchCardFlipActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSearchCardFlipActionPerformed
+        //Declared Variables
+        Connection connect = null;
+        Statement statement = null;
+        PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
+        String s = "";  //SQLStatement
+        boolean layout = false; //Stores the Layout of the Card
+        int multiverseID = 0;
+        
+        if (tblCardResult.getSelectedRow() >= 0)
+        {
+            Object o = tblCardResult.getValueAt(tblCardResult.getSelectedRow(), 0);
+            int cID = (int)o;   //Holds Card ID
+            String lText = "";
+            
             try
             {
                 connect = DriverManager.getConnection("jdbc:mysql://localhost/mtg_dbm?" 
                                                 + "user=root&password=q1w2e3r4");
                 statement = connect.createStatement();
                 
-                preparedStatement = connect.prepareStatement("SELECT CardText, FlavorText FROM Card WHERE ID = ?");
+                preparedStatement = connect.prepareStatement("SELECT Layout FROM Card WHERE ID = ?");
                 preparedStatement.setInt(1,  cID);
                 resultSet = preparedStatement.executeQuery();
                 
                 
                  while (resultSet.next())
                 {
+                    lText = resultSet.getString("Layout");
+                    
+                    if (lText.equals("flip"))
+                    {
+                        if (isFlip == false) //Current Card Being Displayed is not the Flip Side of it
+                        {
+                            s = "SELECT c.* "
+                                    + "FROM Card c\n"
+                                    + "JOIN (\n"
+                                + "    SELECT MAX(crd.ID) AS ID\n" +
+                            "               FROM Card crd\n" +
+                            "               JOIN (\n" +
+                            "               SELECT * FROM Split_Flip_Card WHERE CardID = " + cID + " AND NamesOnCard <> \"" + tblCardResult.getValueAt(tblCardResult.getSelectedRow(), 1) + "\"\n"
+                                    + "     ORDER BY SFPairID DESC LIMIT 1) SFCardT ON SFCardT.NamesOnCard = crd.CardName\n"
+                                    + ") SFCard ON SFCard.ID = c.ID ";
+                            isFlip = true;
+                        }
+                        else //Current displayed card is the flip side of it
+                        {
+                            s = "SELECT * FROM Card WHERE ID = " + cID;
+                            isFlip = false;
+                            currentDisplayCard = 0;
+                        }
+                        
+                    }
+                    else if (lText.equals("double-faced"))
+                    {
+                        if (isFlip == false) //Current Card Being Displayed is not the Flip Side of it
+                        {
+                            s = "SELECT c.* "
+                                    + "FROM Card c\n"
+                                    + "JOIN (\n"
+                                + "    SELECT MAX(crd.ID) AS ID\n" +
+                            "               FROM Card crd\n" +
+                            "               JOIN (\n" +
+                            "               SELECT * FROM Split_Flip_Card WHERE CardID = " + cID + " AND NamesOnCard <> \"" + tblCardResult.getValueAt(tblCardResult.getSelectedRow(), 1) + "\"\n"
+                                    + "     ORDER BY SFPairID DESC LIMIT 1) SFCardT ON SFCardT.NamesOnCard = crd.CardName\n"
+                                    + ") SFCard ON SFCard.ID = c.ID ";
+                            
+                            System.out.println(s);
+                            isFlip = true;
+                        }
+                        else //Current displayed card is the flip side of it
+                        {
+                            s = "SELECT * FROM Card WHERE ID = " + cID;
+                            isFlip = false;
+                            currentDisplayCard = 0;
+                        }
+                    }
+                    else if (lText.equals("meld"))
+                    {
+                        if (isFlip == false) //Current Card Being Displayed is not the Meld Side of it
+                        {
+                            s = "SELECT c.* "
+                                    + "FROM Card c\n"
+                                    + "JOIN (\n"
+                                + "    SELECT MAX(crd.ID) AS ID\n" +
+                            "               FROM Card crd\n" +
+                            "               JOIN (\n" +
+                            "               SELECT * FROM Split_Flip_Card WHERE CardID = " + cID + " AND NamesOnCard <> \"" + tblCardResult.getValueAt(tblCardResult.getSelectedRow(), 1) + "\"\n"
+                                    + "     ORDER BY SFPairID DESC LIMIT 1) SFCardT ON SFCardT.NamesOnCard = crd.CardName\n"
+                                    + ") SFCard ON SFCard.ID = c.ID ";
+                            isFlip = true;
+                        }
+                        else //Current displayed card is the Meld side of it
+                        {
+                            s = "SELECT * FROM Card WHERE ID = " + cID;
+                            isFlip = false;
+                            currentDisplayCard = 0;
+                        }
+                    }
+                }
+                 
+                 resultSet = statement.executeQuery(s);
+                 while(resultSet.next())
+                 {
                     String cText = resultSet.getString("CardText");
                     String fText = resultSet.getString("FlavorText");
+                    multiverseID = resultSet.getInt("MultiverseID");
+                    
+                    if (isFlip == true)
+                    {
+                        currentDisplayCard = resultSet.getInt("ID");
+                    }
                     
                     if (cText == null)
                     {
@@ -2163,14 +2400,42 @@ public class UserGUI extends javax.swing.JFrame {
                     {
                         txtPanelInfo.setText(cText + "\n\n" + fText);
                     }
-                }
+                 }
             }
             catch (Exception e)
             {
                 e.printStackTrace();
             }
+            
+            try
+            {
+                if (isFlip == true && lText.equals("flip"))
+                {
+                    //Displaying Images on JLabels
+                    URL url = new URL("http://gatherer.wizards.com/Handlers/Image.ashx?multiverseid=" + multiverseID +"&type=card&options=rotate180");
+                    BufferedImage img = ImageIO.read(url);
+                    ImageIcon i = new ImageIcon(img);
+
+                    lblPicture.setSize(i.getIconWidth(), i.getIconHeight());
+                    lblPicture.setIcon(i);
+                }
+                else
+                {
+                    //Displaying Images on JLabels
+                    URL url = new URL("http://gatherer.wizards.com/Handlers/Image.ashx?multiverseid=" + multiverseID +"&type=card");
+                    BufferedImage img = ImageIO.read(url);
+                    ImageIcon i = new ImageIcon(img);
+
+                    lblPicture.setSize(i.getIconWidth(), i.getIconHeight());
+                    lblPicture.setIcon(i);
+                }
+            }
+            catch(Exception e)
+            {
+                System.out.println("Error with pulling image...");
+            }
         }
-    }//GEN-LAST:event_btnSearchDisplayTextActionPerformed
+    }//GEN-LAST:event_btnSearchCardFlipActionPerformed
 
     /**
      * resizeColumnWidth(JTable table) function
@@ -2710,6 +2975,10 @@ public class UserGUI extends javax.swing.JFrame {
         });
     }
 
+    //User Declared Variables
+    private boolean isFlip = false; //Whether Card is the flip side of it
+    private int currentDisplayCard = 0; //Keeps track of Current CardID being displayed (used for flip cards)
+    
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnResetAll;
     private javax.swing.JButton btnResetFormat;
