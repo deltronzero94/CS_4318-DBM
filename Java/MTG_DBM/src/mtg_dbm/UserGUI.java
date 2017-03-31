@@ -673,6 +673,7 @@ public class UserGUI extends javax.swing.JFrame {
                 boolean [] c = changedSearchSettings();                
                 String sqlStatement = "";
                 
+                //Printing
                 if (c[12] == true) // Prepare Statement for Cards based on Printings and if setting are not default
                 {
                     int selection = comboSearchPrinting.getSelectedIndex(); //Currently Selected Option in Printing
@@ -1284,7 +1285,8 @@ public class UserGUI extends javax.swing.JFrame {
                             + "         ON  ct.TypeID = t.TypeID\n"
                             + "         JOIN Card crd\n"
                             + "         ON crd.ID = ct.CardID\n"
-                            + "         WHERE ct.TypeID NOT IN (SELECT TypeID FROM Type WHERE Types LIKE ";
+                            + "         WHERE ct.CardID NOT IN (SELECT CardID FROM Card_Type WHERE TypeID\n"
+                                + "                             IN (SELECT TypeID FROM Type WHERE Types LIKE ";
                         
                         String [] s = txtType.getText().split(" ");
                         
@@ -1296,7 +1298,7 @@ public class UserGUI extends javax.swing.JFrame {
                             }
                             else
                             {
-                                temp += "\"%" + s[x] + "%\" )\n";
+                                temp += "\"%" + s[x] + "%\")) \n";
                             }
                         }
                         
@@ -1505,7 +1507,6 @@ public class UserGUI extends javax.swing.JFrame {
                         
                         temp +=  "\n) cardArtist ON cardArtist.ID = s1.ID ";
                         sqlStatement +=  temp;
-                        
                     }
                 }
                 
@@ -1514,54 +1515,67 @@ public class UserGUI extends javax.swing.JFrame {
                 {
                     int i = comboSearchPowerSign.getSelectedIndex();
                     int p = comboSearchPower.getSelectedIndex();
-                    String temp = "";
+                    String temp = "JOIN (\n"
+                            + "         SELECT ID\n"
+                            + "         FROM Card\n"
+                            + "         WHERE Power ";
                     
                     if (i == 0) //Less than
                     {
-                        
+                        temp += "< " + comboSearchPower.getItemAt(p)
+                                +   "\n) cardPower ON cardPower.ID = s1.ID ";
+                        sqlStatement += temp;
                     }
                     else if (i == 1) //Greater Than
                     {
                         if (p == 0) //Handle Incorrect Fields
                         {
-                            
+                            temp = "";
                         }
                         else
                         {
-                            
+                            temp += "> " + comboSearchPower.getItemAt(p)
+                                +   "\n) cardPower ON cardPower.ID = s1.ID ";
+                            sqlStatement += temp;
                         }
                     }
                     else if (i == 2) //Less Than or Equal to
                     {
                         if (p == 0) //Handle Incorrect Fields
                         {
-                            
+                            temp = "";
                         }
                         else
                         {
-                            
+                            temp += "<= " + comboSearchPower.getItemAt(p)
+                                +   "\n) cardPower ON cardPower.ID = s1.ID ";
+                            sqlStatement += temp;
                         }
                     }
                     else if (i == 3) //Greater Than or Equal to
                     {
                         if (p == 0) //Handle Incorrect Fields
                         {
-                            
+                            temp = "";
                         }
                         else
                         {
-                            
+                            temp += ">= " + comboSearchPower.getItemAt(p)
+                                +   "\n) cardPower ON cardPower.ID = s1.ID ";
+                            sqlStatement += temp;
                         }
                     }
                     else if (i == 4) //Equal to
                     {
                         if (p == 0) //Handle Null Fields (Ancestrall Call, Lotus Bloom, etc...)
                         {
-                            
+                            temp = "";
                         }
                         else
                         {
-                            
+                            temp += "= " + comboSearchPower.getItemAt(p)
+                                +   "\n) cardPower ON cardPower.ID = s1.ID ";
+                            sqlStatement += temp;
                         }
                     }
                 }
@@ -1569,83 +1583,139 @@ public class UserGUI extends javax.swing.JFrame {
                 //Toughness
                 if(c[8] == true) //Adds SQL Statement based on Toughness non-default settings 
                 {
-                    int i = comboSearchPowerSign.getSelectedIndex();
+                    int i = comboSearchToughnessSign.getSelectedIndex();
+                    int p = comboSearchToughness.getSelectedIndex();
+                    String temp = "JOIN (\n"
+                            + "         SELECT ID\n"
+                            + "         FROM Card\n"
+                            + "         WHERE Toughness ";
                     
                     if (i == 0) //Less than
                     {
-                        
+                        temp += "< " + comboSearchToughness.getItemAt(p)
+                                +   "\n) cardToughness ON cardToughness.ID = s1.ID ";
+                        sqlStatement += temp;
                     }
                     else if (i == 1) //Greater Than
                     {
-                        
+                        if (p == 0) //Handle Incorrect Fields
+                        {
+                            temp = "";
+                        }
+                        else
+                        {
+                            temp += "> " + comboSearchToughness.getItemAt(p)
+                                +   "\n) cardToughness ON cardToughness.ID = s1.ID ";
+                            sqlStatement += temp;
+                        }
                     }
                     else if (i == 2) //Less Than or Equal to
                     {
-                        
+                        if (p == 0) //Handle Incorrect Fields
+                        {
+                            temp = "";
+                        }
+                        else
+                        {
+                            temp += "<= " + comboSearchToughness.getItemAt(p)
+                                +   "\n) cardToughness ON cardToughness.ID = s1.ID ";
+                            sqlStatement += temp;
+                        }
                     }
                     else if (i == 3) //Greater Than or Equal to
                     {
-                        
+                        if (p == 0) //Handle Incorrect Fields
+                        {
+                            temp = "";
+                        }
+                        else
+                        {
+                            temp += ">= " + comboSearchToughness.getItemAt(p)
+                                +   "\n) cardToughness ON cardToughness.ID = s1.ID ";
+                            sqlStatement += temp;
+                        }
                     }
                     else if (i == 4) //Equal to
                     {
-                        
+                        if (p == 0) //Handle Incorrect Fields
+                        {
+                            temp = "";
+                        }
+                        else
+                        {
+                            temp += "= " + comboSearchToughness.getItemAt(p)
+                                +   "\n) cardToughness ON cardToughness.ID = s1.ID ";
+                            sqlStatement += temp;
+                        }
                     }
                 }
                 
                 //CMC
                 if(c[9] == true) //Adds SQL Statement based on CMC non-default settings 
                 {
-                    int i = comboSearchPowerSign.getSelectedIndex();
-                    int p = comboSearchPower.getSelectedIndex();
-                    String temp = "";
+                    int i = comboSearchCMCSign.getSelectedIndex();
+                    int p = comboSearchCMC.getSelectedIndex();
+                    String temp = "JOIN (\n"
+                            + "         SELECT ID\n"
+                            + "         FROM Card\n"
+                            + "         WHERE CMC ";
                     
                     if (i == 0) //Less than
                     {
-                       
+                        temp += "< " + comboSearchCMC.getItemAt(p)
+                                +   "\n) cardCMC ON cardCMC.ID = s1.ID ";
+                        sqlStatement += temp;
                     }
                     else if (i == 1) //Greater Than
                     {
                         if (p == 0) //Handle Incorrect Fields
                         {
-                            
+                            temp = "";
                         }
                         else
                         {
-                            
+                            temp += "> " + comboSearchCMC.getItemAt(p)
+                                +   "\n) cardCMC ON cardCMC.ID = s1.ID ";
+                            sqlStatement += temp;
                         }
                     }
                     else if (i == 2) //Less Than or Equal to
                     {
                         if (p == 0) //Handle Incorrect Fields
                         {
-                            
+                            temp = "";
                         }
                         else
                         {
-                            
+                            temp += "<= " + comboSearchCMC.getItemAt(p)
+                                +   "\n) cardCMC ON cardCMC.ID = s1.ID ";
+                            sqlStatement += temp;
                         }
                     }
                     else if (i == 3) //Greater Than or Equal to
                     {
                         if (p == 0) //Handle Incorrect Fields
                         {
-                            
+                            temp = "";
                         }
                         else
                         {
-                            
+                            temp += ">= " + comboSearchCMC.getItemAt(p)
+                                +   "\n) cardCMC ON cardCMC.ID = s1.ID ";
+                            sqlStatement += temp;
                         }
                     }
                     else if (i == 4) //Equal to
                     {
-                        if (p == 0) //Handle Null Fields (Ancestrall Call, Lotus Bloom, etc...)
+                        if (p == 0) //Handle Incorrect Fields
                         {
-                            
+                            temp = "";
                         }
                         else
                         {
-                            
+                            temp += "= " + comboSearchCMC.getItemAt(p)
+                                +   "\n) cardCMC ON cardCMC.ID = s1.ID ";
+                            sqlStatement += temp;
                         }
                     }
                 }
