@@ -1478,7 +1478,35 @@ public class UserGUI extends javax.swing.JFrame {
                 //Artist
                 if(c[4] == true)
                 {
-                   String temp = ""; 
+                    String temp = "";
+                    if (txtArtist.getText().trim().equals(""))
+                    {
+                        temp = "";
+                    }
+                    else
+                    {
+                        temp = "JOIN (\n"
+                           + "          SELECT ID\n"
+                           + "          FROM Card\n"
+                           + "          WHERE Artist LIKE \"%";
+                        String [] s = txtArtist.getText().split(" ");
+                        
+                        for (int x = 0; x < s.length; x++)
+                        {
+                            if(x != s.length - 1)
+                            {
+                                temp +=  s[x] + " ";
+                            }
+                            else
+                            {
+                                temp +=  s[x] + "%\"";
+                            }
+                        }
+                        
+                        temp +=  "\n) cardArtist ON cardArtist.ID = s1.ID ";
+                        sqlStatement +=  temp;
+                        
+                    }
                 }
                 
                 //Power
