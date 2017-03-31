@@ -1154,6 +1154,125 @@ public class UserGUI extends javax.swing.JFrame {
                     sqlStatement += temp;   //Adds Color SQL Statement to sqlStatement String
                 }
                 
+                //Rarity
+                if (c[13] == true)  //Adds SQL Statement based on Rarity non-default settings
+                {
+                    String temp = "JOIN(\n"
+                            + "    SELECT ID\n"
+                            + "    FROM Card\n"
+                            + "    WHERE Rarity = ";
+                    
+                    ArrayList<String> s = new ArrayList<String>();
+                    
+                    if (cbSearchCommon.isSelected())
+                    {
+                        s.add("\"Common\"");
+                    }
+                    
+                    if (cbSearchUncommon.isSelected())
+                    {
+                        s.add("\"Uncommon\"");
+                    }
+                    
+                    if (cbSearchRare.isSelected())
+                    {
+                        s.add("\"Rare\"");
+                    }
+                    
+                    if (cbSearchMythicRare.isSelected())
+                    {
+                        s.add("\"Mythic Rare\"");
+                    }
+                    
+                    for (int x = 0; x < s.size(); x++)
+                    {
+                        if (x != s.size()-1)
+                        {
+                            temp += s.get(x) + " OR Rarity = ";
+                        }
+                        else
+                        {
+                            temp += s.get(x) + ") ";
+                        }
+                    }
+                    temp += "rarity ON rarity.ID = s1.ID ";
+                    sqlStatement += temp;
+                    
+                }
+                
+                //Card Name
+                if(c[0] == true) //Adds SQL Statement based on Card name non-default setting
+                {
+                    String temp = "JOIN (\n"
+                            + "         SELECT ID\n"
+                            + "         FROM Card\n"
+                            + "         WHERE CardName LIKE \"%" + txtCardName.getText() + "%\"\n"
+                            + "    ) cardName ON cardName.ID = s1.ID ";
+                    
+                    sqlStatement += temp;
+                }
+                
+                //Card Type
+                if(c[1] == true) //Adds SQL Statement based on Card Type non-default settings
+                {
+                    
+                    String temp = "JOIN (\n"
+                            + "         SELECT ct.CardID\n"
+                            + "         FROM Card_Type ct\n"
+                            + "         JOIN Type t\n"
+                            + "         ON  ct.TypeID = t.TypeID\n"
+                            + "         JOIN Card crd\n"
+                            + "         ON crd.ID = ct.CardID\n"
+                            + "         WHERE ct.TypeID IN (SELECT TypeID FROM Type WHERE Types LIKE ";
+                    
+                    if (comboSearchType.getSelectedIndex() == 0) //All types
+                    {
+                        //ArrayList<String> s = new ArrayList<String>();
+                        
+                        //char [] a = txtType.getText().toCharArray();
+                        String [] s = txtType.getText().split(" ");
+                        for (int x = 0; x < s.length ; x++)
+                        {
+                            if(x != s.length - 1)
+                            {
+                                temp += "\"%" + s[x] + "%\" OR Types LIKE ";
+                            }
+                            else
+                            {
+                                temp += "\"%" + s[x] + "%\" )\n";
+                            }
+                        }
+                        
+                        temp += " GROUP BY ct.CardID HAVING COUNT(*) = " + s.length
+                                + "\n) cardType ON cardType.CardID = s1.ID ";
+                        
+                        sqlStatement +=  temp;
+                    }
+                    else if (comboSearchType.getSelectedIndex() == 1) //Any type(s)
+                    {
+                        String [] s = txtType.getText().split(" ");
+                        for (int x = 0; x < s.length ; x++)
+                        {
+                            if(x != s.length - 1)
+                            {
+                                temp += "\"%" + s[x] + "%\" OR Types LIKE ";
+                            }
+                            else
+                            {
+                                temp += "\"%" + s[x] + "%\" )\n";
+                            }
+                        }
+                        
+                        temp += ") cardType ON cardType.CardID = s1.ID ";
+                        sqlStatement +=  temp;
+                    }
+                    else
+                    {
+                        
+                    }
+                }
+                
+                
                 //Power
                 if(c[7] == true) //Adds SQL Statement based on Power non-default settings 
                 {
