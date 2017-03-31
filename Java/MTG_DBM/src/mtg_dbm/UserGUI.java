@@ -700,6 +700,17 @@ public class UserGUI extends javax.swing.JFrame {
                         String temp = "SELECT s1.* FROM mtg_dbm.Card s1 ";
                         sqlStatement = temp;
                     }
+                    else if (selection == 3) //Reprints Only
+                    {
+                        String temp = "SELECT s1.*\n" +
+                                    "FROM mtg_dbm.Card s1\n" +
+                                    "JOIN (\n" +
+                                    "  SELECT  ID, CardName\n" +
+                                    "  FROM mtg_dbm.Card\n" +
+                                    "  WHERE ID NOT IN (SELECT MIN(ID) AS CardID FROM Card GROUP BY CardName)) AS s2\n" +
+                                    "  ON s1.CardName = s2.CardName AND s1.ID = s2.ID ";
+                        sqlStatement = temp;
+                    }
                 }
                 else    //Create Default Search for Most Recent Printing
                 {
