@@ -1227,10 +1227,8 @@ public class UserGUI extends javax.swing.JFrame {
                     
                     if (comboSearchType.getSelectedIndex() == 0) //All types
                     {
-                        //ArrayList<String> s = new ArrayList<String>();
-                        
-                        //char [] a = txtType.getText().toCharArray();
                         String [] s = txtType.getText().split(" ");
+                        
                         for (int x = 0; x < s.length ; x++)
                         {
                             if(x != s.length - 1)
@@ -1245,6 +1243,11 @@ public class UserGUI extends javax.swing.JFrame {
                         
                         temp += " GROUP BY ct.CardID HAVING COUNT(*) = " + s.length
                                 + "\n) cardType ON cardType.CardID = s1.ID ";
+                        
+                        if (txtType.getText().trim().equals(""))
+                        {
+                            temp = "";
+                        }
                         
                         sqlStatement +=  temp;
                     }
@@ -1264,14 +1267,219 @@ public class UserGUI extends javax.swing.JFrame {
                         }
                         
                         temp += ") cardType ON cardType.CardID = s1.ID ";
+                        
+                        if (txtType.getText().trim().equals(""))
+                        {
+                            temp = "";
+                        }
+                        
                         sqlStatement +=  temp;
                     }
-                    else
+                    else    //Exclude Selected
                     {
+                        temp = "JOIN (\n"
+                            + "         SELECT ct.CardID\n"
+                            + "         FROM Card_Type ct\n"
+                            + "         JOIN Type t\n"
+                            + "         ON  ct.TypeID = t.TypeID\n"
+                            + "         JOIN Card crd\n"
+                            + "         ON crd.ID = ct.CardID\n"
+                            + "         WHERE ct.TypeID NOT IN (SELECT TypeID FROM Type WHERE Types LIKE ";
                         
+                        String [] s = txtType.getText().split(" ");
+                        
+                        for (int x = 0; x < s.length ; x++)
+                        {
+                            if(x != s.length - 1)
+                            {
+                                temp += "\"%" + s[x] + "%\" OR Types LIKE ";
+                            }
+                            else
+                            {
+                                temp += "\"%" + s[x] + "%\" )\n";
+                            }
+                        }
+                        
+                        temp += ") cardType ON cardType.CardID = s1.ID ";
+                        
+                        if (txtType.getText().trim().equals(""))
+                        {
+                            temp = "";
+                        }
+                        
+                        sqlStatement +=  temp;
                     }
                 }
                 
+                //Text
+                if (c[2] == true)
+                {
+                    String temp = "JOIN (\n"
+                            + "         SELECT ID\n"
+                            + "         FROM Card\n"
+                            + "         WHERE ID IN (SELECT ID FROM Card WHERE CardText LIKE ";
+                    String [] s = txtText.getText().split(" ");
+                    
+                    if (comboSearchText.getSelectedIndex() == 0) //All words
+                    {
+                        for (int x = 0; x < s.length; x++)
+                        {
+                            if(x != s.length - 1)
+                            {
+                                temp += "\"%" + s[x] + "%\" AND CardText LIKE ";
+                            }
+                            else
+                            {
+                                temp += "\"%" + s[x] + "%\")";
+                            }
+                        }
+                        
+                        temp +=  "\n) cardText ON cardText.ID = s1.ID ";
+                        
+                        if (txtText.getText().trim().equals(""))
+                        {
+                            temp = "";
+                        }
+                        
+                        sqlStatement +=  temp;
+                        
+                    }
+                    else if (comboSearchText.getSelectedIndex() == 1) //Any word(s)
+                    {
+                        for (int x = 0; x < s.length; x++)
+                        {
+                            if(x != s.length - 1)
+                            {
+                                temp += "\"%" + s[x] + "%\" OR CardText LIKE ";
+                            }
+                            else
+                            {
+                                temp += "\"%" + s[x] + "%\")";
+                            }
+                        }
+                        
+                        temp +=  "\n) cardText ON cardText.ID = s1.ID ";
+                        
+                        if (txtText.getText().trim().equals(""))
+                        {
+                            temp = "";
+                        }
+                        
+                        sqlStatement +=  temp;
+                    }
+                    else     //Exact Phrase
+                    {
+                        for (int x = 0; x < s.length; x++)
+                        {
+                            if(x != s.length - 1)
+                            {
+                                temp += "\"%" + s[x] + " ";
+                            }
+                            else
+                            {
+                                temp +=  s[x] + "%\")";
+                            }
+                        }
+                        
+                        temp +=  "\n) cardText ON cardText.ID = s1.ID ";
+                        
+                        if (txtText.getText().trim().equals(""))
+                        {
+                            temp = "";
+                        }
+                        
+                        sqlStatement +=  temp;
+                    }
+                }
+                
+                
+                //Flavor Text
+                if(c[3] == true)
+                {
+                    String temp = "JOIN (\n"
+                            + "         SELECT ID\n"
+                            + "         FROM Card\n"
+                            + "         WHERE ID IN (SELECT ID FROM Card WHERE FlavorText LIKE ";
+                    String [] s = txtFlavorText.getText().split(" ");
+                    
+                    if (comboSearchFlavorText.getSelectedIndex() == 0) //All words
+                    {
+                        for (int x = 0; x < s.length; x++)
+                        {
+                            if(x != s.length - 1)
+                            {
+                                temp += "\"%" + s[x] + "%\" AND FlavorText LIKE ";
+                            }
+                            else
+                            {
+                                temp += "\"%" + s[x] + "%\")";
+                            }
+                        }
+                        
+                        temp +=  "\n) cardFlavorText ON cardFlavorText.ID = s1.ID ";
+                        
+                        if (txtFlavorText.getText().trim().equals(""))
+                        {
+                            temp = "";
+                        }
+                        
+                        sqlStatement +=  temp;
+                        
+                    }
+                    else if (comboSearchFlavorText.getSelectedIndex() == 1) //Any word(s)
+                    {
+                        for (int x = 0; x < s.length; x++)
+                        {
+                            if(x != s.length - 1)
+                            {
+                                temp += "\"%" + s[x] + "%\" OR FlavorText LIKE ";
+                            }
+                            else
+                            {
+                                temp += "\"%" + s[x] + "%\")";
+                            }
+                        }
+                        
+                        temp +=  "\n) cardFlavorText ON cardFlavorText.ID = s1.ID ";
+                        
+                        if (txtFlavorText.getText().trim().equals(""))
+                        {
+                            temp = "";
+                        }
+                        
+                        sqlStatement +=  temp;
+                    }
+                    else     //Exact Phrase
+                    {
+                        for (int x = 0; x < s.length; x++)
+                        {
+                            if(x != s.length - 1)
+                            {
+                                temp += "\"%" + s[x] + " ";
+                            }
+                            else
+                            {
+                                temp +=  s[x] + "%\")";
+                            }
+                        }
+                        
+                        temp +=  "\n) cardFlavorText ON cardFlavorText.ID = s1.ID ";
+                        
+                        if (txtFlavorText.getText().trim().equals(""))
+                        {
+                            temp = "";
+                        }
+                        
+                        sqlStatement +=  temp;
+                    }
+                }
+                
+                
+                //Artist
+                if(c[4] == true)
+                {
+                   String temp = ""; 
+                }
                 
                 //Power
                 if(c[7] == true) //Adds SQL Statement based on Power non-default settings 
@@ -1282,8 +1490,7 @@ public class UserGUI extends javax.swing.JFrame {
                     
                     if (i == 0) //Less than
                     {
-//                       temp = "JOIN (\n "+
-//                               "";
+                        
                     }
                     else if (i == 1) //Greater Than
                     {
@@ -1415,7 +1622,7 @@ public class UserGUI extends javax.swing.JFrame {
                     }
                 }
                 
-                System.out.println(sqlStatement);
+                System.out.println( "\n"+ sqlStatement);
                 resultSet = statement.executeQuery(sqlStatement + "GROUP BY s1.ID ORDER BY s1.CardName ASC" ); // + "ORDER BY s1.CardName ASC" <- add this to order from A-Z
 
                  //Instanced Variables
@@ -1448,40 +1655,6 @@ public class UserGUI extends javax.swing.JFrame {
                 
                 
             }
-            
-//            else if (searchCard.isEmpty() == false) //If User inputs anything in the search
-//            {
-//                preparedStatement = connect.prepareStatement("select * from mtg_dbm.Card where CardName like ?");
-//                preparedStatement.setString(1, "%" + searchCard + "%");
-//                resultSet = preparedStatement.executeQuery();
-//                
-//                 //Instanced Variables
-//                DefaultTableModel tbl = (DefaultTableModel)tblCardResult.getModel();
-//
-//                tbl.setRowCount(0); //Set Table Row Count = 0
-//
-//
-//                while (resultSet.next())
-//                {
-//                    int CardID = resultSet.getInt("ID");
-//                    String CardName = resultSet.getString("CardName");
-//                    String SetName = resultSet.getString("SetName");
-//                    String Mana = resultSet.getString("ManaCost");
-//                    float CMC = resultSet.getFloat("CMC");
-//                    String Type = resultSet.getString("CardType");
-//                    String Power = resultSet.getString("Power");
-//                    String Toughness = resultSet.getString(("Toughness"));
-//                    String Artist = resultSet.getString("Artist");
-//                    int MultiverseID = resultSet.getInt("MultiverseID");
-//                    Object [] arr = {CardID, CardName, SetName, Mana, CMC, Type,
-//                                     Power, Toughness, Artist, MultiverseID};
-//                    tbl.addRow(arr);
-//                    //System.out.println(CardName +":" +ID +"\n");
-//                }
-//                
-//                tblCardResult.setModel(tbl);
-//                resizeColumnWidth(tblCardResult);
-//            }
             
             //TODO: Check if there is available connection
             
