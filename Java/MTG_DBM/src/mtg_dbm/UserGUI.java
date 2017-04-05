@@ -29,6 +29,15 @@ import javax.swing.table.TableColumnModel;
  * @author reticent
  */
 public class UserGUI extends javax.swing.JFrame {
+    
+    //Private Declared Memeber Variables
+    private Connection connect = null;
+    private Statement statement = null;
+    private PreparedStatement preparedStatement = null;
+    private ResultSet resultSet = null; 
+    private String url = "jdbc:mysql://localhost/mtg_dbm?";
+    private String user = "root";
+    private String password = "q1w2e3r4";
 
     /**
      * Default Constructor
@@ -37,6 +46,17 @@ public class UserGUI extends javax.swing.JFrame {
      */
     public UserGUI() {
         initComponents();
+        
+        try
+        {
+            connect = DriverManager.getConnection(url, user, password);
+            statement = connect.createStatement();
+        }
+        catch(Exception e)
+        {
+            e.printStackTrace();
+        }
+        
         //populateComboListFormat();
         comboSearchFormat.setModel(new DefaultComboBoxModel(populateComboListFormat().toArray()));
         comboSearchSet.setModel(new DefaultComboBoxModel(populateComboListSet().toArray()));
@@ -621,16 +641,9 @@ public class UserGUI extends javax.swing.JFrame {
     private void btnSearchActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSearchActionPerformed
         //Create Variables
         String searchCard = txtCardName.getText();  //Card Being Searched
-        Connection connect = null;
-        Statement statement = null;
-        PreparedStatement preparedStatement = null;
-        ResultSet resultSet = null;
         
         try 
         {
-            connect = DriverManager.getConnection("jdbc:mysql://localhost/mtg_dbm?" 
-                                                + "user=root&password=q1w2e3r4");
-            statement = connect.createStatement();
             
             if (isSearchSettingsDefault() == true) //Blank or Default settings search pulls all recent cards in database
             {
@@ -666,7 +679,6 @@ public class UserGUI extends javax.swing.JFrame {
                     Object [] arr = {CardID, CardName, SetName, Mana, CMC, Type,
                                      Power, Toughness, Artist, MultiverseID};
                     tbl.addRow(arr);
-                    //System.out.println(CardName +":" +ID +"\n");
                 }
                 
                 tblCardResult.setModel(tbl);
@@ -1761,13 +1773,10 @@ public class UserGUI extends javax.swing.JFrame {
                     Object [] arr = {CardID, CardName, SetName, Mana, CMC, Type,
                                      Power, Toughness, Artist, MultiverseID};
                     tbl.addRow(arr);
-                    //System.out.println(CardName +":" +ID +"\n");
                 }
                 
                 tblCardResult.setModel(tbl);
                 resizeColumnWidth(tblCardResult);
-                
-                
             }
             
             //TODO: Check if there is available connection
@@ -1776,12 +1785,6 @@ public class UserGUI extends javax.swing.JFrame {
             URL url = new URL("http://gatherer.wizards.com/Handlers/Image.ashx?multiverseid=99595959&type=card");
             BufferedImage img = ImageIO.read(url);
             ImageIcon i = new ImageIcon(img);
-//            System.out.println("X: " + lblPictureTest.getLocation().x +
-//                               "\nY: " + lblPictureTest.getLocation().y +
-//                               "\nDimensions of Picture: (" + img.getHeight()+","+img.getWidth()+")"+
-//                                "\nDimensions of Label: (" + lblPictureTest.getHeight()+","+lblPictureTest.getWidth()+")");
-//            lblPictureTest.setBounds(539, 253, img.getWidth(), img.getHeight());
-//            lblPictureTest.setSize();
             
             lblPicture.setIcon(i);
         }
@@ -1805,21 +1808,12 @@ public class UserGUI extends javax.swing.JFrame {
         
         Object temp = tbl.getValueAt(tbl.getSelectedRow(), 9);
         if (temp != null)
-        {
-            Connection connect = null;
-            Statement statement = null;
-            PreparedStatement preparedStatement = null;
-            ResultSet resultSet = null;
-            
+        {   
             int cID = (int)tbl.getValueAt(tbl.getSelectedRow(), 0); //Selected Card ID
             boolean layout = false; //Stores the Layout of the Card
             
             try
-            {
-                connect = DriverManager.getConnection("jdbc:mysql://localhost/mtg_dbm?" 
-                                                + "user=root&password=q1w2e3r4");
-                statement = connect.createStatement();
-                
+            {   
                 preparedStatement = connect.prepareStatement("select * from mtg_dbm.Card where ID = ?");
                 preparedStatement.setInt(1,  cID);
                 resultSet = preparedStatement.executeQuery();
@@ -2098,10 +2092,6 @@ public class UserGUI extends javax.swing.JFrame {
      * Displays the rules of the Card that is currently selected in the table
      */
     private void btnSearchDisplayRuleActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSearchDisplayRuleActionPerformed
-        Connection connect = null;
-        Statement statement = null;
-        PreparedStatement preparedStatement = null;
-        ResultSet resultSet = null;
         
         if (tblCardResult.getSelectedRow() >= 0)
         {
@@ -2115,10 +2105,6 @@ public class UserGUI extends javax.swing.JFrame {
             {
                 try
                 {
-                    connect = DriverManager.getConnection("jdbc:mysql://localhost/mtg_dbm?" 
-                                                    + "user=root&password=q1w2e3r4");
-                    statement = connect.createStatement();
-
                     preparedStatement = connect.prepareStatement("SELECT TextRuling , RulingYear FROM Ruling WHERE CardID = ?");
                     preparedStatement.setInt(1,  currentDisplayCard);
                     resultSet = preparedStatement.executeQuery();
@@ -2149,10 +2135,6 @@ public class UserGUI extends javax.swing.JFrame {
             {
                 try
                 {
-                    connect = DriverManager.getConnection("jdbc:mysql://localhost/mtg_dbm?" 
-                                                    + "user=root&password=q1w2e3r4");
-                    statement = connect.createStatement();
-
                     preparedStatement = connect.prepareStatement("SELECT TextRuling , RulingYear FROM Ruling WHERE CardID = ?");
                     preparedStatement.setInt(1,  cID);
                     resultSet = preparedStatement.executeQuery();
@@ -2189,11 +2171,7 @@ public class UserGUI extends javax.swing.JFrame {
      * Displays the Text & Flavor Text of the Card that is currently selected in the table
      */
     private void btnSearchDisplayTextActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSearchDisplayTextActionPerformed
-        Connection connect = null;
-        Statement statement = null;
-        PreparedStatement preparedStatement = null;
-        ResultSet resultSet = null;
-        
+      
         if (tblCardResult.getSelectedRow() >= 0)
         {
             Object o = tblCardResult.getValueAt(tblCardResult.getSelectedRow(), 0);
@@ -2203,14 +2181,9 @@ public class UserGUI extends javax.swing.JFrame {
             {
                 try
                 {
-                    connect = DriverManager.getConnection("jdbc:mysql://localhost/mtg_dbm?" 
-                                                    + "user=root&password=q1w2e3r4");
-                    statement = connect.createStatement();
-
                     preparedStatement = connect.prepareStatement("SELECT CardText, FlavorText FROM Card WHERE ID = ?");
                     preparedStatement.setInt(1,  currentDisplayCard);
                     resultSet = preparedStatement.executeQuery();
-
 
                      while (resultSet.next())
                     {
@@ -2241,10 +2214,6 @@ public class UserGUI extends javax.swing.JFrame {
             
                 try
                 {
-                    connect = DriverManager.getConnection("jdbc:mysql://localhost/mtg_dbm?" 
-                                                    + "user=root&password=q1w2e3r4");
-                    statement = connect.createStatement();
-
                     preparedStatement = connect.prepareStatement("SELECT CardText, FlavorText FROM Card WHERE ID = ?");
                     preparedStatement.setInt(1,  cID);
                     resultSet = preparedStatement.executeQuery();
@@ -2287,10 +2256,6 @@ public class UserGUI extends javax.swing.JFrame {
      */
     private void btnSearchCardFlipActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSearchCardFlipActionPerformed
         //Declared Variables
-        Connection connect = null;
-        Statement statement = null;
-        PreparedStatement preparedStatement = null;
-        ResultSet resultSet = null;
         String s = "";  //SQLStatement
         boolean layout = false; //Stores the Layout of the Card
         int multiverseID = 0;
@@ -2302,15 +2267,10 @@ public class UserGUI extends javax.swing.JFrame {
             String lText = "";
             
             try
-            {
-                connect = DriverManager.getConnection("jdbc:mysql://localhost/mtg_dbm?" 
-                                                + "user=root&password=q1w2e3r4");
-                statement = connect.createStatement();
-                
+            {   
                 preparedStatement = connect.prepareStatement("SELECT Layout FROM Card WHERE ID = ?");
                 preparedStatement.setInt(1,  cID);
                 resultSet = preparedStatement.executeQuery();
-                
                 
                  while (resultSet.next())
                 {
@@ -2487,18 +2447,10 @@ public class UserGUI extends javax.swing.JFrame {
     {
         //Declared Variables
         ArrayList<String> l = new ArrayList<String>();  //Stores ArrayList of Formats
-        Connection connect = null;
-        Statement statement = null;
-        ResultSet resultSet = null;
-        
         l.add("");  //Adds Default Blank 
         
         try 
-        {
-            connect = DriverManager.getConnection("jdbc:mysql://localhost/mtg_dbm?" 
-                                                + "user=root&password=q1w2e3r4");
-            statement = connect.createStatement();
-            
+        {   
             resultSet = statement.executeQuery("select * from mtg_dbm.Format");
             
             while(resultSet.next())
@@ -2524,18 +2476,11 @@ public class UserGUI extends javax.swing.JFrame {
     {
         //Declared Variables
         ArrayList<String> l = new ArrayList<String>();  //Stores ArrayList of Formats
-        Connection connect = null;
-        Statement statement = null;
-        ResultSet resultSet = null;
         
         l.add("");  //Adds Default Blank 
         
         try 
-        {
-            connect = DriverManager.getConnection("jdbc:mysql://localhost/mtg_dbm?" 
-                                                + "user=root&password=q1w2e3r4");
-            statement = connect.createStatement();
-            
+        {   
             resultSet = statement.executeQuery("select * from mtg_dbm.MTGSet");
             
             while(resultSet.next())
