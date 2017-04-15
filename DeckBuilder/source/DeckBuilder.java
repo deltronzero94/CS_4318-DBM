@@ -139,13 +139,13 @@ public class DeckBuilder extends javax.swing.JPanel {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnEditActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEditActionPerformed
-        DeckEditDialogue editor = new DeckEditDialogue((JFrame) SwingUtilities.getWindowAncestor(this)
+        DeckEditDialog editor = new DeckEditDialog((JFrame) SwingUtilities.getWindowAncestor(this)
 , false, (int) tblDecks.getValueAt(tblDecks.getSelectedRow(), 3));
         editor.setVisible(true);
     }//GEN-LAST:event_btnEditActionPerformed
 
     private void btnNewActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNewActionPerformed
-        NewDeckDialogue myDialogue = new NewDeckDialogue((JFrame) SwingUtilities.getWindowAncestor(this)
+        NewDeckDialog myDialogue = new NewDeckDialog((JFrame) SwingUtilities.getWindowAncestor(this)
 , false);
         myDialogue.setVisible(true);
     }//GEN-LAST:event_btnNewActionPerformed
