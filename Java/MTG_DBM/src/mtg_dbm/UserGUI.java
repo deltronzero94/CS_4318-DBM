@@ -637,13 +637,13 @@ public class UserGUI extends javax.swing.JFrame {
             {
                 // Result set get the result of the SQL query
                 resultSet = statement.executeQuery("SELECT s1.*\n" +
-                                                    "FROM mtg_dbm.Card s1\n" +
+                                                    "FROM Card s1\n" +
                                                     "JOIN (\n" +
                                                     "  SELECT  MAX(ID) AS ID, CardName\n" +
-                                                    "  FROM mtg_dbm.Card\n" +
+                                                    "  FROM Card\n" +
                                                     "  GROUP BY CardName) AS s2\n" +
                                                     "  ON s1.CardName = s2.CardName AND s1.ID = s2.ID\n" +
-                                                    "  LEFT JOIN mtg_dbm.MTGSet z ON s1.SetName = z.SetName");
+                                                    "  JOIN MTGSet z ON s1.SetName = z.SetName");
 
                  //Instanced Variables
                 DefaultTableModel tbl = (DefaultTableModel)tblCardResult.getModel();
@@ -687,26 +687,26 @@ public class UserGUI extends javax.swing.JFrame {
                     if (selection == 1) //Original Printing
                     {
                         String temp = "SELECT s1.*\n" +
-                                    "FROM mtg_dbm.Card s1\n" +
+                                    "FROM Card s1\n" +
                                     "JOIN (\n" +
                                     "  SELECT  MIN(ID) AS ID, CardName\n" +
-                                    "  FROM mtg_dbm.Card\n" +
+                                    "  FROM Card\n" +
                                     "  GROUP BY CardName) AS s2\n" +
                                     "  ON s1.CardName = s2.CardName AND s1.ID = s2.ID ";
                         sqlStatement = temp;
                     }
                     else if (selection == 2) //All Printings
                     {
-                        String temp = "SELECT s1.* FROM mtg_dbm.Card s1 ";
+                        String temp = "SELECT s1.* FROM Card s1 ";
                         sqlStatement = temp;
                     }
                     else if (selection == 3) //Reprints Only
                     {
                         String temp = "SELECT s1.*\n" +
-                                    "FROM mtg_dbm.Card s1\n" +
+                                    "FROM Card s1\n" +
                                     "JOIN (\n" +
                                     "  SELECT  ID, CardName\n" +
-                                    "  FROM mtg_dbm.Card\n" +
+                                    "  FROM Card\n" +
                                     "  WHERE ID NOT IN (SELECT MIN(ID) AS CardID FROM Card GROUP BY CardName)) AS s2\n" +
                                     "  ON s1.CardName = s2.CardName AND s1.ID = s2.ID ";
                         sqlStatement = temp;
@@ -716,10 +716,10 @@ public class UserGUI extends javax.swing.JFrame {
                 {
                     
                     String temp = "SELECT s1.*\n" +
-                                    "FROM mtg_dbm.Card s1\n" +
+                                    "FROM Card s1\n" +
                                     "JOIN (\n" +
                                     "  SELECT  MAX(ID) AS ID, CardName\n" +
-                                    "  FROM mtg_dbm.Card\n" +
+                                    "  FROM Card\n" +
                                     "  GROUP BY CardName) AS s2\n" +
                                     "  ON s1.CardName = s2.CardName AND s1.ID = s2.ID ";
                     sqlStatement = temp;
@@ -1802,7 +1802,7 @@ public class UserGUI extends javax.swing.JFrame {
             
             try
             {   
-                preparedStatement = connect.prepareStatement("select * from mtg_dbm.Card where ID = ?");
+                preparedStatement = connect.prepareStatement("select * from Card where ID = ?");
                 preparedStatement.setInt(1,  cID);
                 resultSet = preparedStatement.executeQuery();
                 
@@ -2439,7 +2439,7 @@ public class UserGUI extends javax.swing.JFrame {
         
         try 
         {   
-            resultSet = statement.executeQuery("select * from mtg_dbm.Format");
+            resultSet = statement.executeQuery("select * from Format");
             
             while(resultSet.next())
             {
@@ -2469,7 +2469,7 @@ public class UserGUI extends javax.swing.JFrame {
         
         try 
         {   
-            resultSet = statement.executeQuery("select * from mtg_dbm.MTGSet");
+            resultSet = statement.executeQuery("select * from MTGSet");
             
             while(resultSet.next())
             {
