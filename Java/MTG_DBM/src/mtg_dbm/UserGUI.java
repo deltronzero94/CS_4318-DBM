@@ -7,6 +7,7 @@ package mtg_dbm;
 
 import java.awt.Component;
 import java.awt.image.BufferedImage;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -15,11 +16,15 @@ import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.ImageIcon;
+import javax.swing.JFrame;
 import javax.swing.JTable;
 import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumnModel;
@@ -35,9 +40,11 @@ public class UserGUI extends javax.swing.JFrame {
     private Statement statement = null;
     private PreparedStatement preparedStatement = null;
     private ResultSet resultSet = null; 
-    private String url = "jdbc:mysql://localhost/mtg_dbm?";
+    private String url = "jdbc:mysql://localhost/temp_mtg?";
     private String user = "root";
     private String password = "q1w2e3r4";
+    private Credentials cred;
+    private Authenticator auth;
 
     /**
      * Default Constructor
@@ -66,6 +73,11 @@ public class UserGUI extends javax.swing.JFrame {
         
         txtPanelInfo.setEditable(false);
         //txtPanelInfo.getCaret().setVisible(true);
+        
+        cred = new Credentials("name", "password");
+        auth = Authenticator.getInstance();
+        auth.authenticate("name", "password", cred);
+        refresh();
     }
 
     /**
@@ -135,8 +147,14 @@ public class UserGUI extends javax.swing.JFrame {
         btnSearchDisplayText = new javax.swing.JButton();
         btnSearchCardFlip = new javax.swing.JButton();
         jPanel2 = new javax.swing.JPanel();
+        jPanel3 = new javax.swing.JPanel();
+        jScrollPane3 = new javax.swing.JScrollPane();
+        tblDecks = new javax.swing.JTable();
+        btnEdit = new javax.swing.JButton();
+        btnNew = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setTitle("MTG Deck Builder");
         setLocationByPlatform(true);
 
         jTabbedPane1.setMaximumSize(new java.awt.Dimension(1250, 850));
@@ -593,15 +611,78 @@ public class UserGUI extends javax.swing.JFrame {
 
         jTabbedPane1.addTab("Search Card", jPanel1);
 
+        tblDecks.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+                "Name", "Format", "Visible", "ID"
+            }
+        ) {
+            boolean[] canEdit = new boolean [] {
+                true, false, true, false
+            };
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
+        jScrollPane3.setViewportView(tblDecks);
+
+        btnEdit.setText("Edit");
+        btnEdit.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnEditActionPerformed(evt);
+            }
+        });
+
+        btnNew.setText("New");
+        btnNew.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnNewActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
+        jPanel3.setLayout(jPanel3Layout);
+        jPanel3Layout.setHorizontalGroup(
+            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel3Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 972, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(jPanel3Layout.createSequentialGroup()
+                        .addComponent(btnNew)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(btnEdit)))
+                .addContainerGap(260, Short.MAX_VALUE))
+        );
+        jPanel3Layout.setVerticalGroup(
+            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel3Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 457, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(btnEdit)
+                    .addComponent(btnNew))
+                .addContainerGap(349, Short.MAX_VALUE))
+        );
+
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 1268, Short.MAX_VALUE)
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap())
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 885, Short.MAX_VALUE)
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 32, Short.MAX_VALUE))
         );
 
         jTabbedPane1.addTab("Deck", jPanel2);
@@ -1770,14 +1851,23 @@ public class UserGUI extends javax.swing.JFrame {
             //TODO: Check if there is available connection
             
             //Displaying Images on JLabels
-            URL url = new URL("http://gatherer.wizards.com/Handlers/Image.ashx?multiverseid=99595959&type=card");
-            BufferedImage img = ImageIO.read(url);
-            ImageIcon i = new ImageIcon(img);
             
-            lblPicture.setIcon(i);
+            if (testConnection("http://gatherer.wizards.com/Handlers/Image.ashx?multiverseid=99595959&type=card"))
+            {
+                URL url = new URL("http://gatherer.wizards.com/Handlers/Image.ashx?multiverseid=99595959&type=card");
+                BufferedImage img = ImageIO.read(url);
+                ImageIcon i = new ImageIcon(img);
+
+                lblPicture.setIcon(i);
+            }
+            else
+            {
+                System.out.println("Error pulling image");
+            }
         }
         catch(Exception e)
         {
+            e.printStackTrace();
             System.out.println("Error");
         }
     }//GEN-LAST:event_btnSearchActionPerformed
@@ -1853,23 +1943,37 @@ public class UserGUI extends javax.swing.JFrame {
                 //Displaying Images on JLabels
                 if (layout == false)    //If card layout is normal
                 {
-                    URL url = new URL("http://gatherer.wizards.com/Handlers/Image.ashx?multiverseid=" + x +"&type=card");
-                    BufferedImage img = ImageIO.read(url);
-                    ImageIcon i = new ImageIcon(img);
+                    if (testConnection("http://gatherer.wizards.com/Handlers/Image.ashx?multiverseid=" + x +"&type=card"))
+                    {
+                        URL url = new URL("http://gatherer.wizards.com/Handlers/Image.ashx?multiverseid=" + x +"&type=card");
+                        BufferedImage img = ImageIO.read(url);
+                        ImageIcon i = new ImageIcon(img);
 
-                    lblPicture.setSize(i.getIconWidth(), i.getIconHeight());
-                    //lblPicture.repaint();
-                    lblPicture.setIcon(i);
+                        lblPicture.setSize(i.getIconWidth(), i.getIconHeight());
+                        //lblPicture.repaint();
+                        lblPicture.setIcon(i);
+                    }
+                    else
+                    {
+                        throw new Exception();
+                    }
                 }
                 else //If card layout is not normal
                 {
-                    URL url = new URL("http://gatherer.wizards.com/Handlers/Image.ashx?multiverseid=" + x +"&type=card&options=rotate90");
-                    BufferedImage img = ImageIO.read(url);
-                    ImageIcon i = new ImageIcon(img);
+                    if (testConnection("http://gatherer.wizards.com/Handlers/Image.ashx?multiverseid=" + x +"&type=card&options=rotate90"))
+                    {
+                        URL url = new URL("http://gatherer.wizards.com/Handlers/Image.ashx?multiverseid=" + x +"&type=card&options=rotate90");
+                        BufferedImage img = ImageIO.read(url);
+                        ImageIcon i = new ImageIcon(img);
 
-                    lblPicture.setSize(i.getIconWidth(), i.getIconHeight());
-                    //lblPicture.repaint();
-                    lblPicture.setIcon(i);
+                        lblPicture.setSize(i.getIconWidth(), i.getIconHeight());
+                        //lblPicture.repaint();
+                        lblPicture.setIcon(i);
+                    }
+                    else
+                    {
+                        throw new Exception();
+                    }
                 }
             }
             catch(Exception e)
@@ -2396,6 +2500,20 @@ public class UserGUI extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_btnSearchCardFlipActionPerformed
 
+    private void btnEditActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEditActionPerformed
+        DeckEditDialog editor = new DeckEditDialog((JFrame) SwingUtilities.getWindowAncestor(this)
+            , false, (int) tblDecks.getValueAt(tblDecks.getSelectedRow(), 3), connect);
+        editor.setVisible(true);
+    }//GEN-LAST:event_btnEditActionPerformed
+
+    private void btnNewActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNewActionPerformed
+        NewDeckDialog myDialogue = new NewDeckDialog((JFrame) SwingUtilities.getWindowAncestor(this)
+            , false);
+        System.out.println(auth.getLoggedInUser() + "Testing");
+        myDialogue.setVisible(true);
+    }//GEN-LAST:event_btnNewActionPerformed
+
+    
     /**
      * resizeColumnWidth(JTable table) function
      * -------------------------------------
@@ -2884,6 +3002,58 @@ public class UserGUI extends javax.swing.JFrame {
         return l;
     }
     
+    private void refresh()
+    {
+        Authenticator auth = Authenticator.getInstance();
+        
+        ResultSet resultSet;
+        try
+        {
+            preparedStatement = connect.prepareStatement("SELECT d.idDeck, d.Deckname, d.Format, ud.Visible "
+                    + "FROM UserDeck ud "
+                    + "INNER JOIN Deck d "
+                    + "WHERE ud.Username = ?");
+            preparedStatement.setString(1, auth.getLoggedInUser());
+            resultSet = preparedStatement.executeQuery();
+            DefaultTableModel tbl = (DefaultTableModel)tblDecks.getModel();
+            tbl.setRowCount(0); 
+            
+            while (resultSet.next())
+            {
+                String Name = resultSet.getString("DeckName");
+                String Format = resultSet.getString("Format");
+                String Visible = resultSet.getString("Visible");
+                int deckid = resultSet.getInt("idDeck");
+                Object [] arr = {Name, Format, Visible, deckid};
+                tbl.addRow(arr);
+            }
+            tblDecks.setModel(tbl);
+        }   
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+    }
+    
+    private boolean testConnection(String url)
+    {
+        try 
+        {
+            HttpURLConnection con = (HttpURLConnection) new URL(url).openConnection();
+            con.setConnectTimeout(5000); //set timeout to 5 seconds
+            
+            return true;
+        } 
+        catch (java.net.SocketTimeoutException e) 
+        {
+           return false;
+        } 
+        catch (java.io.IOException e)
+        {
+            return false;
+        }
+    }
+    
     /**
      * @param args the command line arguments
      */
@@ -2924,6 +3094,8 @@ public class UserGUI extends javax.swing.JFrame {
     private int currentDisplayCard = 0; //Keeps track of Current CardID being displayed (used for flip cards)
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btnEdit;
+    private javax.swing.JButton btnNew;
     private javax.swing.JButton btnResetAll;
     private javax.swing.JButton btnResetFormat;
     private javax.swing.JButton btnResetPrinting;
@@ -2971,11 +3143,14 @@ public class UserGUI extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel9;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
+    private javax.swing.JPanel jPanel3;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JTabbedPane jTabbedPane1;
     private javax.swing.JLabel lblPicture;
     private javax.swing.JTable tblCardResult;
+    private javax.swing.JTable tblDecks;
     private javax.swing.JTextField txtArtist;
     private javax.swing.JTextField txtCardName;
     private javax.swing.JTextField txtFlavorText;
