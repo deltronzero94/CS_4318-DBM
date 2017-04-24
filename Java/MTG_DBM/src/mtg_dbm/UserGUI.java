@@ -79,6 +79,40 @@ public class UserGUI extends javax.swing.JFrame {
         auth.authenticate("name", "password", cred);
         refresh();
     }
+    
+    /**
+     * Default Constructor
+     * ----------------------------------------------------
+     * Creates new form UserGUI
+     */
+    public UserGUI(Credentials cred, Authenticator auth) {
+        initComponents();
+        
+        try
+        {
+            connect = DriverManager.getConnection(url, user, password);
+            statement = connect.createStatement();
+        }
+        catch(Exception e)
+        {
+            e.printStackTrace();
+        }
+        
+        //populateComboListFormat();
+        comboSearchFormat.setModel(new DefaultComboBoxModel(populateComboListFormat().toArray()));
+        comboSearchSet.setModel(new DefaultComboBoxModel(populateComboListSet().toArray()));
+        comboSearchPower.setModel(new DefaultComboBoxModel(populateComboListNumber().toArray()));
+        comboSearchToughness.setModel(new DefaultComboBoxModel(populateComboListNumber().toArray()));
+        comboSearchCMC.setModel(new DefaultComboBoxModel(populateComboListNumber().toArray()));
+        
+        txtPanelInfo.setEditable(false);
+        //txtPanelInfo.getCaret().setVisible(true);
+        
+        this.cred = cred;
+        this.auth = auth;
+        
+        refresh();
+    }
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -156,6 +190,11 @@ public class UserGUI extends javax.swing.JFrame {
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("MTG Deck Builder");
         setLocationByPlatform(true);
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            public void windowActivated(java.awt.event.WindowEvent evt) {
+                formWindowActivated(evt);
+            }
+        });
 
         jTabbedPane1.setMaximumSize(new java.awt.Dimension(1250, 850));
 
@@ -620,7 +659,7 @@ public class UserGUI extends javax.swing.JFrame {
             }
         ) {
             boolean[] canEdit = new boolean [] {
-                true, false, true, false
+                true, true, true, false
             };
 
             public boolean isCellEditable(int rowIndex, int columnIndex) {
@@ -2501,17 +2540,23 @@ public class UserGUI extends javax.swing.JFrame {
     }//GEN-LAST:event_btnSearchCardFlipActionPerformed
 
     private void btnEditActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEditActionPerformed
-        DeckEditDialog editor = new DeckEditDialog((JFrame) SwingUtilities.getWindowAncestor(this)
-            , false, (int) tblDecks.getValueAt(tblDecks.getSelectedRow(), 3), connect);
-        editor.setVisible(true);
+        if (tblDecks.getSelectedRow() != -1)
+        {
+            DeckEditDialog editor = new DeckEditDialog((JFrame) SwingUtilities.getWindowAncestor(this)
+                , false, (int) tblDecks.getValueAt(tblDecks.getSelectedRow(), 3), connect);
+                editor.setVisible(true);
+        }
     }//GEN-LAST:event_btnEditActionPerformed
 
     private void btnNewActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNewActionPerformed
         NewDeckDialog myDialogue = new NewDeckDialog((JFrame) SwingUtilities.getWindowAncestor(this)
             , false);
-        System.out.println(auth.getLoggedInUser() + "Testing");
         myDialogue.setVisible(true);
     }//GEN-LAST:event_btnNewActionPerformed
+
+    private void formWindowActivated(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowActivated
+        refresh();
+    }//GEN-LAST:event_formWindowActivated
 
     
     /**
@@ -3011,7 +3056,7 @@ public class UserGUI extends javax.swing.JFrame {
         {
             preparedStatement = connect.prepareStatement("SELECT d.idDeck, d.Deckname, d.Format, ud.Visible "
                     + "FROM UserDeck ud "
-                    + "INNER JOIN Deck d "
+                    + "JOIN Deck d ON d.idDeck = ud.idDeck "
                     + "WHERE ud.Username = ?");
             preparedStatement.setString(1, auth.getLoggedInUser());
             resultSet = preparedStatement.executeQuery();
@@ -3040,7 +3085,7 @@ public class UserGUI extends javax.swing.JFrame {
         try 
         {
             HttpURLConnection con = (HttpURLConnection) new URL(url).openConnection();
-            con.setConnectTimeout(5000); //set timeout to 5 seconds
+            con.setConnectTimeout(3000); //set timeout to 3 seconds
             
             return true;
         } 

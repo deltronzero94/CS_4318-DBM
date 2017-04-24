@@ -20,6 +20,10 @@ import java.net.HttpURLConnection;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
+import javax.swing.DefaultComboBoxModel;
+import javax.swing.JDialog;
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 
 public class SearchDialog extends javax.swing.JDialog {
     
@@ -43,6 +47,7 @@ public class SearchDialog extends javax.swing.JDialog {
         initComponents();
         this.deckid = deckid;
         this.connect = connect;
+        
         try
         {     
             statement = connect.createStatement();
@@ -51,6 +56,13 @@ public class SearchDialog extends javax.swing.JDialog {
         {
             e.printStackTrace();
         }
+        
+        //populateComboListFormat();
+        comboSearchFormat.setModel(new DefaultComboBoxModel(populateComboListFormat().toArray()));
+        comboSearchSet.setModel(new DefaultComboBoxModel(populateComboListSet().toArray()));
+        comboSearchPower.setModel(new DefaultComboBoxModel(populateComboListNumber().toArray()));
+        comboSearchToughness.setModel(new DefaultComboBoxModel(populateComboListNumber().toArray()));
+        comboSearchCMC.setModel(new DefaultComboBoxModel(populateComboListNumber().toArray()));
     }
 
     @SuppressWarnings("unchecked")
@@ -117,6 +129,11 @@ public class SearchDialog extends javax.swing.JDialog {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Search Card");
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            public void windowClosed(java.awt.event.WindowEvent evt) {
+                formWindowClosed(evt);
+            }
+        });
 
         jPanel1.setMaximumSize(new java.awt.Dimension(1250, 820));
 
@@ -196,8 +213,6 @@ public class SearchDialog extends javax.swing.JDialog {
 
         jLabel5.setFont(new java.awt.Font("Ubuntu", 1, 15)); // NOI18N
         jLabel5.setText("Set:");
-
-        comboSearchSet.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
 
         btnResetFormat.setText("Reset");
         btnResetFormat.addActionListener(new java.awt.event.ActionListener() {
@@ -452,11 +467,10 @@ public class SearchDialog extends javax.swing.JDialog {
                 .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 907, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.CENTER)
-                    .addComponent(lblPicture, javax.swing.GroupLayout.DEFAULT_SIZE, 184, Short.MAX_VALUE)
+                    .addComponent(lblPicture, javax.swing.GroupLayout.DEFAULT_SIZE, 193, Short.MAX_VALUE)
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGap(10, 10, 10)
                         .addComponent(btnSearchCardFlip, javax.swing.GroupLayout.PREFERRED_SIZE, 105, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addGap(18, 18, 18)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.CENTER)
                         .addComponent(btnAdd, javax.swing.GroupLayout.PREFERRED_SIZE, 87, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -464,7 +478,7 @@ public class SearchDialog extends javax.swing.JDialog {
                             .addComponent(btnSearchDisplayRule, javax.swing.GroupLayout.PREFERRED_SIZE, 123, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                             .addComponent(btnSearchDisplayText, javax.swing.GroupLayout.PREFERRED_SIZE, 153, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 196, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 321, Short.MAX_VALUE))
                 .addContainerGap())
         );
 
@@ -614,12 +628,36 @@ public class SearchDialog extends javax.swing.JDialog {
         {
             Class.forName("com.mysql.jdbc.Driver");
             connect = DriverManager.getConnection("jdbc:mysql://localhost/temp_mtg?" + "user=root&password=q1w2e3r4");
-            preparedStatement = connect.prepareStatement("INSERT INTO Deck_has_Card VALUES (?, ?, ?, ?)");
-            preparedStatement.setInt(1, deckid);
-            preparedStatement.setInt(2, (int)tblCardResult.getValueAt(tblCardResult.getSelectedRow(), 0));
-            preparedStatement.setInt(3, 0);
-            preparedStatement.setInt(4, 0);
-            preparedStatement.executeUpdate();
+            
+            int cardID = (int)tblCardResult.getValueAt(tblCardResult.getSelectedRow(), 0);
+            System.out.println(deckid + ":" +cardID);
+            
+            preparedStatement = connect.prepareStatement("SELECT * FROM Deck_has_Card "
+                    + "WHERE Card_ID IN "
+                    + "(SELECT ID FROM Card WHERE CardName IN (SELECT CardName FROM Card WHERE ID =?)) "
+                    + "AND idDeck =?" );
+            preparedStatement.setInt(1, cardID);
+            preparedStatement.setInt(2, deckid);
+            resultSet = preparedStatement.executeQuery();
+            
+            if (resultSet.next())
+            {
+                JOptionPane.showMessageDialog(null, "Card Already Exist","Card Already Exist",
+                                            JOptionPane.DEFAULT_OPTION);
+            }
+            else
+            {
+                preparedStatement = connect.prepareStatement("INSERT INTO Deck_has_Card VALUES (?, ?, ?, ?)");
+                preparedStatement.setInt(1, deckid);
+                preparedStatement.setInt(2, (int)tblCardResult.getValueAt(tblCardResult.getSelectedRow(), 0));
+                preparedStatement.setInt(3, 0);
+                preparedStatement.setInt(4, 0);
+                preparedStatement.executeUpdate();
+
+                JOptionPane.showMessageDialog(null, "Card Added","Card Added",
+                                            JOptionPane.DEFAULT_OPTION);
+            }
+            
         }
         catch (Exception e)
         {
@@ -1141,30 +1179,31 @@ public class SearchDialog extends javax.swing.JDialog {
     private void btnSearchActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSearchActionPerformed
         //Create Variables
         String searchCard = txtCardName.getText();  //Card Being Searched
-
-        try
+        
+        try 
         {
-
+            
             if (isSearchSettingsDefault() == true) //Blank or Default settings search pulls all recent cards in database
             {
                 // Result set get the result of the SQL query
                 resultSet = statement.executeQuery("SELECT s1.*\n" +
-                    "FROM Card s1\n" +
-                    "JOIN (\n" +
-                    "  SELECT  MAX(ID) AS ID, CardName\n" +
-                    "  FROM Card\n" +
-                    "  GROUP BY CardName) AS s2\n" +
-                    "  ON s1.CardName = s2.CardName AND s1.ID = s2.ID\n" +
-                    "  JOIN MTGSet z ON s1.SetName = z.SetName");
+                                                    "FROM Card s1\n" +
+                                                    "JOIN (\n" +
+                                                    "  SELECT  MAX(ID) AS ID, CardName\n" +
+                                                    "  FROM Card\n" +
+                                                    "  GROUP BY CardName) AS s2\n" +
+                                                    "  ON s1.CardName = s2.CardName AND s1.ID = s2.ID\n" +
+                                                    "  JOIN MTGSet z ON s1.SetName = z.SetName");
 
-                //Instanced Variables
+                 //Instanced Variables
                 DefaultTableModel tbl = (DefaultTableModel)tblCardResult.getModel();
 
                 tbl.setRowCount(0); //Set Table Row Count = 0
 
+
                 while (resultSet.next())
                 {
-
+                    
                     int CardID = resultSet.getInt("ID");
                     String CardName = resultSet.getString("CardName");
                     String SetName = resultSet.getString("SetName");
@@ -1176,34 +1215,34 @@ public class SearchDialog extends javax.swing.JDialog {
                     String Artist = resultSet.getString("Artist");
                     int MultiverseID = resultSet.getInt("MultiverseID");
                     Object [] arr = {CardID, CardName, SetName, Mana, CMC, Type,
-                        Power, Toughness, Artist, MultiverseID};
+                                     Power, Toughness, Artist, MultiverseID};
                     tbl.addRow(arr);
                 }
-
+                
                 tblCardResult.setModel(tbl);
                 resizeColumnWidth(tblCardResult);
-
+                
             }
             else //If Search Settings are not default
             {
-                boolean [] c = changedSearchSettings();
+                boolean [] c = changedSearchSettings();                
                 String sqlStatement = "";
-
+                
                 //Printing
                 if (c[12] == true) // Prepare Statement for Cards based on Printings and if setting are not default
                 {
                     int selection = comboSearchPrinting.getSelectedIndex(); //Currently Selected Option in Printing
-
+                    
                     //Card
                     if (selection == 1) //Original Printing
                     {
                         String temp = "SELECT s1.*\n" +
-                        "FROM Card s1\n" +
-                        "JOIN (\n" +
-                        "  SELECT  MIN(ID) AS ID, CardName\n" +
-                        "  FROM Card\n" +
-                        "  GROUP BY CardName) AS s2\n" +
-                        "  ON s1.CardName = s2.CardName AND s1.ID = s2.ID ";
+                                    "FROM Card s1\n" +
+                                    "JOIN (\n" +
+                                    "  SELECT  MIN(ID) AS ID, CardName\n" +
+                                    "  FROM Card\n" +
+                                    "  GROUP BY CardName) AS s2\n" +
+                                    "  ON s1.CardName = s2.CardName AND s1.ID = s2.ID ";
                         sqlStatement = temp;
                     }
                     else if (selection == 2) //All Printings
@@ -1214,58 +1253,58 @@ public class SearchDialog extends javax.swing.JDialog {
                     else if (selection == 3) //Reprints Only
                     {
                         String temp = "SELECT s1.*\n" +
-                        "FROM Card s1\n" +
-                        "JOIN (\n" +
-                        "  SELECT  ID, CardName\n" +
-                        "  FROM Card\n" +
-                        "  WHERE ID NOT IN (SELECT MIN(ID) AS CardID FROM Card GROUP BY CardName)) AS s2\n" +
-                        "  ON s1.CardName = s2.CardName AND s1.ID = s2.ID ";
+                                    "FROM Card s1\n" +
+                                    "JOIN (\n" +
+                                    "  SELECT  ID, CardName\n" +
+                                    "  FROM Card\n" +
+                                    "  WHERE ID NOT IN (SELECT MIN(ID) AS CardID FROM Card GROUP BY CardName)) AS s2\n" +
+                                    "  ON s1.CardName = s2.CardName AND s1.ID = s2.ID ";
                         sqlStatement = temp;
                     }
                 }
                 else    //Create Default Search for Most Recent Printing
                 {
-
+                    
                     String temp = "SELECT s1.*\n" +
-                    "FROM Card s1\n" +
-                    "JOIN (\n" +
-                    "  SELECT  MAX(ID) AS ID, CardName\n" +
-                    "  FROM Card\n" +
-                    "  GROUP BY CardName) AS s2\n" +
-                    "  ON s1.CardName = s2.CardName AND s1.ID = s2.ID ";
+                                    "FROM Card s1\n" +
+                                    "JOIN (\n" +
+                                    "  SELECT  MAX(ID) AS ID, CardName\n" +
+                                    "  FROM Card\n" +
+                                    "  GROUP BY CardName) AS s2\n" +
+                                    "  ON s1.CardName = s2.CardName AND s1.ID = s2.ID ";
                     sqlStatement = temp;
-
+                    
                 }
-
+                
                 //Format
                 if (c[10] == true) //Adds SQLStatement based on Format non-default settings
                 {
                     String temp = "";
-
+                    
                     temp = "\nJOIN(\n" +
-                    "      SELECT CardID,\n" +
-                    "             BanType,\n" +
-                    "             FormatName\n" +
-                    "      FROM Format_Card \n" +
-                    "      WHERE BanType = \"Legal\" AND FormatName = \""+ (String)comboSearchFormat.getSelectedItem() + "\"\n" +
-                    "  ) fc ON fc.CardID = s1.ID ";
+                            "      SELECT CardID,\n" +
+                            "             BanType,\n" +
+                            "             FormatName\n" +
+                            "      FROM Format_Card \n" +
+                            "      WHERE BanType = \"Legal\" AND FormatName = \""+ (String)comboSearchFormat.getSelectedItem() + "\"\n" +
+                            "  ) fc ON fc.CardID = s1.ID ";
                     sqlStatement +=  temp;
                 }
-
+                
                 //Set
                 if (c[11] == true) //Adds SQLStatement based on Set non-default settings
                 {
                     String temp = "";
-
+                    
                     temp = "\nJOIN(\n" +
-                    "      SELECT ID,\n" +
-                    "             SetName\n" +
-                    "      FROM Card \n" +
-                    "      WHERE SetName = \""+ (String)comboSearchSet.getSelectedItem() + "\"\n" +
-                    "  ) sc ON sc.ID = s1.ID ";
+                            "      SELECT ID,\n" +
+                            "             SetName\n" +
+                            "      FROM Card \n" +
+                            "      WHERE SetName = \""+ (String)comboSearchSet.getSelectedItem() + "\"\n" +
+                            "  ) sc ON sc.ID = s1.ID ";
                     sqlStatement +=  temp;
                 }
-
+                
                 //Color Identity
                 if (c[6] == true) //Adds SQL Statement based on Color Identity non-default settings
                 {
@@ -1273,41 +1312,42 @@ public class SearchDialog extends javax.swing.JDialog {
                     int i = comboSearchColorIdentity.getSelectedIndex();
                     boolean [] l = getChangedColors("Color Identity"); //Stores which buttons have been pressed
                     ArrayList<String> s = new ArrayList<String>();  //Stores Colors selected
-
+                    
+                    
                     if (i == 0) //Match Any Color(s)
                     {
                         temp = "JOIN (\n"
-                        + "      SELECT cc.CardID,\n"
-                        + "             cc.ColorID,\n"
-                        + "             c.ColorName\n"
-                        + "     FROM Card_ColorIdentity cc, ColorIdentity c\n"
-                        + "     WHERE cc.ColorID = c.ColorID AND (";
-
+                            + "      SELECT cc.CardID,\n"
+                            + "             cc.ColorID,\n"
+                            + "             c.ColorName\n"
+                            + "     FROM Card_ColorIdentity cc, ColorIdentity c\n"
+                            + "     WHERE cc.ColorID = c.ColorID AND (";
+                        
                         if (l[0] == true)   //White Selected
                         {
                             s.add("c.ColorName = \"White\"");
                         }
-
+                        
                         if (l[1] == true)   //Blue Selected
                         {
                             s.add("c.ColorName = \"Blue\"");
                         }
-
+                        
                         if (l[2] == true)   //Black Selected
                         {
                             s.add("c.ColorName = \"Black\"");
                         }
-
+                        
                         if (l[3] == true)   //Red Selected
                         {
                             s.add("c.ColorName = \"Red\"");
                         }
-
+                        
                         if (l[4] == true)   //Green Selected
                         {
                             s.add("c.ColorName = \"Green\"");
                         }
-
+                        
                         for (int x = 0; x < s.size(); x++)
                         {
                             if (x != s.size()-1)
@@ -1324,17 +1364,17 @@ public class SearchDialog extends javax.swing.JDialog {
                     else if (i == 1) //Match Exact Colors
                     {
                         temp = "JOIN (\n"
-                        + "      SELECT cc.CardID,\n"
-                        + "             c.ColorName\n"
-                        + "     FROM Card_ColorIdentity cc\n "
-                        + "     JOIN ColorIdentity c\n"
-                        + "     ON cc.ColorID = c.ColorID\n"
-                        + "     JOIN Card crd\n"
-                        + "     ON crd.ID = cc.CardID\n"
-                        + "     WHERE cc.CardID ";
-
+                            + "      SELECT cc.CardID,\n"
+                            + "             c.ColorName\n"
+                            + "     FROM Card_ColorIdentity cc\n "
+                            + "     JOIN ColorIdentity c\n"
+                            + "     ON cc.ColorID = c.ColorID\n"
+                            + "     JOIN Card crd\n"
+                            + "     ON crd.ID = cc.CardID\n"
+                            + "     WHERE cc.CardID ";
+                        
                         ArrayList<String> e = new ArrayList<String>();  //Stores Colors not selected
-
+                        
                         if (l[0] == true)   //White Selected
                         {
                             s.add("c.ColorName = \"White\"");
@@ -1343,7 +1383,7 @@ public class SearchDialog extends javax.swing.JDialog {
                         {
                             e.add("3");
                         }
-
+                        
                         if (l[1] == true)   //Blue Selected
                         {
                             s.add("c.ColorName = \"Blue\"");
@@ -1352,7 +1392,7 @@ public class SearchDialog extends javax.swing.JDialog {
                         {
                             e.add("1");
                         }
-
+                        
                         if (l[2] == true)   //Black Selected
                         {
                             s.add("c.ColorName = \"Black\"");
@@ -1361,7 +1401,7 @@ public class SearchDialog extends javax.swing.JDialog {
                         {
                             e.add("2");
                         }
-
+                        
                         if (l[3] == true)   //Red Selected
                         {
                             s.add("c.ColorName = \"Red\"");
@@ -1370,7 +1410,7 @@ public class SearchDialog extends javax.swing.JDialog {
                         {
                             e.add("5");
                         }
-
+                        
                         if (l[4] == true)   //Green Selected
                         {
                             s.add("c.ColorName = \"Green\"");
@@ -1379,11 +1419,11 @@ public class SearchDialog extends javax.swing.JDialog {
                         {
                             e.add("4");
                         }
-
+                        
                         if (s.size() != 5 && s.size() != 0)  //If there are atleast 1 to 4 buttons selected in ColorIdentity
                         {
                             temp += "NOT IN (SELECT CardID FROM Card_ColorIdentity WHERE ColorID IN (";
-
+                            
                             for (int x = 0; x < e.size(); x++)  //Select Cards with ColorIdentity more than what is currently selected
                             {
                                 if ( x != e.size()-1)
@@ -1393,16 +1433,16 @@ public class SearchDialog extends javax.swing.JDialog {
                                 else
                                 {
                                     temp += e.get(x) + ")) AND (";
-                                }
+                                }   
                             }
-
+                            
                             for (int x = 0; x < s.size(); x++)
                             {
                                 if (x != s.size()-1)
                                 {
                                     temp += s.get(x) + " OR ";
                                 }
-                                else
+                                else 
                                 {
                                     temp += s.get(x) + ")\n";
                                 }
@@ -1418,15 +1458,15 @@ public class SearchDialog extends javax.swing.JDialog {
                         else if (s.size() == 0) //For Colorless Search
                         {
                             temp = "JOIN (SELECT crd.ID\n" +
-                            "      FROM Card crd\n" +
-                            "      WHERE crd.ID NOT IN (SELECT CardID FROM Card_ColorIdentity)";
+                                   "      FROM Card crd\n" +
+                                   "      WHERE crd.ID NOT IN (SELECT CardID FROM Card_ColorIdentity)";
                             temp += ") colorIdentity ON colorIdentity.ID = s1.ID ";
                         }
                     }
-
+                    
                     sqlStatement += temp;   //Adds Color SQL Statement to sqlStatement String
                 }
-
+                
                 //Color
                 if (c[5] == true) //Adds SQL Statement based on Set non-default settings
                 {
@@ -1435,39 +1475,40 @@ public class SearchDialog extends javax.swing.JDialog {
                     boolean [] l = getChangedColors("Color"); //Stores which buttons have been pressed
                     ArrayList<String> s = new ArrayList<String>();  //Stores Colors selected
 
+                    
                     if (i == 0) //Match Any Color(s)
                     {
                         temp = "JOIN (\n"
-                        + "      SELECT cc.CardID,\n"
-                        + "             c.ColorName\n"
-                        + "     FROM Card_Color cc, Color c\n"
-                        + "     WHERE cc.ColorID = c.ColorID AND (";
-
+                            + "      SELECT cc.CardID,\n"
+                            + "             c.ColorName\n"
+                            + "     FROM Card_Color cc, Color c\n"
+                            + "     WHERE cc.ColorID = c.ColorID AND (";
+                        
                         if (l[0] == true)   //White Selected
                         {
                             s.add("c.ColorName = \"White\"");
                         }
-
+                        
                         if (l[1] == true)   //Blue Selected
                         {
                             s.add("c.ColorName = \"Blue\"");
                         }
-
+                        
                         if (l[2] == true)   //Black Selected
                         {
                             s.add("c.ColorName = \"Black\"");
                         }
-
+                        
                         if (l[3] == true)   //Red Selected
                         {
                             s.add("c.ColorName = \"Red\"");
                         }
-
+                        
                         if (l[4] == true)   //Green Selected
                         {
                             s.add("c.ColorName = \"Green\"");
                         }
-
+                        
                         for (int x = 0; x < s.size(); x++)
                         {
                             if (x != s.size()-1)
@@ -1484,17 +1525,17 @@ public class SearchDialog extends javax.swing.JDialog {
                     else if (i == 1) //Match Exact Colors
                     {
                         ArrayList<String> e = new ArrayList<String>();  //Stores Colors not selected
-
+                        
                         temp = "JOIN (\n"
-                        + "      SELECT cc.CardID,\n"
-                        + "             c.ColorName\n"
-                        + "     FROM Card_Color cc\n "
-                        + "     JOIN Color c\n"
-                        + "     ON cc.ColorID = c.ColorID\n"
-                        + "     JOIN Card crd\n"
-                        + "     ON crd.ID = cc.CardID\n"
-                        + "     WHERE cc.CardID ";
-
+                            + "      SELECT cc.CardID,\n"
+                            + "             c.ColorName\n"
+                            + "     FROM Card_Color cc\n "
+                            + "     JOIN Color c\n"
+                            + "     ON cc.ColorID = c.ColorID\n"
+                            + "     JOIN Card crd\n"
+                            + "     ON crd.ID = cc.CardID\n"
+                            + "     WHERE cc.CardID ";
+                        
                         if (l[0] == true)   //White Selected
                         {
                             s.add("c.ColorName = \"White\"");
@@ -1503,7 +1544,7 @@ public class SearchDialog extends javax.swing.JDialog {
                         {
                             e.add("3");
                         }
-
+                        
                         if (l[1] == true)   //Blue Selected
                         {
                             s.add("c.ColorName = \"Blue\"");
@@ -1512,7 +1553,7 @@ public class SearchDialog extends javax.swing.JDialog {
                         {
                             e.add("1");
                         }
-
+                        
                         if (l[2] == true)   //Black Selected
                         {
                             s.add("c.ColorName = \"Black\"");
@@ -1521,7 +1562,7 @@ public class SearchDialog extends javax.swing.JDialog {
                         {
                             e.add("2");
                         }
-
+                        
                         if (l[3] == true)   //Red Selected
                         {
                             s.add("c.ColorName = \"Red\"");
@@ -1530,7 +1571,7 @@ public class SearchDialog extends javax.swing.JDialog {
                         {
                             e.add("5");
                         }
-
+                        
                         if (l[4] == true)   //Green Selected
                         {
                             s.add("c.ColorName = \"Green\"");
@@ -1539,11 +1580,11 @@ public class SearchDialog extends javax.swing.JDialog {
                         {
                             e.add("4");
                         }
-
+                        
                         if (s.size() != 5 && s.size() != 0)  //If there are atleast 1 to 4 buttons selected in ColorIdentity
                         {
                             temp += "NOT IN (SELECT CardID FROM Card_Color WHERE ColorID IN (";
-
+                            
                             for (int x = 0; x < e.size(); x++)  //Select Cards with ColorIdentity more than what is currently selected
                             {
                                 if ( x != e.size()-1)
@@ -1553,16 +1594,16 @@ public class SearchDialog extends javax.swing.JDialog {
                                 else
                                 {
                                     temp += e.get(x) + ")) AND (";
-                                }
+                                }   
                             }
-
+                            
                             for (int x = 0; x < s.size(); x++)
                             {
                                 if (x != s.size()-1)
                                 {
                                     temp += s.get(x) + " OR ";
                                 }
-                                else
+                                else 
                                 {
                                     temp += s.get(x) + ")\n";
                                 }
@@ -1578,26 +1619,26 @@ public class SearchDialog extends javax.swing.JDialog {
                         else if (s.size() == 0) //For Colorless Search
                         {
                             temp = "JOIN (SELECT crd.ID\n" +
-                            "      FROM Card crd\n" +
-                            "      WHERE crd.ID NOT IN (SELECT CardID FROM Card_Color)";
+                                   "      FROM Card crd\n" +
+                                   "      WHERE crd.ID NOT IN (SELECT CardID FROM Card_Color)";
                             temp += ") color ON color.ID = s1.ID ";
                         }
-
+                        
                     }
                     else if (i == 2) //Match Multicolored (2+ Colors)
                     {
                         int count= 0;   //MUST BE HIGHER THAN 2 TO EXECUTE SQL STATEMENT
                         ArrayList<String> e = new ArrayList<String>();
                         temp = "JOIN (\n"
-                        + "      SELECT cc.CardID,\n"
-                        + "             c.ColorName\n"
-                        + "     FROM Card_Color cc\n "
-                        + "     JOIN Color c\n"
-                        + "     ON cc.ColorID = c.ColorID\n"
-                        + "     JOIN Card crd\n"
-                        + "     ON crd.ID = cc.CardID\n"
-                        + "     WHERE cc.CardID ";
-
+                            + "      SELECT cc.CardID,\n"
+                            + "             c.ColorName\n"
+                            + "     FROM Card_Color cc\n "
+                            + "     JOIN Color c\n"
+                            + "     ON cc.ColorID = c.ColorID\n"
+                            + "     JOIN Card crd\n"
+                            + "     ON crd.ID = cc.CardID\n"
+                            + "     WHERE cc.CardID ";
+                        
                         if (l[0] == true)   //White Selected
                         {
                             s.add("c.ColorName = \"White\"");
@@ -1606,7 +1647,7 @@ public class SearchDialog extends javax.swing.JDialog {
                         {
                             e.add("3");
                         }
-
+                        
                         if (l[1] == true)   //Blue Selected
                         {
                             s.add("c.ColorName = \"Blue\"");
@@ -1615,7 +1656,7 @@ public class SearchDialog extends javax.swing.JDialog {
                         {
                             e.add("1");
                         }
-
+                        
                         if (l[2] == true)   //Black Selected
                         {
                             s.add("c.ColorName = \"Black\"");
@@ -1624,7 +1665,7 @@ public class SearchDialog extends javax.swing.JDialog {
                         {
                             e.add("2");
                         }
-
+                        
                         if (l[3] == true)   //Red Selected
                         {
                             s.add("c.ColorName = \"Red\"");
@@ -1633,7 +1674,7 @@ public class SearchDialog extends javax.swing.JDialog {
                         {
                             e.add("5");
                         }
-
+                        
                         if (l[4] == true)   //Green Selected
                         {
                             s.add("c.ColorName = \"Green\"");
@@ -1642,12 +1683,12 @@ public class SearchDialog extends javax.swing.JDialog {
                         {
                             e.add("4");
                         }
-
+                        
                         if (s.size() >= 2 && s.size() <5)   //Greater Than 2 and Less 5 Colors
                         {
                             temp += "NOT IN (SELECT CardID FROM Card_Color WHERE ColorID IN (";
                             String n = Integer.toString(s.size());
-
+                            
                             for (int x = 0; x < e.size(); x++)
                             {
                                 if (x != e.size()-1)
@@ -1659,16 +1700,16 @@ public class SearchDialog extends javax.swing.JDialog {
                                     temp += e.get(x) + ") ";
                                 }
                             }
-
+                            
                             temp+= ") AND cc.CardID NOT IN (SELECT CardID FROM Card_Color Group BY CardID HAVING COUNT(*) < " + n + ")";
-
+                            
                             temp += ") color ON color.CardID = s1.ID ";
                         }
                         else if (s.size() == 5)
                         {
                             String n = Integer.toString(s.size());
                             temp += "IN (SELECT CardID FROM Card_Color WHERE ColorID IN (1,2,3,4,5))\n"
-                            + "AND cc.CardID NOT IN (SELECT CardID FROM Card_Color Group BY CardID HAVING COUNT(*) < " + n + ")";
+                                    + "AND cc.CardID NOT IN (SELECT CardID FROM Card_Color Group BY CardID HAVING COUNT(*) < " + n + ")";
                             temp += ") color ON color.CardID = s1.ID ";
                         }
                         else
@@ -1676,40 +1717,40 @@ public class SearchDialog extends javax.swing.JDialog {
                             temp = "";
                         }
                     }
-
+                    
                     sqlStatement += temp;   //Adds Color SQL Statement to sqlStatement String
                 }
-
+                
                 //Rarity
                 if (c[13] == true)  //Adds SQL Statement based on Rarity non-default settings
                 {
                     String temp = "JOIN(\n"
-                    + "    SELECT ID\n"
-                    + "    FROM Card\n"
-                    + "    WHERE Rarity = ";
-
+                            + "    SELECT ID\n"
+                            + "    FROM Card\n"
+                            + "    WHERE Rarity = ";
+                    
                     ArrayList<String> s = new ArrayList<String>();
-
+                    
                     if (cbSearchCommon.isSelected())
                     {
                         s.add("\"Common\"");
                     }
-
+                    
                     if (cbSearchUncommon.isSelected())
                     {
                         s.add("\"Uncommon\"");
                     }
-
+                    
                     if (cbSearchRare.isSelected())
                     {
                         s.add("\"Rare\"");
                     }
-
+                    
                     if (cbSearchMythicRare.isSelected())
                     {
                         s.add("\"Mythic Rare\"");
                     }
-
+                    
                     for (int x = 0; x < s.size(); x++)
                     {
                         if (x != s.size()-1)
@@ -1723,38 +1764,38 @@ public class SearchDialog extends javax.swing.JDialog {
                     }
                     temp += "rarity ON rarity.ID = s1.ID ";
                     sqlStatement += temp;
-
+                    
                 }
-
+                
                 //Card Name
                 if(c[0] == true) //Adds SQL Statement based on Card name non-default setting
                 {
                     String temp = "JOIN (\n"
-                    + "         SELECT ID\n"
-                    + "         FROM Card\n"
-                    + "         WHERE CardName LIKE \"%" + txtCardName.getText() + "%\"\n"
-                    + "    ) cardName ON cardName.ID = s1.ID ";
-
+                            + "         SELECT ID\n"
+                            + "         FROM Card\n"
+                            + "         WHERE CardName LIKE \"%" + txtCardName.getText() + "%\"\n"
+                            + "    ) cardName ON cardName.ID = s1.ID ";
+                    
                     sqlStatement += temp;
                 }
-
+                
                 //Card Type
                 if(c[1] == true) //Adds SQL Statement based on Card Type non-default settings
                 {
-
+                    
                     String temp = "JOIN (\n"
-                    + "         SELECT ct.CardID\n"
-                    + "         FROM Card_Type ct\n"
-                    + "         JOIN Type t\n"
-                    + "         ON  ct.TypeID = t.TypeID\n"
-                    + "         JOIN Card crd\n"
-                    + "         ON crd.ID = ct.CardID\n"
-                    + "         WHERE ct.TypeID IN (SELECT TypeID FROM Type WHERE Types LIKE ";
-
+                            + "         SELECT ct.CardID\n"
+                            + "         FROM Card_Type ct\n"
+                            + "         JOIN Type t\n"
+                            + "         ON  ct.TypeID = t.TypeID\n"
+                            + "         JOIN Card crd\n"
+                            + "         ON crd.ID = ct.CardID\n"
+                            + "         WHERE ct.TypeID IN (SELECT TypeID FROM Type WHERE Types LIKE ";
+                    
                     if (comboSearchType.getSelectedIndex() == 0) //All types
                     {
                         String [] s = txtType.getText().split(" ");
-
+                        
                         for (int x = 0; x < s.length ; x++)
                         {
                             if(x != s.length - 1)
@@ -1766,15 +1807,15 @@ public class SearchDialog extends javax.swing.JDialog {
                                 temp += "\"%" + s[x] + "%\" )\n";
                             }
                         }
-
+                        
                         temp += " GROUP BY ct.CardID HAVING COUNT(*) = " + s.length
-                        + "\n) cardType ON cardType.CardID = s1.ID ";
-
+                                + "\n) cardType ON cardType.CardID = s1.ID ";
+                        
                         if (txtType.getText().trim().equals(""))
                         {
                             temp = "";
                         }
-
+                        
                         sqlStatement +=  temp;
                     }
                     else if (comboSearchType.getSelectedIndex() == 1) //Any type(s)
@@ -1791,30 +1832,30 @@ public class SearchDialog extends javax.swing.JDialog {
                                 temp += "\"%" + s[x] + "%\" )\n";
                             }
                         }
-
+                        
                         temp += ") cardType ON cardType.CardID = s1.ID ";
-
+                        
                         if (txtType.getText().trim().equals(""))
                         {
                             temp = "";
                         }
-
+                        
                         sqlStatement +=  temp;
                     }
                     else    //Exclude Selected
                     {
                         temp = "JOIN (\n"
-                        + "         SELECT ct.CardID\n"
-                        + "         FROM Card_Type ct\n"
-                        + "         JOIN Type t\n"
-                        + "         ON  ct.TypeID = t.TypeID\n"
-                        + "         JOIN Card crd\n"
-                        + "         ON crd.ID = ct.CardID\n"
-                        + "         WHERE ct.CardID NOT IN (SELECT CardID FROM Card_Type WHERE TypeID\n"
-                        + "                             IN (SELECT TypeID FROM Type WHERE Types LIKE ";
-
+                            + "         SELECT ct.CardID\n"
+                            + "         FROM Card_Type ct\n"
+                            + "         JOIN Type t\n"
+                            + "         ON  ct.TypeID = t.TypeID\n"
+                            + "         JOIN Card crd\n"
+                            + "         ON crd.ID = ct.CardID\n"
+                            + "         WHERE ct.CardID NOT IN (SELECT CardID FROM Card_Type WHERE TypeID\n"
+                                + "                             IN (SELECT TypeID FROM Type WHERE Types LIKE ";
+                        
                         String [] s = txtType.getText().split(" ");
-
+                        
                         for (int x = 0; x < s.length ; x++)
                         {
                             if(x != s.length - 1)
@@ -1826,27 +1867,27 @@ public class SearchDialog extends javax.swing.JDialog {
                                 temp += "\"%" + s[x] + "%\")) \n";
                             }
                         }
-
+                        
                         temp += ") cardType ON cardType.CardID = s1.ID ";
-
+                        
                         if (txtType.getText().trim().equals(""))
                         {
                             temp = "";
                         }
-
+                        
                         sqlStatement +=  temp;
                     }
                 }
-
+                
                 //Text
                 if (c[2] == true)
                 {
                     String temp = "JOIN (\n"
-                    + "         SELECT ID\n"
-                    + "         FROM Card\n"
-                    + "         WHERE ID IN (SELECT ID FROM Card WHERE CardText LIKE ";
+                            + "         SELECT ID\n"
+                            + "         FROM Card\n"
+                            + "         WHERE ID IN (SELECT ID FROM Card WHERE CardText LIKE ";
                     String [] s = txtText.getText().split(" ");
-
+                    
                     if (comboSearchText.getSelectedIndex() == 0) //All words
                     {
                         for (int x = 0; x < s.length; x++)
@@ -1860,16 +1901,16 @@ public class SearchDialog extends javax.swing.JDialog {
                                 temp += "\"%" + s[x] + "%\")";
                             }
                         }
-
+                        
                         temp +=  "\n) cardText ON cardText.ID = s1.ID ";
-
+                        
                         if (txtText.getText().trim().equals(""))
                         {
                             temp = "";
                         }
-
+                        
                         sqlStatement +=  temp;
-
+                        
                     }
                     else if (comboSearchText.getSelectedIndex() == 1) //Any word(s)
                     {
@@ -1884,14 +1925,14 @@ public class SearchDialog extends javax.swing.JDialog {
                                 temp += "\"%" + s[x] + "%\")";
                             }
                         }
-
+                        
                         temp +=  "\n) cardText ON cardText.ID = s1.ID ";
-
+                        
                         if (txtText.getText().trim().equals(""))
                         {
                             temp = "";
                         }
-
+                        
                         sqlStatement +=  temp;
                     }
                     else     //Exact Phrase
@@ -1907,27 +1948,28 @@ public class SearchDialog extends javax.swing.JDialog {
                                 temp +=  s[x] + "%\")";
                             }
                         }
-
+                        
                         temp +=  "\n) cardText ON cardText.ID = s1.ID ";
-
+                        
                         if (txtText.getText().trim().equals(""))
                         {
                             temp = "";
                         }
-
+                        
                         sqlStatement +=  temp;
                     }
                 }
-
+                
+                
                 //Flavor Text
                 if(c[3] == true)
                 {
                     String temp = "JOIN (\n"
-                    + "         SELECT ID\n"
-                    + "         FROM Card\n"
-                    + "         WHERE ID IN (SELECT ID FROM Card WHERE FlavorText LIKE ";
+                            + "         SELECT ID\n"
+                            + "         FROM Card\n"
+                            + "         WHERE ID IN (SELECT ID FROM Card WHERE FlavorText LIKE ";
                     String [] s = txtFlavorText.getText().split(" ");
-
+                    
                     if (comboSearchFlavorText.getSelectedIndex() == 0) //All words
                     {
                         for (int x = 0; x < s.length; x++)
@@ -1941,16 +1983,16 @@ public class SearchDialog extends javax.swing.JDialog {
                                 temp += "\"%" + s[x] + "%\")";
                             }
                         }
-
+                        
                         temp +=  "\n) cardFlavorText ON cardFlavorText.ID = s1.ID ";
-
+                        
                         if (txtFlavorText.getText().trim().equals(""))
                         {
                             temp = "";
                         }
-
+                        
                         sqlStatement +=  temp;
-
+                        
                     }
                     else if (comboSearchFlavorText.getSelectedIndex() == 1) //Any word(s)
                     {
@@ -1965,14 +2007,14 @@ public class SearchDialog extends javax.swing.JDialog {
                                 temp += "\"%" + s[x] + "%\")";
                             }
                         }
-
+                        
                         temp +=  "\n) cardFlavorText ON cardFlavorText.ID = s1.ID ";
-
+                        
                         if (txtFlavorText.getText().trim().equals(""))
                         {
                             temp = "";
                         }
-
+                        
                         sqlStatement +=  temp;
                     }
                     else     //Exact Phrase
@@ -1988,18 +2030,19 @@ public class SearchDialog extends javax.swing.JDialog {
                                 temp +=  s[x] + "%\")";
                             }
                         }
-
+                        
                         temp +=  "\n) cardFlavorText ON cardFlavorText.ID = s1.ID ";
-
+                        
                         if (txtFlavorText.getText().trim().equals(""))
                         {
                             temp = "";
                         }
-
+                        
                         sqlStatement +=  temp;
                     }
                 }
-
+                
+                
                 //Artist
                 if(c[4] == true)
                 {
@@ -2011,11 +2054,11 @@ public class SearchDialog extends javax.swing.JDialog {
                     else
                     {
                         temp = "JOIN (\n"
-                        + "          SELECT ID\n"
-                        + "          FROM Card\n"
-                        + "          WHERE Artist LIKE \"%";
+                           + "          SELECT ID\n"
+                           + "          FROM Card\n"
+                           + "          WHERE Artist LIKE \"%";
                         String [] s = txtArtist.getText().split(" ");
-
+                        
                         for (int x = 0; x < s.length; x++)
                         {
                             if(x != s.length - 1)
@@ -2027,26 +2070,26 @@ public class SearchDialog extends javax.swing.JDialog {
                                 temp +=  s[x] + "%\"";
                             }
                         }
-
+                        
                         temp +=  "\n) cardArtist ON cardArtist.ID = s1.ID ";
                         sqlStatement +=  temp;
                     }
                 }
-
+                
                 //Power
-                if(c[7] == true) //Adds SQL Statement based on Power non-default settings
+                if(c[7] == true) //Adds SQL Statement based on Power non-default settings 
                 {
                     int i = comboSearchPowerSign.getSelectedIndex();
                     int p = comboSearchPower.getSelectedIndex();
                     String temp = "JOIN (\n"
-                    + "         SELECT ID\n"
-                    + "         FROM Card\n"
-                    + "         WHERE Power ";
-
+                            + "         SELECT ID\n"
+                            + "         FROM Card\n"
+                            + "         WHERE Power ";
+                    
                     if (i == 0) //Less than
                     {
                         temp += "< " + comboSearchPower.getItemAt(p)
-                        +   "\n) cardPower ON cardPower.ID = s1.ID ";
+                                +   "\n) cardPower ON cardPower.ID = s1.ID ";
                         sqlStatement += temp;
                     }
                     else if (i == 1) //Greater Than
@@ -2058,7 +2101,7 @@ public class SearchDialog extends javax.swing.JDialog {
                         else
                         {
                             temp += "> " + comboSearchPower.getItemAt(p)
-                            +   "\n) cardPower ON cardPower.ID = s1.ID ";
+                                +   "\n) cardPower ON cardPower.ID = s1.ID ";
                             sqlStatement += temp;
                         }
                     }
@@ -2071,7 +2114,7 @@ public class SearchDialog extends javax.swing.JDialog {
                         else
                         {
                             temp += "<= " + comboSearchPower.getItemAt(p)
-                            +   "\n) cardPower ON cardPower.ID = s1.ID ";
+                                +   "\n) cardPower ON cardPower.ID = s1.ID ";
                             sqlStatement += temp;
                         }
                     }
@@ -2084,7 +2127,7 @@ public class SearchDialog extends javax.swing.JDialog {
                         else
                         {
                             temp += ">= " + comboSearchPower.getItemAt(p)
-                            +   "\n) cardPower ON cardPower.ID = s1.ID ";
+                                +   "\n) cardPower ON cardPower.ID = s1.ID ";
                             sqlStatement += temp;
                         }
                     }
@@ -2097,26 +2140,26 @@ public class SearchDialog extends javax.swing.JDialog {
                         else
                         {
                             temp += "= " + comboSearchPower.getItemAt(p)
-                            +   "\n) cardPower ON cardPower.ID = s1.ID ";
+                                +   "\n) cardPower ON cardPower.ID = s1.ID ";
                             sqlStatement += temp;
                         }
                     }
                 }
-
+                
                 //Toughness
-                if(c[8] == true) //Adds SQL Statement based on Toughness non-default settings
+                if(c[8] == true) //Adds SQL Statement based on Toughness non-default settings 
                 {
                     int i = comboSearchToughnessSign.getSelectedIndex();
                     int p = comboSearchToughness.getSelectedIndex();
                     String temp = "JOIN (\n"
-                    + "         SELECT ID\n"
-                    + "         FROM Card\n"
-                    + "         WHERE Toughness ";
-
+                            + "         SELECT ID\n"
+                            + "         FROM Card\n"
+                            + "         WHERE Toughness ";
+                    
                     if (i == 0) //Less than
                     {
                         temp += "< " + comboSearchToughness.getItemAt(p)
-                        +   "\n) cardToughness ON cardToughness.ID = s1.ID ";
+                                +   "\n) cardToughness ON cardToughness.ID = s1.ID ";
                         sqlStatement += temp;
                     }
                     else if (i == 1) //Greater Than
@@ -2128,7 +2171,7 @@ public class SearchDialog extends javax.swing.JDialog {
                         else
                         {
                             temp += "> " + comboSearchToughness.getItemAt(p)
-                            +   "\n) cardToughness ON cardToughness.ID = s1.ID ";
+                                +   "\n) cardToughness ON cardToughness.ID = s1.ID ";
                             sqlStatement += temp;
                         }
                     }
@@ -2141,7 +2184,7 @@ public class SearchDialog extends javax.swing.JDialog {
                         else
                         {
                             temp += "<= " + comboSearchToughness.getItemAt(p)
-                            +   "\n) cardToughness ON cardToughness.ID = s1.ID ";
+                                +   "\n) cardToughness ON cardToughness.ID = s1.ID ";
                             sqlStatement += temp;
                         }
                     }
@@ -2154,7 +2197,7 @@ public class SearchDialog extends javax.swing.JDialog {
                         else
                         {
                             temp += ">= " + comboSearchToughness.getItemAt(p)
-                            +   "\n) cardToughness ON cardToughness.ID = s1.ID ";
+                                +   "\n) cardToughness ON cardToughness.ID = s1.ID ";
                             sqlStatement += temp;
                         }
                     }
@@ -2167,26 +2210,26 @@ public class SearchDialog extends javax.swing.JDialog {
                         else
                         {
                             temp += "= " + comboSearchToughness.getItemAt(p)
-                            +   "\n) cardToughness ON cardToughness.ID = s1.ID ";
+                                +   "\n) cardToughness ON cardToughness.ID = s1.ID ";
                             sqlStatement += temp;
                         }
                     }
                 }
-
+                
                 //CMC
-                if(c[9] == true) //Adds SQL Statement based on CMC non-default settings
+                if(c[9] == true) //Adds SQL Statement based on CMC non-default settings 
                 {
                     int i = comboSearchCMCSign.getSelectedIndex();
                     int p = comboSearchCMC.getSelectedIndex();
                     String temp = "JOIN (\n"
-                    + "         SELECT ID\n"
-                    + "         FROM Card\n"
-                    + "         WHERE CMC ";
-
+                            + "         SELECT ID\n"
+                            + "         FROM Card\n"
+                            + "         WHERE CMC ";
+                    
                     if (i == 0) //Less than
                     {
                         temp += "< " + comboSearchCMC.getItemAt(p)
-                        +   "\n) cardCMC ON cardCMC.ID = s1.ID ";
+                                +   "\n) cardCMC ON cardCMC.ID = s1.ID ";
                         sqlStatement += temp;
                     }
                     else if (i == 1) //Greater Than
@@ -2198,7 +2241,7 @@ public class SearchDialog extends javax.swing.JDialog {
                         else
                         {
                             temp += "> " + comboSearchCMC.getItemAt(p)
-                            +   "\n) cardCMC ON cardCMC.ID = s1.ID ";
+                                +   "\n) cardCMC ON cardCMC.ID = s1.ID ";
                             sqlStatement += temp;
                         }
                     }
@@ -2211,7 +2254,7 @@ public class SearchDialog extends javax.swing.JDialog {
                         else
                         {
                             temp += "<= " + comboSearchCMC.getItemAt(p)
-                            +   "\n) cardCMC ON cardCMC.ID = s1.ID ";
+                                +   "\n) cardCMC ON cardCMC.ID = s1.ID ";
                             sqlStatement += temp;
                         }
                     }
@@ -2224,7 +2267,7 @@ public class SearchDialog extends javax.swing.JDialog {
                         else
                         {
                             temp += ">= " + comboSearchCMC.getItemAt(p)
-                            +   "\n) cardCMC ON cardCMC.ID = s1.ID ";
+                                +   "\n) cardCMC ON cardCMC.ID = s1.ID ";
                             sqlStatement += temp;
                         }
                     }
@@ -2237,23 +2280,24 @@ public class SearchDialog extends javax.swing.JDialog {
                         else
                         {
                             temp += "= " + comboSearchCMC.getItemAt(p)
-                            +   "\n) cardCMC ON cardCMC.ID = s1.ID ";
+                                +   "\n) cardCMC ON cardCMC.ID = s1.ID ";
                             sqlStatement += temp;
                         }
                     }
                 }
-
+                
                 System.out.println( "\n"+ sqlStatement);
                 resultSet = statement.executeQuery(sqlStatement + "GROUP BY s1.ID ORDER BY s1.CardName ASC" ); // + "ORDER BY s1.CardName ASC" <- add this to order from A-Z
 
-                //Instanced Variables
+                 //Instanced Variables
                 DefaultTableModel tbl = (DefaultTableModel)tblCardResult.getModel();
 
                 tbl.setRowCount(0); //Set Table Row Count = 0
 
+
                 while (resultSet.next())
                 {
-
+                    
                     int CardID = resultSet.getInt("ID");
                     String CardName = resultSet.getString("CardName");
                     String SetName = resultSet.getString("SetName");
@@ -2265,22 +2309,30 @@ public class SearchDialog extends javax.swing.JDialog {
                     String Artist = resultSet.getString("Artist");
                     int MultiverseID = resultSet.getInt("MultiverseID");
                     Object [] arr = {CardID, CardName, SetName, Mana, CMC, Type,
-                        Power, Toughness, Artist, MultiverseID};
+                                     Power, Toughness, Artist, MultiverseID};
                     tbl.addRow(arr);
                 }
-
+                
                 tblCardResult.setModel(tbl);
                 resizeColumnWidth(tblCardResult);
             }
-
+            
             //TODO: Check if there is available connection
-
+            
             //Displaying Images on JLabels
-            URL url = new URL("http://gatherer.wizards.com/Handlers/Image.ashx?multiverseid=99595959&type=card");
-            BufferedImage img = ImageIO.read(url);
-            ImageIcon i = new ImageIcon(img);
+            
+            if (testConnection("http://gatherer.wizards.com/Handlers/Image.ashx?multiverseid=99595959&type=card"))
+            {
+                URL url = new URL("http://gatherer.wizards.com/Handlers/Image.ashx?multiverseid=99595959&type=card");
+                BufferedImage img = ImageIO.read(url);
+                ImageIcon i = new ImageIcon(img);
 
-            lblPicture.setIcon(i);
+                lblPicture.setIcon(i);
+            }
+            else
+            {
+                System.out.println("Error pulling image");
+            }
         }
         catch(Exception e)
         {
@@ -2313,6 +2365,10 @@ public class SearchDialog extends javax.swing.JDialog {
         txtArtist.setText("");
     }//GEN-LAST:event_txtCardNameMouseClicked
 
+    private void formWindowClosed(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_formWindowClosed
+
     /**
      * resizeColumnWidth(JTable table) function
      * -------------------------------------
@@ -2343,7 +2399,7 @@ public class SearchDialog extends javax.swing.JDialog {
         }   
     }
     
-    /**
+     /**
      * populateComboListFormat () function
      * -------------------------------------
      * Returns ArrayList<String> of Formats currently available in database
@@ -2352,19 +2408,11 @@ public class SearchDialog extends javax.swing.JDialog {
     {
         //Declared Variables
         ArrayList<String> l = new ArrayList<String>();  //Stores ArrayList of Formats
-        Connection connect = null;
-        Statement statement = null;
-        ResultSet resultSet = null;
-        
         l.add("");  //Adds Default Blank 
         
         try 
-        {
-            connect = DriverManager.getConnection("jdbc:mysql://localhost/testmagicdb?" 
-                                                + "user=root&password=notmustard");
-            statement = connect.createStatement();
-            
-            resultSet = statement.executeQuery("select * from testmagicdb.Format");
+        {   
+            resultSet = statement.executeQuery("select * from Format");
             
             while(resultSet.next())
             {
@@ -2389,19 +2437,12 @@ public class SearchDialog extends javax.swing.JDialog {
     {
         //Declared Variables
         ArrayList<String> l = new ArrayList<String>();  //Stores ArrayList of Formats
-        Connection connect = null;
-        Statement statement = null;
-        ResultSet resultSet = null;
         
         l.add("");  //Adds Default Blank 
         
         try 
-        {
-            connect = DriverManager.getConnection("jdbc:mysql://localhost/testmagicdb?" 
-                                                + "user=root&password=notmustard");
-            statement = connect.createStatement();
-            
-            resultSet = statement.executeQuery("select * from testmagicdb.MTGSet");
+        {   
+            resultSet = statement.executeQuery("select * from MTGSet");
             
             while(resultSet.next())
             {
@@ -2531,6 +2572,28 @@ public class SearchDialog extends javax.swing.JDialog {
     }
     
     
+   /**
+     * changedSearchSetting() function
+     * -------------------------------------
+     * Returns boolean [] c of the Setting in the following Order:
+     *      c[0] = Name 
+     *      c[1] = Type
+     *      c[2] = Text
+     *      c[3] = FlavorText
+     *      c[4] = Artist
+     *      c[5] = Color 
+     *      c[6] = Color Identity
+     *      c[7] = Power
+     *      c[8] = Toughness
+     *      c[9] = CMC
+     *      c[10] = Format
+     *      c[11] = Set
+     *      c[12] = Printing
+     *      c[13] = Rarity
+     *  And each of these elements have a boolean that is 
+     *      1) True if the settings have changed 
+     *      2) False is settings are default
+     */
     private boolean[] changedSearchSettings()
     {
         boolean [] c = new boolean[14]; //Holds 0's and 1's to signal change in each of the settings
@@ -2564,6 +2627,25 @@ public class SearchDialog extends javax.swing.JDialog {
             c[2] = false; //Text setting are default
         }
         
+        if (!(txtFlavorText.getText().equals("FlavorText") || txtFlavorText.getText().equals(""))
+                || comboSearchFlavorText.getSelectedIndex() != 0)
+        {
+            c[3] = true; //Flavor Text setting are not default
+        }
+        else 
+        {
+            c[3] = false; //Flavor Text setting are default
+        }
+        
+        if (!(txtArtist.getText().equals("Artist") || txtArtist.getText().equals("")))
+        {
+            c[4] = true; //Artist setting are not default
+        }
+        else 
+        {
+            c[4] = false; //Artist setting are default
+        }
+        
         if (!(cbSearchColorWhite.isSelected() == false && cbSearchColorBlue.isSelected() == false
                 && cbSearchColorBlack.isSelected() == false && cbSearchColorRed.isSelected() == false
                 && cbSearchColorGreen.isSelected() == false) || comboSearchColor.getSelectedIndex() != 0)
@@ -2585,7 +2667,71 @@ public class SearchDialog extends javax.swing.JDialog {
         {
             c[6] = false; //Color Identity settings are not default
         }
-
+        
+        if (comboSearchPowerSign.getSelectedIndex() != 0 ||comboSearchPower.getSelectedIndex() != 0)
+        {
+            c[7] = true; //Power settings are not default
+        }
+        else
+        {
+            c[7] = false; //Power settings are default
+        }
+        
+        if (comboSearchToughnessSign.getSelectedIndex() != 0 ||comboSearchToughness.getSelectedIndex() != 0)
+        {
+            c[8] = true; //Toughness settings are not default
+        }
+        else
+        {
+            c[8] = false; //Toughness settings are default
+        }
+        
+        if (comboSearchCMCSign.getSelectedIndex() != 0 ||comboSearchCMC.getSelectedIndex() != 0)
+        {
+            c[9] = true; //CMC settings are not default
+        }
+        else
+        {
+            c[9] = false; //CMC settings are default
+        }
+        
+        if (comboSearchFormat.getSelectedIndex() != 0)
+        {
+            c[10] = true; //Format Settings are not default
+        }
+        else
+        {
+            c[10] = false; //Format Settings are default   
+        }
+        
+        if (comboSearchSet.getSelectedIndex() != 0)
+        {
+            c[11] = true; //Set Settings are not default
+        }
+        else
+        {
+            c[11] = false; //Set Settings are default   
+        }
+        
+        if (comboSearchPrinting.getSelectedIndex() != 0)
+        {
+            c[12] = true; //Printing Settings are not default
+        }
+        else
+        {
+            c[12] = false; //Printing Settings are default   
+        }
+        
+        if (!(cbSearchCommon.isSelected() == false && cbSearchUncommon.isSelected() == false
+                && cbSearchRare.isSelected() == false && cbSearchMythicRare.isSelected() == false))
+        {
+            c[13] = true; //Rarity settings are not default
+        }
+        else
+        {
+            c[13] = false; //Rarity settings are default
+        }
+        
         return c;
     }    
     

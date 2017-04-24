@@ -17,9 +17,10 @@ public class main
     public static void main (String args[])
     {
         System.out.println("Hello World\n");
+        Database db = new Database();
         
-        UserGUI gui = new UserGUI();
-        //LoginMenu gui = new LoginMenu();
+        //UserGUI gui = new UserGUI();
+        LoginMenu gui = new LoginMenu(db);
         gui.setVisible(true);
     }
 

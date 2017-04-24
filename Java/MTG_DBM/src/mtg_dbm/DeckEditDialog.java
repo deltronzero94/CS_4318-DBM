@@ -1,5 +1,6 @@
 package mtg_dbm;
 
+import java.awt.Component;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -7,8 +8,11 @@ import java.sql.ResultSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JFrame;
+import javax.swing.JTable;
 import javax.swing.SwingUtilities;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableCellRenderer;
+import javax.swing.table.TableColumnModel;
 
 public class DeckEditDialog extends javax.swing.JDialog {
 
@@ -22,6 +26,7 @@ public class DeckEditDialog extends javax.swing.JDialog {
         this.deckid = deckid;
         this.connect = connect;
         refresh();
+        resizeColumnWidth(tblDeck);
     }
 
     private void refresh()
@@ -81,6 +86,11 @@ public class DeckEditDialog extends javax.swing.JDialog {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Modify Deck");
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            public void windowActivated(java.awt.event.WindowEvent evt) {
+                formWindowActivated(evt);
+            }
+        });
 
         tblDeck.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -96,9 +106,16 @@ public class DeckEditDialog extends javax.swing.JDialog {
             Class[] types = new Class [] {
                 java.lang.Integer.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class
             };
+            boolean[] canEdit = new boolean [] {
+                false, false, false, false, false, false, false, false, false, false, false
+            };
 
             public Class getColumnClass(int columnIndex) {
                 return types [columnIndex];
+            }
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
             }
         });
         tblDeck.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -142,14 +159,14 @@ public class DeckEditDialog extends javax.swing.JDialog {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(spnMainboard, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 579, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 579, Short.MAX_VALUE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(btnAdd)
                             .addComponent(jLabel1)
                             .addComponent(spnSideboard, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(jLabel2, javax.swing.GroupLayout.Alignment.TRAILING))))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -185,6 +202,37 @@ public class DeckEditDialog extends javax.swing.JDialog {
         //spnSideboard.setValue(tblDeck.getValueAt(tblDeck.getSelectedRow(), 10));
     }//GEN-LAST:event_tblDeckMouseClicked
 
+    
+    /**
+     * resizeColumnWidth(JTable table) function
+     * -------------------------------------
+     * Resizes each column of the JTable according to its contents
+     */
+    public void resizeColumnWidth(JTable table) 
+    {
+        final TableColumnModel columnModel = table.getColumnModel();
+        
+        for (int column = 0; column < table.getColumnCount(); column++) {
+            
+            int width = 15; // Min width
+            
+            for (int row = 0; row < table.getRowCount(); row++) 
+            {
+                TableCellRenderer renderer = table.getCellRenderer(row, column);
+                Component comp = table.prepareRenderer(renderer, row, column);
+                width = Math.max(comp.getPreferredSize().width +1 , width);
+            }
+                if(width > 300)
+                    width=300;
+                else if (width < 300 && width >=200)
+                    width = 250;
+                else if (width < 200)
+                    width = 200;
+                     
+                columnModel.getColumn(column).setPreferredWidth(width);
+        }   
+    }
+    
     private void spnSideboardStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_spnSideboardStateChanged
         Connection connect = null;
         PreparedStatement preparedStatement = null;
@@ -220,6 +268,10 @@ public class DeckEditDialog extends javax.swing.JDialog {
             e.printStackTrace();
         }
     }//GEN-LAST:event_spnMainboardStateChanged
+
+    private void formWindowActivated(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowActivated
+            refresh();
+    }//GEN-LAST:event_formWindowActivated
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnAdd;

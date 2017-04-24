@@ -82,6 +82,9 @@ public class NewDeckDialog extends javax.swing.JDialog {
             preparedStatement = connect.prepareStatement("INSERT INTO UserDeck VALUES (?, LAST_INSERT_ID(), true)");
             preparedStatement.setString(1, auth.getLoggedInUser());
             preparedStatement.executeUpdate();
+            
+            this.dispose();
+            
         }   
         catch (Exception e)
         {
