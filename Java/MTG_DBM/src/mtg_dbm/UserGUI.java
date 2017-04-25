@@ -1918,7 +1918,7 @@ public class UserGUI extends javax.swing.JFrame {
         }
         catch(Exception e)
         {
-            e.printStackTrace();
+            //e.printStackTrace();
             System.out.println("Error");
         }
     }//GEN-LAST:event_btnSearchActionPerformed
