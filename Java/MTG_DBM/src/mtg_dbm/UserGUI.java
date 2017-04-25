@@ -22,6 +22,7 @@ import javax.imageio.ImageIO;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
@@ -186,6 +187,7 @@ public class UserGUI extends javax.swing.JFrame {
         tblDecks = new javax.swing.JTable();
         btnEdit = new javax.swing.JButton();
         btnNew = new javax.swing.JButton();
+        btnDeleteDeck = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("MTG Deck Builder");
@@ -659,7 +661,7 @@ public class UserGUI extends javax.swing.JFrame {
             }
         ) {
             boolean[] canEdit = new boolean [] {
-                true, true, true, false
+                true, false, true, false
             };
 
             public boolean isCellEditable(int rowIndex, int columnIndex) {
@@ -682,6 +684,13 @@ public class UserGUI extends javax.swing.JFrame {
             }
         });
 
+        btnDeleteDeck.setText("Delete");
+        btnDeleteDeck.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnDeleteDeckActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
         jPanel3.setLayout(jPanel3Layout);
         jPanel3Layout.setHorizontalGroup(
@@ -693,7 +702,9 @@ public class UserGUI extends javax.swing.JFrame {
                     .addGroup(jPanel3Layout.createSequentialGroup()
                         .addComponent(btnNew)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(btnEdit)))
+                        .addComponent(btnEdit)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(btnDeleteDeck)))
                 .addContainerGap(260, Short.MAX_VALUE))
         );
         jPanel3Layout.setVerticalGroup(
@@ -704,7 +715,8 @@ public class UserGUI extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(btnEdit)
-                    .addComponent(btnNew))
+                    .addComponent(btnNew)
+                    .addComponent(btnDeleteDeck))
                 .addContainerGap(349, Short.MAX_VALUE))
         );
 
@@ -2558,6 +2570,27 @@ public class UserGUI extends javax.swing.JFrame {
         refresh();
     }//GEN-LAST:event_formWindowActivated
 
+    private void btnDeleteDeckActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDeleteDeckActionPerformed
+        if (tblDecks.getSelectedRow() != -1)
+        {
+            try
+            {
+                int idDeck = (int)tblDecks.getValueAt(tblDecks.getSelectedRow(), 3);
+                preparedStatement = connect.
+                        prepareStatement("DELETE FROM Deck WHERE idDeck =?");
+                preparedStatement.setInt(1, idDeck);
+                preparedStatement.executeUpdate();
+                refresh();
+            }
+            catch (Exception e)
+            {
+                e.printStackTrace();
+                JOptionPane.showMessageDialog(null, "Error Deleting Deck","Error Deleting Deck",
+                                        JOptionPane.ERROR_MESSAGE);
+            }
+        }
+    }//GEN-LAST:event_btnDeleteDeckActionPerformed
+
     
     /**
      * resizeColumnWidth(JTable table) function
@@ -3139,6 +3172,7 @@ public class UserGUI extends javax.swing.JFrame {
     private int currentDisplayCard = 0; //Keeps track of Current CardID being displayed (used for flip cards)
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btnDeleteDeck;
     private javax.swing.JButton btnEdit;
     private javax.swing.JButton btnNew;
     private javax.swing.JButton btnResetAll;

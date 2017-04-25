@@ -5,6 +5,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JFrame;
@@ -18,6 +19,8 @@ public class DeckEditDialog extends javax.swing.JDialog {
 
     private int deckid;
     private Connection connect;
+    private int cardID;
+    private boolean click = false;
     
     public DeckEditDialog(java.awt.Frame parent, boolean modal, int deckid, Connection connect) 
     {
@@ -83,6 +86,7 @@ public class DeckEditDialog extends javax.swing.JDialog {
         jLabel1 = new javax.swing.JLabel();
         spnSideboard = new javax.swing.JSpinner();
         jLabel2 = new javax.swing.JLabel();
+        btnRemove = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Modify Deck");
@@ -94,10 +98,7 @@ public class DeckEditDialog extends javax.swing.JDialog {
 
         tblDeck.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null, null, null, null}
+
             },
             new String [] {
                 "CardID", "Card Name", "Set Name", "Mana", "CMC", "Type", "Power", "Toughness", "MultiverseID", "Mainboard Quantity", "Sideboard Quantity"
@@ -150,22 +151,31 @@ public class DeckEditDialog extends javax.swing.JDialog {
 
         jLabel2.setText("Sideboard Quantity:");
 
+        btnRemove.setText("Remove Card");
+        btnRemove.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnRemoveActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(spnMainboard, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 579, Short.MAX_VALUE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 579, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                        .addComponent(spnMainboard, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(btnAdd)
                             .addComponent(jLabel1)
                             .addComponent(spnSideboard, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel2, javax.swing.GroupLayout.Alignment.TRAILING))))
+                            .addComponent(jLabel2, javax.swing.GroupLayout.Alignment.TRAILING)))
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                        .addComponent(btnAdd, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(btnRemove, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -177,7 +187,9 @@ public class DeckEditDialog extends javax.swing.JDialog {
             .addGroup(layout.createSequentialGroup()
                 .addGap(24, 24, 24)
                 .addComponent(btnAdd)
-                .addGap(26, 26, 26)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(btnRemove)
+                .addGap(18, 18, 18)
                 .addComponent(jLabel1)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(spnMainboard, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -198,8 +210,22 @@ public class DeckEditDialog extends javax.swing.JDialog {
     }//GEN-LAST:event_btnAddActionPerformed
 
     private void tblDeckMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblDeckMouseClicked
-        //spnMainboard.setValue(tblDeck.getValueAt(tblDeck.getSelectedRow(), 9));
-        //spnSideboard.setValue(tblDeck.getValueAt(tblDeck.getSelectedRow(), 10));
+        
+        if (tblDeck.getSelectedRow() != -1)
+        {
+            try
+            {
+                cardID = (int)tblDeck.getValueAt(tblDeck.getSelectedRow(), 0);
+                click = true;
+                spnMainboard.setValue((int)tblDeck.getValueAt(tblDeck.getSelectedRow(), 9));
+                spnSideboard.setValue((int)tblDeck.getValueAt(tblDeck.getSelectedRow(), 10));
+                click = false;
+            }
+            catch(Exception e)
+            {
+                e.printStackTrace();
+            }
+        }
     }//GEN-LAST:event_tblDeckMouseClicked
 
     
@@ -240,10 +266,16 @@ public class DeckEditDialog extends javax.swing.JDialog {
         {        
             Class.forName("com.mysql.jdbc.Driver");
             connect = DriverManager.getConnection("jdbc:mysql://localhost/temp_mtg?" + "user=root&password=q1w2e3r4");
-            preparedStatement = connect.prepareStatement("UPDATE Deck_has_Card SET SideboardQty = ?");
+            preparedStatement = connect.prepareStatement("UPDATE Deck_has_Card SET SideboardQty = ? WHERE Card_ID =? AND idDeck =?");
             preparedStatement.setInt(1, (int)spnSideboard.getValue());
+            preparedStatement.setInt(2, cardID);
+            preparedStatement.setInt(3, deckid);
             preparedStatement.executeUpdate();
-            refresh();
+            
+            if (!click)
+            {
+                refresh();
+            }
         }   
         catch (Exception e)
         {
@@ -258,10 +290,16 @@ public class DeckEditDialog extends javax.swing.JDialog {
         {        
             Class.forName("com.mysql.jdbc.Driver");
             connect = DriverManager.getConnection("jdbc:mysql://localhost:3306/temp_mtg?" + "user=root&password=q1w2e3r4");
-            preparedStatement = connect.prepareStatement("UPDATE Deck_has_Card SET MainboardQty = ?");
+            preparedStatement = connect.prepareStatement("UPDATE Deck_has_Card SET MainboardQty = ? WHERE Card_ID =? AND idDeck =?");
             preparedStatement.setInt(1, (int)spnMainboard.getValue());
+            preparedStatement.setInt(2, cardID);
+            preparedStatement.setInt(3, deckid);
             preparedStatement.executeUpdate();
-            refresh();
+            
+            if (!click)
+            {
+                refresh();
+            }
         }   
         catch (Exception e)
         {
@@ -273,8 +311,28 @@ public class DeckEditDialog extends javax.swing.JDialog {
             refresh();
     }//GEN-LAST:event_formWindowActivated
 
+    private void btnRemoveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRemoveActionPerformed
+        Connection connect = null;
+        PreparedStatement preparedStatement = null;
+        try
+        {        
+            Class.forName("com.mysql.jdbc.Driver");
+            connect = DriverManager.getConnection("jdbc:mysql://localhost:3306/temp_mtg?" + "user=root&password=q1w2e3r4");
+            
+            preparedStatement = connect.prepareStatement("DELETE FROM Deck_has_Card WHERE Card_ID = ?");
+            preparedStatement.setInt(1, (int)tblDeck.getValueAt(tblDeck.getSelectedRow(), 0));
+            preparedStatement.executeUpdate();
+            refresh();
+        }   
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+    }//GEN-LAST:event_btnRemoveActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnAdd;
+    private javax.swing.JButton btnRemove;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JScrollPane jScrollPane1;
