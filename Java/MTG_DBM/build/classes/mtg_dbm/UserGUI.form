@@ -708,6 +708,7 @@
             <Component class="javax.swing.JTextField" name="txtFlavorText">
               <Properties>
                 <Property name="text" type="java.lang.String" value="FlavorText"/>
+                <Property name="toolTipText" type="java.lang.String" value="FlavorText"/>
               </Properties>
               <Events>
                 <EventHandler event="mouseClicked" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="txtFlavorTextMouseClicked"/>
@@ -730,6 +731,7 @@
             <Component class="javax.swing.JTextField" name="txtArtist">
               <Properties>
                 <Property name="text" type="java.lang.String" value="Artist"/>
+                <Property name="toolTipText" type="java.lang.String" value="Artist"/>
               </Properties>
               <Events>
                 <EventHandler event="mouseClicked" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="txtArtistMouseClicked"/>

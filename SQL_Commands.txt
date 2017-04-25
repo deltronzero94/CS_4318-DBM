@@ -1,0 +1,5 @@
+1) Queries
+2) Aggregate
+3) Join
+
+#Card Queries

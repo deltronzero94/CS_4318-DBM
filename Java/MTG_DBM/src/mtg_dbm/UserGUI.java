@@ -363,6 +363,7 @@ public class UserGUI extends javax.swing.JFrame {
         });
 
         txtFlavorText.setText("FlavorText");
+        txtFlavorText.setToolTipText("FlavorText");
         txtFlavorText.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 txtFlavorTextMouseClicked(evt);
@@ -372,6 +373,7 @@ public class UserGUI extends javax.swing.JFrame {
         comboSearchFlavorText.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "All Words", "Any Word(s)", "Exact Phrase" }));
 
         txtArtist.setText("Artist");
+        txtArtist.setToolTipText("Artist");
         txtArtist.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 txtArtistMouseClicked(evt);
@@ -1934,104 +1936,114 @@ public class UserGUI extends javax.swing.JFrame {
         JTable tbl = (JTable)evt.getSource();
         isFlip = false;
         currentDisplayCard = 0;
+        Object temp;
         
-        Object temp = tbl.getValueAt(tbl.getSelectedRow(), 9);
-        if (temp != null)
-        {   
-            int cID = (int)tbl.getValueAt(tbl.getSelectedRow(), 0); //Selected Card ID
-            boolean layout = false; //Stores the Layout of the Card
+        try
+        {
+            temp = tbl.getValueAt(tbl.getSelectedRow(), 9);
             
-            try
+            if (temp != null)
             {   
-                preparedStatement = connect.prepareStatement("select * from Card where ID = ?");
-                preparedStatement.setInt(1,  cID);
-                resultSet = preparedStatement.executeQuery();
-                
-                 while (resultSet.next())
-                {
-                    String cText = resultSet.getString("CardText");
-                    String fText = resultSet.getString("FlavorText");
-                    String lText = resultSet.getString("Layout");
-                    
-                    if (cText == null)
-                    {
-                        txtPanelInfo.setText(fText);
-                    }
-                    else if (fText == null)
-                    {
-                        txtPanelInfo.setText(cText);
-                    }
-                    else
-                    {
-                        txtPanelInfo.setText(cText + "\n\n" + fText);
-                    }
-                    
-                    if (lText.equals("split"))
-                    {
-                        layout = true;
-                    }
-                    
-                    if (lText.equals("double-faced") || lText.equals("flip") || lText.equals("meld"))
-                    {
-                        btnSearchCardFlip.setEnabled(true);
-                    }
-                    else
-                    {
-                        btnSearchCardFlip.setEnabled(false);
-                    }
-                    //txtPanelInfo.setText(cText + "\n\n" + fText);
-                }
-            }
-            catch (Exception e)
-            {
-                e.printStackTrace();
-            }
-                
-            int x = (int)temp;
-            
-            try
-            {
-                //Displaying Images on JLabels
-                if (layout == false)    //If card layout is normal
-                {
-                    if (testConnection("http://gatherer.wizards.com/Handlers/Image.ashx?multiverseid=" + x +"&type=card"))
-                    {
-                        URL url = new URL("http://gatherer.wizards.com/Handlers/Image.ashx?multiverseid=" + x +"&type=card");
-                        BufferedImage img = ImageIO.read(url);
-                        ImageIcon i = new ImageIcon(img);
+                int cID = (int)tbl.getValueAt(tbl.getSelectedRow(), 0); //Selected Card ID
+                boolean layout = false; //Stores the Layout of the Card
 
-                        lblPicture.setSize(i.getIconWidth(), i.getIconHeight());
-                        //lblPicture.repaint();
-                        lblPicture.setIcon(i);
-                    }
-                    else
-                    {
-                        throw new Exception();
-                    }
-                }
-                else //If card layout is not normal
-                {
-                    if (testConnection("http://gatherer.wizards.com/Handlers/Image.ashx?multiverseid=" + x +"&type=card&options=rotate90"))
-                    {
-                        URL url = new URL("http://gatherer.wizards.com/Handlers/Image.ashx?multiverseid=" + x +"&type=card&options=rotate90");
-                        BufferedImage img = ImageIO.read(url);
-                        ImageIcon i = new ImageIcon(img);
+                try
+                {   
+                    preparedStatement = connect.prepareStatement("select * from Card where ID = ?");
+                    preparedStatement.setInt(1,  cID);
+                    resultSet = preparedStatement.executeQuery();
 
-                        lblPicture.setSize(i.getIconWidth(), i.getIconHeight());
-                        //lblPicture.repaint();
-                        lblPicture.setIcon(i);
-                    }
-                    else
+                     while (resultSet.next())
                     {
-                        throw new Exception();
+                        String cText = resultSet.getString("CardText");
+                        String fText = resultSet.getString("FlavorText");
+                        String lText = resultSet.getString("Layout");
+
+                        if (cText == null)
+                        {
+                            txtPanelInfo.setText(fText);
+                        }
+                        else if (fText == null)
+                        {
+                            txtPanelInfo.setText(cText);
+                        }
+                        else
+                        {
+                            txtPanelInfo.setText(cText + "\n\n" + fText);
+                        }
+
+                        if (lText.equals("split"))
+                        {
+                            layout = true;
+                        }
+
+                        if (lText.equals("double-faced") || lText.equals("flip") || lText.equals("meld"))
+                        {
+                            btnSearchCardFlip.setEnabled(true);
+                        }
+                        else
+                        {
+                            btnSearchCardFlip.setEnabled(false);
+                        }
+                        //txtPanelInfo.setText(cText + "\n\n" + fText);
                     }
                 }
-            }
-            catch(Exception e)
-            {
-                System.out.println("Error with pulling image...");
+                catch (Exception e)
+                {
+                    e.printStackTrace();
+                }
+
+                int x = (int)temp;
+
+                try
+                {
+                    //Displaying Images on JLabels
+                    if (layout == false)    //If card layout is normal
+                    {
+                        if (testConnection("http://gatherer.wizards.com/Handlers/Image.ashx?multiverseid=" + x +"&type=card"))
+                        {
+                            URL url = new URL("http://gatherer.wizards.com/Handlers/Image.ashx?multiverseid=" + x +"&type=card");
+                            BufferedImage img = ImageIO.read(url);
+                            ImageIcon i = new ImageIcon(img);
+
+                            lblPicture.setSize(i.getIconWidth(), i.getIconHeight());
+                            //lblPicture.repaint();
+                            lblPicture.setIcon(i);
+                        }
+                        else
+                        {
+                            throw new Exception();
+                        }
+                    }
+                    else //If card layout is not normal
+                    {
+                        if (testConnection("http://gatherer.wizards.com/Handlers/Image.ashx?multiverseid=" + x +"&type=card&options=rotate90"))
+                        {
+                            URL url = new URL("http://gatherer.wizards.com/Handlers/Image.ashx?multiverseid=" + x +"&type=card&options=rotate90");
+                            BufferedImage img = ImageIO.read(url);
+                            ImageIcon i = new ImageIcon(img);
+
+                            lblPicture.setSize(i.getIconWidth(), i.getIconHeight());
+                            //lblPicture.repaint();
+                            lblPicture.setIcon(i);
+                        }
+                        else
+                        {
+                            throw new Exception();
+                        }
+                    }
+                }
+                catch(Exception e)
+                {
+                    System.out.println("Error with pulling image...");
+                }
             }
         }
+        catch (Exception e)
+        {
+            
+        }
+        
     }//GEN-LAST:event_tblCardResultMouseClicked
     
     /**

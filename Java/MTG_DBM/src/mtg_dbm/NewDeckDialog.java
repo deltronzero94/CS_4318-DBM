@@ -126,6 +126,7 @@ public class NewDeckDialog extends javax.swing.JDialog {
             preparedStatement.setString(1, txtDeckName.getText());
             preparedStatement.setString(2, (String)cbFormat.getSelectedItem());
             preparedStatement.executeUpdate();
+            
             preparedStatement = connect.prepareStatement("INSERT INTO UserDeck VALUES (?, LAST_INSERT_ID(), true)");
             preparedStatement.setString(1, auth.getLoggedInUser());
             preparedStatement.executeUpdate();
