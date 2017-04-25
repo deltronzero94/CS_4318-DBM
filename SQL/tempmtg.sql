@@ -188,7 +188,7 @@ CREATE TABLE User
 
 CREATE TABLE Deck
 (
-    idDeck INT,
+    idDeck INT NOT NULL AUTO_INCREMENT,
         PRIMARY KEY (idDeck),
     DeckName VARCHAR(45),
     Format VARCHAR(80)

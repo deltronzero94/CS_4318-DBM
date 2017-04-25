@@ -124,6 +124,11 @@ public class DeckEditDialog extends javax.swing.JDialog {
                 tblDeckMouseClicked(evt);
             }
         });
+        tblDeck.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                tblDeckKeyReleased(evt);
+            }
+        });
         jScrollPane1.setViewportView(tblDeck);
 
         btnAdd.setText("Add Cards");
@@ -329,6 +334,24 @@ public class DeckEditDialog extends javax.swing.JDialog {
             e.printStackTrace();
         }
     }//GEN-LAST:event_btnRemoveActionPerformed
+
+    private void tblDeckKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_tblDeckKeyReleased
+        if (tblDeck.getSelectedRow() != -1)
+        {
+            try
+            {
+                cardID = (int)tblDeck.getValueAt(tblDeck.getSelectedRow(), 0);
+                click = true;
+                spnMainboard.setValue((int)tblDeck.getValueAt(tblDeck.getSelectedRow(), 9));
+                spnSideboard.setValue((int)tblDeck.getValueAt(tblDeck.getSelectedRow(), 10));
+                click = false;
+            }
+            catch(Exception e)
+            {
+                e.printStackTrace();
+            }
+        }
+    }//GEN-LAST:event_tblDeckKeyReleased
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnAdd;
