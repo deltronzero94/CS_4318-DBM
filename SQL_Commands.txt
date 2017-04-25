@@ -3,3 +3,46 @@
 3) Join
 
 #Card Queries
+    SELECT * FROM Card;
+
+    SELECT CardName, COUNT(*) AS Num FROM Card GROUP BY CardName;
+
+#Set Queries
+    SELECT * FROM MTGSet;
+
+    SELECT SetType, COUNT(*) FROM MTGSet GROUP BY SetType;
+
+#Type
+    SELECT * FROM Type;
+
+    SELECT t.Types, COUNT(*) FROM Type t JOIN Card_Type ct ON ct.TypeID = t.TypeID JOIN Card c ON c.ID = ct.CardID GROUP BY t.Types;
+
+#Color
+    SELECT * FROM Color;
+
+    SELECT c.*, COUNT(*) FROM Color c JOIN Card_Color cc ON c.ColorID = cc.ColorID JOIN Card card ON card.ID = cc.CardID GROUP BY c.ColorID;
+
+#ColorIdentity
+    SELECT * FROM ColorIdentity;
+
+    SELECT ci.*, COUNT(*) FROM ColorIdentity ci JOIN Card_ColorIdentity cci ON ci.ColorID = cci.ColorID JOIN Card c ON c.ID = cci.CardID GROUP BY ci.ColorID;
+
+#Format
+    SELECT * FROM Format;
+
+    SELECT f.*,COUNT(*) FROM Format f JOIN Format_Card fc ON f.FormatName = fc.FormatName JOIN Card c ON c.ID = fc.CardID GROUP BY f.FormatName;
+
+#Ruling
+    SELECT * FROM Ruling;
+
+    SELECT c.CardName, COUNT(*) FROM Ruling r JOIN Card c ON c.ID = r.CardID GROUP BY c.CardName;
+
+#Split_Flip_Card
+    SELECT * FROM Split_Flip_Card;
+
+    SELECT c.CardName, COUNT(*) FROM Card c JOIN Split_Flip_Card sfc ON sfc.CardID = c.ID GROUP BY CardName;
+
+#User
+    SELECT * FROM User;
+
+    
