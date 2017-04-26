@@ -6,8 +6,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.ArrayList;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.DefaultComboBoxModel;
 
 public class NewDeckDialog extends javax.swing.JDialog {
@@ -30,7 +28,7 @@ public class NewDeckDialog extends javax.swing.JDialog {
         l.add("");  //Adds Default Blank 
         
         try 
-        {   Connection connect = DriverManager.getConnection("jdbc:mysql://localhost/temp_mtg?" + "user=root&password=q1w2e3r4");
+        {   Connection connect = DriverManager.getConnection("jdbc:mysql://localhost/mtg_dbm?" + "user=root&password=q1w2e3r4");
             Statement statement = connect.createStatement();
             ResultSet resultSet = statement.executeQuery("select * from Format");
             
@@ -120,7 +118,7 @@ public class NewDeckDialog extends javax.swing.JDialog {
         try
         {        
             Class.forName("com.mysql.jdbc.Driver");
-            connect = DriverManager.getConnection("jdbc:mysql://localhost/temp_mtg?" + "user=root&password=q1w2e3r4");
+            connect = DriverManager.getConnection("jdbc:mysql://localhost/mtg_dbm?" + "user=root&password=q1w2e3r4");
             preparedStatement = connect.prepareStatement("INSERT INTO Deck (DeckName, Format)"
                     + " VALUES(?, ?)");
             preparedStatement.setString(1, txtDeckName.getText());

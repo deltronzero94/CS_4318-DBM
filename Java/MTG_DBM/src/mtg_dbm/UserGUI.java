@@ -16,8 +16,6 @@ import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.ImageIcon;
@@ -41,7 +39,7 @@ public class UserGUI extends javax.swing.JFrame {
     private Statement statement = null;
     private PreparedStatement preparedStatement = null;
     private ResultSet resultSet = null; 
-    private String url = "jdbc:mysql://localhost/temp_mtg?";
+    private String url = "jdbc:mysql://localhost/mtg_dbm?";
     private String user = "root";
     private String password = "q1w2e3r4";
     private Credentials cred;
@@ -1977,7 +1975,7 @@ public class UserGUI extends javax.swing.JFrame {
                             layout = true;
                         }
 
-                        if (lText.equals("double-faced") || lText.equals("flip") || lText.equals("meld"))
+                        if (lText.equals("double-faced") || lText.equals("flip") || lText.equals("meld") || lText.equals("aftermath"))
                         {
                             btnSearchCardFlip.setEnabled(true);
                         }
@@ -2478,7 +2476,7 @@ public class UserGUI extends javax.swing.JFrame {
                             currentDisplayCard = 0;
                         }
                     }
-                    else if (lText.equals("meld"))
+                    else if (lText.equals("meld") || lText.equals("aftermath"))
                     {
                         if (isFlip == false) //Current Card Being Displayed is not the Meld Side of it
                         {
@@ -2539,6 +2537,16 @@ public class UserGUI extends javax.swing.JFrame {
                 {
                     //Displaying Images on JLabels
                     URL url = new URL("http://gatherer.wizards.com/Handlers/Image.ashx?multiverseid=" + multiverseID +"&type=card&options=rotate180");
+                    BufferedImage img = ImageIO.read(url);
+                    ImageIcon i = new ImageIcon(img);
+
+                    lblPicture.setSize(i.getIconWidth(), i.getIconHeight());
+                    lblPicture.setIcon(i);
+                }
+                else if (isFlip == true && lText.equals("aftermath"))
+                {
+                    //Displaying Images on JLabels
+                    URL url = new URL("http://gatherer.wizards.com/Handlers/Image.ashx?multiverseid=" + multiverseID +"&type=card&options=rotate270");
                     BufferedImage img = ImageIO.read(url);
                     ImageIcon i = new ImageIcon(img);
 

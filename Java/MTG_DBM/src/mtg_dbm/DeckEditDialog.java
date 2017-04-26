@@ -5,12 +5,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.swing.JFrame;
 import javax.swing.JTable;
-import javax.swing.SwingUtilities;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumnModel;
@@ -40,7 +35,7 @@ public class DeckEditDialog extends javax.swing.JDialog {
         try
         {        
             Class.forName("com.mysql.jdbc.Driver");
-            connect = DriverManager.getConnection("jdbc:mysql://localhost/temp_mtg?" + "user=root&password=q1w2e3r4");
+            connect = DriverManager.getConnection("jdbc:mysql://localhost/mtg_dbm?" + "user=root&password=q1w2e3r4");
             preparedStatement = connect.prepareStatement("SELECT c.ID, c.CardName, s.SetName, c.ManaCost, c.CMC, c.CardType, c.Power, c.Toughness, c.MultiverseID, dhc.MainboardQty, dhc.SideboardQty" +
                                                             "\nFROM Card c " +
                                                             "\nINNER JOIN Deck_has_Card dhc ON dhc.Card_ID = c.ID " +
@@ -270,7 +265,7 @@ public class DeckEditDialog extends javax.swing.JDialog {
         try
         {        
             Class.forName("com.mysql.jdbc.Driver");
-            connect = DriverManager.getConnection("jdbc:mysql://localhost/temp_mtg?" + "user=root&password=q1w2e3r4");
+            connect = DriverManager.getConnection("jdbc:mysql://localhost/mtg_dbm?" + "user=root&password=q1w2e3r4");
             preparedStatement = connect.prepareStatement("UPDATE Deck_has_Card SET SideboardQty = ? WHERE Card_ID =? AND idDeck =?");
             preparedStatement.setInt(1, (int)spnSideboard.getValue());
             preparedStatement.setInt(2, cardID);
@@ -294,7 +289,7 @@ public class DeckEditDialog extends javax.swing.JDialog {
         try
         {        
             Class.forName("com.mysql.jdbc.Driver");
-            connect = DriverManager.getConnection("jdbc:mysql://localhost:3306/temp_mtg?" + "user=root&password=q1w2e3r4");
+            connect = DriverManager.getConnection("jdbc:mysql://localhost:3306/mtg_dbm?" + "user=root&password=q1w2e3r4");
             preparedStatement = connect.prepareStatement("UPDATE Deck_has_Card SET MainboardQty = ? WHERE Card_ID =? AND idDeck =?");
             preparedStatement.setInt(1, (int)spnMainboard.getValue());
             preparedStatement.setInt(2, cardID);
@@ -322,7 +317,7 @@ public class DeckEditDialog extends javax.swing.JDialog {
         try
         {        
             Class.forName("com.mysql.jdbc.Driver");
-            connect = DriverManager.getConnection("jdbc:mysql://localhost:3306/temp_mtg?" + "user=root&password=q1w2e3r4");
+            connect = DriverManager.getConnection("jdbc:mysql://localhost:3306/mtg_dbm?" + "user=root&password=q1w2e3r4");
             
             preparedStatement = connect.prepareStatement("DELETE FROM Deck_has_Card WHERE Card_ID = ?");
             preparedStatement.setInt(1, (int)tblDeck.getValueAt(tblDeck.getSelectedRow(), 0));

@@ -34,7 +34,7 @@ public class Database {
      */
     public Database()
     {
-        url = "jdbc:mysql://localhost/temp_mtg?";
+        url = "jdbc:mysql://localhost/mtg_dbm?";
         user = "root";
         password = "q1w2e3r4";
         

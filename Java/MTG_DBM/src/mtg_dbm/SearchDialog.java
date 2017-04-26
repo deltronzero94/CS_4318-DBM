@@ -17,12 +17,8 @@ import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumnModel;
 import java.awt.image.BufferedImage;
 import java.net.HttpURLConnection;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 import javax.swing.DefaultComboBoxModel;
-import javax.swing.JDialog;
-import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
 public class SearchDialog extends javax.swing.JDialog {
@@ -626,9 +622,6 @@ public class SearchDialog extends javax.swing.JDialog {
     private void btnAddActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddActionPerformed
         try
         {
-            Class.forName("com.mysql.jdbc.Driver");
-            connect = DriverManager.getConnection("jdbc:mysql://localhost/temp_mtg?" + "user=root&password=q1w2e3r4");
-            
             int cardID = (int)tblCardResult.getValueAt(tblCardResult.getSelectedRow(), 0);
             System.out.println(deckid + ":" +cardID);
             
@@ -734,7 +727,7 @@ public class SearchDialog extends javax.swing.JDialog {
                             currentDisplayCard = 0;
                         }
                     }
-                    else if (lText.equals("meld"))
+                    else if (lText.equals("meld") || lText.equals("aftermath"))
                     {
                         if (isFlip == false) //Current Card Being Displayed is not the Meld Side of it
                         {
@@ -795,6 +788,16 @@ public class SearchDialog extends javax.swing.JDialog {
                 {
                     //Displaying Images on JLabels
                     URL url = new URL("http://gatherer.wizards.com/Handlers/Image.ashx?multiverseid=" + multiverseID +"&type=card&options=rotate180");
+                    BufferedImage img = ImageIO.read(url);
+                    ImageIcon i = new ImageIcon(img);
+
+                    lblPicture.setSize(i.getIconWidth(), i.getIconHeight());
+                    lblPicture.setIcon(i);
+                }
+                else if (isFlip == true && lText.equals("aftermath"))
+                {
+                    //Displaying Images on JLabels
+                    URL url = new URL("http://gatherer.wizards.com/Handlers/Image.ashx?multiverseid=" + multiverseID +"&type=card&options=rotate270");
                     BufferedImage img = ImageIO.read(url);
                     ImageIcon i = new ImageIcon(img);
 
@@ -1127,7 +1130,7 @@ public class SearchDialog extends javax.swing.JDialog {
                         layout = true;
                     }
 
-                    if (lText.equals("double-faced") || lText.equals("flip") || lText.equals("meld"))
+                    if (lText.equals("double-faced") || lText.equals("flip") || lText.equals("meld") || lText.equals("aftermath"))
                     {
                         btnSearchCardFlip.setEnabled(true);
                     }
