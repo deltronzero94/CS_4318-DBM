@@ -2,12 +2,12 @@
 2) Aggregate
 3) Join
 
-#Card Queries
+#Card
     SELECT * FROM Card;
 
     SELECT CardName, COUNT(*) AS Num FROM Card GROUP BY CardName;
 
-#MTGSet Queries
+#MTGSet 
     SELECT * FROM MTGSet;
 
     SELECT SetType, COUNT(*) FROM MTGSet GROUP BY SetType;
@@ -56,4 +56,11 @@
 
     SELECT d.idDeck, COUNT(*) FROM Deck d JOIN Deck_has_Card dc ON dc.idDeck = d.idDeck JOIN Card c ON c.ID = dc.Card_ID GROUP BY d.idDeck;
 
-    
+    SELECT d.idDeck, SUM(MainboardQty) AS MainboardQtySum, SUM(SideboardQty) AS SideboardQtySum FROM Deck d JOIN Deck_has_Card dhc ON d.idDeck = dhc.idDeck GROUP BY d.idDeck;
+
+#UserDeck
+    SELECT * FROM UserDeck;
+
+    SELECT Visible,COUNT(*) FROM UserDeck GROUP BY Visible;
+
+    SELECT ud.UserName, d.*, ud.Visible FROM UserDeck ud JOIN Deck d oN ud.idDeck = d.idDeck;
