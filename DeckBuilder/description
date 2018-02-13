@@ -1,0 +1,11 @@
+In the source file...
+deckbuilder is a jpanel, you can drag and drop it into a tabbed menu to add it to the project
+deckeditdialog is a jdialog that gets instantiated by the edit button on the deckbuilder
+newdeckdialog is a jdialog that gets instantiated by the new button the deckbuilder
+searchdialog is a jdialog that gets instantiated when you click the button to add a card to a deck
+authenticator is a class that holds a reference to the currently logged in user. instantiate it with the static getInstance method
+credentials is a class used by the authenticator to compare username and password form data against
+
+remember that the names of certain database entities and definitely the sql database connection string will be all jacked up
+until you switch them to match what's on your db. the er diagram I put in this folder shows what the temporary database 
+I worked off of looked like.

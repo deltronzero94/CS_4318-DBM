@@ -5,16 +5,29 @@
  */
 package mtg_dbm;
 
+import javax.swing.JOptionPane;
+
 /**
  *
  * @author reticent
  */
 public class CreateUser extends javax.swing.JFrame {
-
-    /**
+    
+    //Declared Member Variables
+    Database db;
+    
+     /**
      * Creates new form CreateUser
      */
     public CreateUser() {
+        initComponents();
+    }
+    
+    /**
+     * Constructor with 1 Parameter (Database db)
+     */
+    public CreateUser(Database db) {
+        this.db = db;
         initComponents();
     }
 
@@ -80,6 +93,11 @@ public class CreateUser extends javax.swing.JFrame {
         );
 
         createBtn.setText("Create");
+        createBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                createBtnActionPerformed(evt);
+            }
+        });
 
         extiBtn.setText("Exit");
         extiBtn.addActionListener(new java.awt.event.ActionListener() {
@@ -129,6 +147,30 @@ public class CreateUser extends javax.swing.JFrame {
     private void extiBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_extiBtnActionPerformed
         this.dispose();
     }//GEN-LAST:event_extiBtnActionPerformed
+
+    private void createBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_createBtnActionPerformed
+        try
+        {
+            String username = userNameJText.getText();
+            char [] pwd = passWordJField.getPassword();
+            
+            if (db.createNewUser(username, pwd))
+            {
+                JOptionPane.showMessageDialog(null, "Create New User Successful","Create New User Successful",
+                                        JOptionPane.DEFAULT_OPTION);
+                this.dispose();
+            }
+            else
+            {
+                throw new Exception();
+            }
+        }
+        catch (Exception e)
+        {
+            JOptionPane.showMessageDialog(null, "Creating User Failed","Creating User Failed",
+                                        JOptionPane.ERROR_MESSAGE);
+        }
+    }//GEN-LAST:event_createBtnActionPerformed
 
     /**
      * @param args the command line arguments

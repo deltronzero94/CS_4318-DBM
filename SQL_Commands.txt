@@ -1,0 +1,66 @@
+1) Queries
+2) Aggregate
+3) Join
+
+#Card
+    SELECT * FROM Card;
+
+    SELECT CardName, COUNT(*) AS Num FROM Card GROUP BY CardName;
+
+#MTGSet 
+    SELECT * FROM MTGSet;
+
+    SELECT SetType, COUNT(*) FROM MTGSet GROUP BY SetType;
+
+    SELECT s.SetName, COUNT(*) FROM MTGSet s JOIN Card c ON c.SetName = s.SetName GROUP BY s.SetName;
+
+#Type
+    SELECT * FROM Type;
+
+    SELECT t.Types, COUNT(*) FROM Type t JOIN Card_Type ct ON ct.TypeID = t.TypeID JOIN Card c ON c.ID = ct.CardID GROUP BY t.Types;
+
+#Color
+    SELECT * FROM Color;
+
+    SELECT c.*, COUNT(*) FROM Color c JOIN Card_Color cc ON c.ColorID = cc.ColorID JOIN Card card ON card.ID = cc.CardID GROUP BY c.ColorID;
+
+#ColorIdentity
+    SELECT * FROM ColorIdentity;
+
+    SELECT ci.*, COUNT(*) FROM ColorIdentity ci JOIN Card_ColorIdentity cci ON ci.ColorID = cci.ColorID JOIN Card c ON c.ID = cci.CardID GROUP BY ci.ColorID;
+
+#Format
+    SELECT * FROM Format;
+
+    SELECT f.*,COUNT(*) FROM Format f JOIN Format_Card fc ON f.FormatName = fc.FormatName JOIN Card c ON c.ID = fc.CardID GROUP BY f.FormatName;
+
+#Ruling
+    SELECT * FROM Ruling;
+
+    SELECT c.CardName, COUNT(*) FROM Ruling r JOIN Card c ON r.CardID = c.ID  WHERE ID IN (SELECT MIN(ID) FROM Card GROUP BY CardName) GROUP BY c.CardName;
+
+#Split_Flip_Card
+    SELECT * FROM Split_Flip_Card;
+
+    SELECT c.CardName, COUNT(*) FROM Card c JOIN Split_Flip_Card sfc ON sfc.CardID = c.ID WHERE c.ID IN (SELECT MIN(ID) FROM Card GROUP BY CardName) GROUP BY CardName;
+
+#User
+    SELECT * FROM User;
+
+    SELECT u.Username, COUNT(*) FROM User u JOIN UserDeck ud ON u.Username = ud.UserName JOIN Deck d ON d.idDeck = ud.idDeck GROUP BY u.Username;
+
+#Deck
+    SELECT * From Deck;
+
+    SELECT Format ,COUNT(*) FROM Deck GROUP BY Format;
+
+    SELECT d.idDeck, COUNT(*) FROM Deck d JOIN Deck_has_Card dc ON dc.idDeck = d.idDeck JOIN Card c ON c.ID = dc.Card_ID GROUP BY d.idDeck;
+
+    SELECT d.idDeck, SUM(MainboardQty) AS MainboardQtySum, SUM(SideboardQty) AS SideboardQtySum FROM Deck d JOIN Deck_has_Card dhc ON d.idDeck = dhc.idDeck GROUP BY d.idDeck;
+
+#UserDeck
+    SELECT * FROM UserDeck;
+
+    SELECT Visible,COUNT(*) FROM UserDeck GROUP BY Visible;
+
+    SELECT ud.UserName, d.*, ud.Visible FROM UserDeck ud JOIN Deck d oN ud.idDeck = d.idDeck;

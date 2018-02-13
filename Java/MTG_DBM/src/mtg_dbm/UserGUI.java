@@ -7,6 +7,7 @@ package mtg_dbm;
 
 import java.awt.Component;
 import java.awt.image.BufferedImage;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -14,11 +15,15 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Date;
 import javax.imageio.ImageIO;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.ImageIcon;
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumnModel;
@@ -28,6 +33,17 @@ import javax.swing.table.TableColumnModel;
  * @author reticent
  */
 public class UserGUI extends javax.swing.JFrame {
+    
+    //Private Declared Memeber Variables
+    private Connection connect = null;
+    private Statement statement = null;
+    private PreparedStatement preparedStatement = null;
+    private ResultSet resultSet = null; 
+    private String url = "jdbc:mysql://localhost/mtg_dbm?";
+    private String user = "root";
+    private String password = "q1w2e3r4";
+    private Credentials cred;
+    private Authenticator auth;
 
     /**
      * Default Constructor
@@ -36,9 +52,65 @@ public class UserGUI extends javax.swing.JFrame {
      */
     public UserGUI() {
         initComponents();
+        
+        try
+        {
+            connect = DriverManager.getConnection(url, user, password);
+            statement = connect.createStatement();
+        }
+        catch(Exception e)
+        {
+            e.printStackTrace();
+        }
+        
         //populateComboListFormat();
         comboSearchFormat.setModel(new DefaultComboBoxModel(populateComboListFormat().toArray()));
         comboSearchSet.setModel(new DefaultComboBoxModel(populateComboListSet().toArray()));
+        comboSearchPower.setModel(new DefaultComboBoxModel(populateComboListNumber().toArray()));
+        comboSearchToughness.setModel(new DefaultComboBoxModel(populateComboListNumber().toArray()));
+        comboSearchCMC.setModel(new DefaultComboBoxModel(populateComboListNumber().toArray()));
+        
+        txtPanelInfo.setEditable(false);
+        //txtPanelInfo.getCaret().setVisible(true);
+        
+        cred = new Credentials("name", "password");
+        auth = Authenticator.getInstance();
+        auth.authenticate("name", "password", cred);
+        refresh();
+    }
+    
+    /**
+     * Default Constructor
+     * ----------------------------------------------------
+     * Creates new form UserGUI
+     */
+    public UserGUI(Credentials cred, Authenticator auth) {
+        initComponents();
+        
+        try
+        {
+            connect = DriverManager.getConnection(url, user, password);
+            statement = connect.createStatement();
+        }
+        catch(Exception e)
+        {
+            e.printStackTrace();
+        }
+        
+        //populateComboListFormat();
+        comboSearchFormat.setModel(new DefaultComboBoxModel(populateComboListFormat().toArray()));
+        comboSearchSet.setModel(new DefaultComboBoxModel(populateComboListSet().toArray()));
+        comboSearchPower.setModel(new DefaultComboBoxModel(populateComboListNumber().toArray()));
+        comboSearchToughness.setModel(new DefaultComboBoxModel(populateComboListNumber().toArray()));
+        comboSearchCMC.setModel(new DefaultComboBoxModel(populateComboListNumber().toArray()));
+        
+        txtPanelInfo.setEditable(false);
+        //txtPanelInfo.getCaret().setVisible(true);
+        
+        this.cred = cred;
+        this.auth = auth;
+        
+        refresh();
     }
 
     /**
@@ -64,7 +136,6 @@ public class UserGUI extends javax.swing.JFrame {
         cbSearchColorRed = new javax.swing.JCheckBox();
         cbSearchColorGreen = new javax.swing.JCheckBox();
         comboSearchFormat = new javax.swing.JComboBox<>();
-        jLabel3 = new javax.swing.JLabel();
         jLabel4 = new javax.swing.JLabel();
         jLabel5 = new javax.swing.JLabel();
         comboSearchSet = new javax.swing.JComboBox<>();
@@ -77,7 +148,6 @@ public class UserGUI extends javax.swing.JFrame {
         cbSearchColorIdentityRed = new javax.swing.JCheckBox();
         cbSearchColorIdentityGreen = new javax.swing.JCheckBox();
         txtType = new javax.swing.JTextField();
-        txtSubtype = new javax.swing.JTextField();
         comboSearchType = new javax.swing.JComboBox<>();
         btnResetAll = new javax.swing.JButton();
         comboSearchColor = new javax.swing.JComboBox<>();
@@ -87,9 +157,48 @@ public class UserGUI extends javax.swing.JFrame {
         cbSearchUncommon = new javax.swing.JCheckBox();
         cbSearchRare = new javax.swing.JCheckBox();
         cbSearchMythicRare = new javax.swing.JCheckBox();
+        txtText = new javax.swing.JTextField();
+        comboSearchText = new javax.swing.JComboBox<>();
+        jLabel7 = new javax.swing.JLabel();
+        comboSearchPrinting = new javax.swing.JComboBox<>();
+        btnResetPrinting = new javax.swing.JButton();
+        txtFlavorText = new javax.swing.JTextField();
+        comboSearchFlavorText = new javax.swing.JComboBox<>();
+        txtArtist = new javax.swing.JTextField();
+        jLabel8 = new javax.swing.JLabel();
+        jLabel9 = new javax.swing.JLabel();
+        comboSearchPowerSign = new javax.swing.JComboBox<>();
+        comboSearchToughnessSign = new javax.swing.JComboBox<>();
+        comboSearchPower = new javax.swing.JComboBox<>();
+        comboSearchToughness = new javax.swing.JComboBox<>();
+        jLabel10 = new javax.swing.JLabel();
+        comboSearchCMCSign = new javax.swing.JComboBox<>();
+        comboSearchCMC = new javax.swing.JComboBox<>();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        txtPanelInfo = new javax.swing.JTextPane();
+        btnSearchDisplayRule = new javax.swing.JButton();
+        btnSearchDisplayText = new javax.swing.JButton();
+        btnSearchCardFlip = new javax.swing.JButton();
         jPanel2 = new javax.swing.JPanel();
+        jPanel3 = new javax.swing.JPanel();
+        jScrollPane3 = new javax.swing.JScrollPane();
+        tblDecks = new javax.swing.JTable();
+        btnEdit = new javax.swing.JButton();
+        btnNew = new javax.swing.JButton();
+        btnDeleteDeck = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setTitle("MTG Deck Builder");
+        setLocationByPlatform(true);
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            public void windowActivated(java.awt.event.WindowEvent evt) {
+                formWindowActivated(evt);
+            }
+        });
+
+        jTabbedPane1.setMaximumSize(new java.awt.Dimension(1250, 850));
+
+        jPanel1.setMaximumSize(new java.awt.Dimension(1250, 820));
 
         txtCardName.setText("Name");
         txtCardName.setToolTipText("Name");
@@ -110,6 +219,8 @@ public class UserGUI extends javax.swing.JFrame {
                 btnSearchActionPerformed(evt);
             }
         });
+
+        jScrollPane2.setMaximumSize(new java.awt.Dimension(440, 415));
 
         tblCardResult.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -160,9 +271,6 @@ public class UserGUI extends javax.swing.JFrame {
 
         comboSearchFormat.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Standard", "Modern", "Legacy", "Commander", "Vintage" }));
 
-        jLabel3.setFont(new java.awt.Font("Ubuntu", 1, 18)); // NOI18N
-        jLabel3.setText("Filter By:");
-
         jLabel4.setFont(new java.awt.Font("Ubuntu", 1, 15)); // NOI18N
         jLabel4.setText("Format:");
 
@@ -198,19 +306,11 @@ public class UserGUI extends javax.swing.JFrame {
 
         cbSearchColorIdentityGreen.setText("Green");
 
-        txtType.setText("(Super)Type");
+        txtType.setText("Type");
         txtType.setToolTipText("(Super)Type");
         txtType.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 txtTypeMouseClicked(evt);
-            }
-        });
-
-        txtSubtype.setText("Subtype");
-        txtSubtype.setToolTipText("Subtype");
-        txtSubtype.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                txtSubtypeMouseClicked(evt);
             }
         });
 
@@ -223,7 +323,7 @@ public class UserGUI extends javax.swing.JFrame {
             }
         });
 
-        comboSearchColor.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Match Any Color(s)", "Match Colors Exactly", "Exclude Unselected Colors", "Match Multicolored Cards Only" }));
+        comboSearchColor.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Match Any Color(s)", "Match Colors Exactly", "Match Multicolored Cards Only" }));
 
         comboSearchColorIdentity.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "May include any color(s)", "Exact (all selected and no others)" }));
 
@@ -238,174 +338,402 @@ public class UserGUI extends javax.swing.JFrame {
 
         cbSearchMythicRare.setText("Mythic Rare");
 
+        txtText.setText("Text");
+        txtText.setToolTipText("Text");
+        txtText.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                txtTextMouseClicked(evt);
+            }
+        });
+
+        comboSearchText.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "All Words", "Any Word(s)", "Exact Phrase" }));
+
+        jLabel7.setFont(new java.awt.Font("Ubuntu", 1, 15)); // NOI18N
+        jLabel7.setText("Printing:");
+
+        comboSearchPrinting.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Most Recent Printing", "Original Printing", "All Printing", "Reprints Only" }));
+
+        btnResetPrinting.setText("Reset");
+        btnResetPrinting.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnResetPrintingActionPerformed(evt);
+            }
+        });
+
+        txtFlavorText.setText("FlavorText");
+        txtFlavorText.setToolTipText("FlavorText");
+        txtFlavorText.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                txtFlavorTextMouseClicked(evt);
+            }
+        });
+
+        comboSearchFlavorText.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "All Words", "Any Word(s)", "Exact Phrase" }));
+
+        txtArtist.setText("Artist");
+        txtArtist.setToolTipText("Artist");
+        txtArtist.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                txtArtistMouseClicked(evt);
+            }
+        });
+
+        jLabel8.setFont(new java.awt.Font("Ubuntu", 1, 15)); // NOI18N
+        jLabel8.setText("Power:");
+
+        jLabel9.setFont(new java.awt.Font("Ubuntu", 1, 15)); // NOI18N
+        jLabel9.setText("Toughness:");
+
+        comboSearchPowerSign.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "<", ">", "<=", ">=", "=" }));
+
+        comboSearchToughnessSign.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "<", ">", "<=", ">=", "=" }));
+
+        comboSearchPower.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10" }));
+
+        comboSearchToughness.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10" }));
+
+        jLabel10.setFont(new java.awt.Font("Ubuntu", 1, 15)); // NOI18N
+        jLabel10.setText("CMC:");
+
+        comboSearchCMCSign.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "<", ">", "<=", ">=", "=" }));
+
+        comboSearchCMC.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10" }));
+
+        jScrollPane1.setViewportView(txtPanelInfo);
+
+        btnSearchDisplayRule.setText("Rules");
+        btnSearchDisplayRule.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnSearchDisplayRuleActionPerformed(evt);
+            }
+        });
+
+        btnSearchDisplayText.setText("Card Text");
+        btnSearchDisplayText.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnSearchDisplayTextActionPerformed(evt);
+            }
+        });
+
+        btnSearchCardFlip.setText("Flip");
+        btnSearchCardFlip.setEnabled(false);
+        btnSearchCardFlip.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnSearchCardFlipActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
+                .addContainerGap()
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 908, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addContainerGap()
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(jPanel1Layout.createSequentialGroup()
-                                .addComponent(jLabel1)
-                                .addGap(0, 0, Short.MAX_VALUE))
+                            .addComponent(txtFlavorText)
+                            .addComponent(txtText)
+                            .addComponent(txtType)
+                            .addComponent(txtCardName, javax.swing.GroupLayout.DEFAULT_SIZE, 359, Short.MAX_VALUE)
+                            .addComponent(txtArtist))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(comboSearchFlavorText, javax.swing.GroupLayout.PREFERRED_SIZE, 117, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addGroup(jPanel1Layout.createSequentialGroup()
                                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                        .addGroup(jPanel1Layout.createSequentialGroup()
-                                            .addComponent(cbSearchColorWhite)
-                                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                            .addComponent(cbSearchColorBlue)
-                                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                            .addComponent(cbSearchColorBlack)
-                                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                            .addComponent(cbSearchColorRed)
-                                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                            .addComponent(cbSearchColorGreen)
-                                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                            .addComponent(comboSearchColor, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                                        .addGroup(jPanel1Layout.createSequentialGroup()
-                                            .addComponent(cbSearchColorIdentityWhite)
-                                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                            .addComponent(cbSearchColorIdentityBlue)
-                                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                            .addComponent(cbSearchColorIdentityBlack)
-                                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                            .addComponent(cbSearchColorIdentityRed)
-                                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                            .addComponent(cbSearchColorIdentityGreen)
-                                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                            .addComponent(comboSearchColorIdentity, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                                        .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel1Layout.createSequentialGroup()
-                                            .addComponent(txtType, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                            .addComponent(txtSubtype, javax.swing.GroupLayout.PREFERRED_SIZE, 220, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                            .addComponent(comboSearchType, 0, 1, Short.MAX_VALUE))
-                                        .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel1Layout.createSequentialGroup()
-                                            .addComponent(txtCardName, javax.swing.GroupLayout.PREFERRED_SIZE, 426, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                            .addComponent(btnSearch)
-                                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                            .addComponent(btnResetAll, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                                    .addComponent(comboSearchType, javax.swing.GroupLayout.PREFERRED_SIZE, 117, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(comboSearchText, javax.swing.GroupLayout.PREFERRED_SIZE, 117, javax.swing.GroupLayout.PREFERRED_SIZE)
                                     .addGroup(jPanel1Layout.createSequentialGroup()
-                                        .addComponent(jLabel2)
-                                        .addGap(504, 504, 504)))
-                                .addGap(35, 35, 35)
+                                        .addComponent(btnSearch)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(btnResetAll)))
+                                .addGap(42, 42, 42)
                                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addGroup(jPanel1Layout.createSequentialGroup()
-                                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                            .addComponent(jLabel4)
-                                            .addComponent(jLabel5))
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                            .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 79, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                            .addGroup(jPanel1Layout.createSequentialGroup()
-                                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                                    .addComponent(comboSearchFormat, 0, 207, Short.MAX_VALUE)
-                                                    .addComponent(comboSearchSet, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                                    .addComponent(btnResetFormat)
-                                                    .addComponent(btnResetSet))))
-                                        .addGap(326, 326, 326))
-                                    .addGroup(jPanel1Layout.createSequentialGroup()
-                                        .addComponent(jLabel6)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                            .addComponent(cbSearchCommon)
-                                            .addComponent(cbSearchUncommon)
-                                            .addComponent(cbSearchRare)
-                                            .addComponent(cbSearchMythicRare))
-                                        .addGap(151, 151, 151)
-                                        .addComponent(lblPicture, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))))))
-                .addGap(55, 55, 55))
+                                    .addComponent(jLabel9)
+                                    .addComponent(jLabel8)
+                                    .addComponent(jLabel10))
+                                .addGap(18, 18, 18)
+                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                    .addComponent(comboSearchPowerSign, 0, 55, Short.MAX_VALUE)
+                                    .addComponent(comboSearchToughnessSign, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(comboSearchCMCSign, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(comboSearchCMC, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(comboSearchToughness, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(comboSearchPower, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel1)
+                            .addComponent(jLabel2)
+                            .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                                .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel1Layout.createSequentialGroup()
+                                    .addComponent(cbSearchColorIdentityWhite)
+                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                    .addComponent(cbSearchColorIdentityBlue)
+                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                    .addComponent(cbSearchColorIdentityBlack)
+                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                    .addComponent(cbSearchColorIdentityRed)
+                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                    .addComponent(cbSearchColorIdentityGreen)
+                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                    .addComponent(comboSearchColorIdentity, 0, 1, Short.MAX_VALUE))
+                                .addGroup(javax.swing.GroupLayout.Alignment.LEADING, jPanel1Layout.createSequentialGroup()
+                                    .addComponent(cbSearchColorWhite)
+                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                    .addComponent(cbSearchColorBlue)
+                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                    .addComponent(cbSearchColorBlack)
+                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                    .addComponent(cbSearchColorRed)
+                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                    .addComponent(cbSearchColorGreen)
+                                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                    .addComponent(comboSearchColor, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 185, Short.MAX_VALUE)))
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                    .addComponent(jLabel5, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jLabel7, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 77, Short.MAX_VALUE)
+                    .addComponent(jLabel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jLabel6, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGap(54, 54, 54)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(comboSearchPrinting, 0, 231, Short.MAX_VALUE)
+                    .addComponent(comboSearchSet, 0, 231, Short.MAX_VALUE)
+                    .addComponent(comboSearchFormat, 0, 231, Short.MAX_VALUE)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(cbSearchUncommon)
+                            .addComponent(cbSearchRare))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(cbSearchCommon)
+                            .addComponent(cbSearchMythicRare))))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(btnResetFormat, javax.swing.GroupLayout.DEFAULT_SIZE, 83, Short.MAX_VALUE)
+                    .addComponent(btnResetSet, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(btnResetPrinting, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGap(30, 30, 30))
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addGap(12, 12, 12)
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 952, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.CENTER)
+                    .addComponent(lblPicture, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGap(10, 10, 10)
+                        .addComponent(btnSearchCardFlip, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                .addGap(6, 6, 6)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGap(35, 35, 35)
+                        .addComponent(btnSearchDisplayRule, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addGap(18, 18, 18)
+                        .addComponent(btnSearchDisplayText, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addGap(44, 44, 44)))
+                .addContainerGap())
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGap(14, 14, 14)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(txtCardName, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(btnSearch)
-                            .addComponent(btnResetAll))
-                        .addGap(96, 96, 96)
-                        .addComponent(lblPicture, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addGap(271, 271, 271))
+                        .addGap(14, 14, 14)
+                        .addComponent(btnSearch))
                     .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addComponent(jLabel3)
-                        .addGap(2, 2, 2)
+                        .addGap(13, 13, 13)
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.CENTER)
+                                    .addGroup(jPanel1Layout.createSequentialGroup()
+                                        .addComponent(jLabel8)
+                                        .addGap(15, 15, 15)
+                                        .addComponent(jLabel9)
+                                        .addGap(15, 15, 15)
+                                        .addComponent(jLabel10))
+                                    .addGroup(jPanel1Layout.createSequentialGroup()
+                                        .addComponent(comboSearchPowerSign, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addGap(6, 6, 6)
+                                        .addComponent(comboSearchToughnessSign, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addGap(6, 6, 6)
+                                        .addComponent(comboSearchCMCSign, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                    .addGroup(jPanel1Layout.createSequentialGroup()
+                                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                            .addComponent(comboSearchPower, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                            .addComponent(jLabel4)
+                                            .addComponent(comboSearchFormat, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                            .addComponent(btnResetFormat))
+                                        .addGap(4, 4, 4)
+                                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                            .addComponent(comboSearchToughness, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                            .addComponent(jLabel5)
+                                            .addComponent(comboSearchSet, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                            .addComponent(btnResetSet))
+                                        .addGap(4, 4, 4)
+                                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                            .addComponent(comboSearchCMC, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                            .addComponent(jLabel7)
+                                            .addComponent(comboSearchPrinting, javax.swing.GroupLayout.PREFERRED_SIZE, 27, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                            .addComponent(btnResetPrinting))))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jLabel6)
+                                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                        .addComponent(cbSearchRare)
+                                        .addComponent(cbSearchCommon)))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                    .addComponent(cbSearchUncommon)
+                                    .addComponent(cbSearchMythicRare)))
                             .addGroup(jPanel1Layout.createSequentialGroup()
                                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addGroup(jPanel1Layout.createSequentialGroup()
-                                        .addGap(12, 12, 12)
+                                        .addGap(1, 1, 1)
+                                        .addComponent(txtCardName, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                    .addGroup(jPanel1Layout.createSequentialGroup()
+                                        .addGap(67, 67, 67)
+                                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                            .addComponent(txtText, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                            .addComponent(comboSearchText, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                    .addGroup(jPanel1Layout.createSequentialGroup()
+                                        .addGap(34, 34, 34)
                                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                                             .addComponent(txtType, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                            .addComponent(txtSubtype, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                            .addComponent(comboSearchType, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                        .addGap(36, 36, 36)
-                                        .addComponent(jLabel2)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                            .addComponent(cbSearchColorWhite)
-                                            .addComponent(cbSearchColorBlue)
-                                            .addComponent(cbSearchColorBlack)
-                                            .addComponent(cbSearchColorRed)
-                                            .addComponent(cbSearchColorGreen)
-                                            .addComponent(comboSearchColor, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                        .addComponent(jLabel1)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                            .addComponent(cbSearchColorIdentityWhite)
-                                            .addComponent(cbSearchColorIdentityBlue)
-                                            .addComponent(cbSearchColorIdentityBlack)
-                                            .addComponent(cbSearchColorIdentityRed)
-                                            .addComponent(cbSearchColorIdentityGreen)
-                                            .addComponent(comboSearchColorIdentity, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                                    .addGroup(jPanel1Layout.createSequentialGroup()
-                                        .addGap(1, 1, 1)
-                                        .addComponent(btnResetFormat)))
-                                .addGap(48, 48, 48)
-                                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 415, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGroup(jPanel1Layout.createSequentialGroup()
-                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                    .addComponent(jLabel4)
-                                    .addComponent(comboSearchFormat, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                .addGap(18, 18, 18)
-                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                    .addComponent(jLabel5)
-                                    .addComponent(comboSearchSet, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(btnResetSet))
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                    .addComponent(jLabel6)
-                                    .addComponent(cbSearchCommon))
+                                            .addComponent(comboSearchType, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(cbSearchUncommon)
+                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                    .addComponent(txtFlavorText, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(comboSearchFlavorText, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(cbSearchRare)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(cbSearchMythicRare)))
-                        .addGap(0, 43, Short.MAX_VALUE))))
+                                .addComponent(txtArtist, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(btnResetAll))))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jLabel2)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(cbSearchColorWhite)
+                    .addComponent(cbSearchColorBlue)
+                    .addComponent(cbSearchColorBlack)
+                    .addComponent(cbSearchColorRed)
+                    .addComponent(cbSearchColorGreen)
+                    .addComponent(comboSearchColor, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(12, 12, 12)
+                .addComponent(jLabel1)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(cbSearchColorIdentityWhite)
+                    .addComponent(cbSearchColorIdentityBlue)
+                    .addComponent(cbSearchColorIdentityBlack)
+                    .addComponent(cbSearchColorIdentityRed)
+                    .addComponent(cbSearchColorIdentityGreen)
+                    .addComponent(comboSearchColorIdentity, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 7, Short.MAX_VALUE)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addComponent(lblPicture, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(btnSearchCardFlip)
+                        .addGap(125, 125, 125))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addComponent(jScrollPane1)
+                        .addGap(12, 12, 12)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(btnSearchDisplayRule)
+                            .addComponent(btnSearchDisplayText))
+                        .addGap(122, 122, 122))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 573, Short.MAX_VALUE)
+                        .addContainerGap())))
         );
 
         jTabbedPane1.addTab("Search Card", jPanel1);
+
+        tblDecks.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+                "Name", "Format", "Visible", "ID"
+            }
+        ) {
+            boolean[] canEdit = new boolean [] {
+                true, false, true, false
+            };
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
+        jScrollPane3.setViewportView(tblDecks);
+
+        btnEdit.setText("Edit");
+        btnEdit.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnEditActionPerformed(evt);
+            }
+        });
+
+        btnNew.setText("New");
+        btnNew.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnNewActionPerformed(evt);
+            }
+        });
+
+        btnDeleteDeck.setText("Delete");
+        btnDeleteDeck.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnDeleteDeckActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
+        jPanel3.setLayout(jPanel3Layout);
+        jPanel3Layout.setHorizontalGroup(
+            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel3Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 972, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(jPanel3Layout.createSequentialGroup()
+                        .addComponent(btnNew)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(btnEdit)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(btnDeleteDeck)))
+                .addContainerGap(260, Short.MAX_VALUE))
+        );
+        jPanel3Layout.setVerticalGroup(
+            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel3Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 457, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(btnEdit)
+                    .addComponent(btnNew)
+                    .addComponent(btnDeleteDeck))
+                .addContainerGap(349, Short.MAX_VALUE))
+        );
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 1372, Short.MAX_VALUE)
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap())
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 738, Short.MAX_VALUE)
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 32, Short.MAX_VALUE))
         );
 
         jTabbedPane1.addTab("Deck", jPanel2);
@@ -414,11 +742,17 @@ public class UserGUI extends javax.swing.JFrame {
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jTabbedPane1)
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jTabbedPane1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jTabbedPane1)
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jTabbedPane1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap())
         );
 
         pack();
@@ -427,21 +761,21 @@ public class UserGUI extends javax.swing.JFrame {
     private void btnSearchActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSearchActionPerformed
         //Create Variables
         String searchCard = txtCardName.getText();  //Card Being Searched
-        Connection connect = null;
-        Statement statement = null;
-        PreparedStatement preparedStatement = null;
-        ResultSet resultSet = null;
         
         try 
         {
-            connect = DriverManager.getConnection("jdbc:mysql://localhost/mtg_dbm?" 
-                                                + "user=root&password=q1w2e3r4");
-            statement = connect.createStatement();
             
-            if (searchCard.equals("")) //Blank search pulls all cards in database
+            if (isSearchSettingsDefault() == true) //Blank or Default settings search pulls all recent cards in database
             {
                 // Result set get the result of the SQL query
-                resultSet = statement.executeQuery("select * from mtg_dbm.Card");
+                resultSet = statement.executeQuery("SELECT s1.*\n" +
+                                                    "FROM Card s1\n" +
+                                                    "JOIN (\n" +
+                                                    "  SELECT  MAX(ID) AS ID, CardName\n" +
+                                                    "  FROM Card\n" +
+                                                    "  GROUP BY CardName) AS s2\n" +
+                                                    "  ON s1.CardName = s2.CardName AND s1.ID = s2.ID\n" +
+                                                    "  JOIN MTGSet z ON s1.SetName = z.SetName");
 
                  //Instanced Variables
                 DefaultTableModel tbl = (DefaultTableModel)tblCardResult.getModel();
@@ -451,6 +785,7 @@ public class UserGUI extends javax.swing.JFrame {
 
                 while (resultSet.next())
                 {
+                    
                     int CardID = resultSet.getInt("ID");
                     String CardName = resultSet.getString("CardName");
                     String SetName = resultSet.getString("SetName");
@@ -464,19 +799,1078 @@ public class UserGUI extends javax.swing.JFrame {
                     Object [] arr = {CardID, CardName, SetName, Mana, CMC, Type,
                                      Power, Toughness, Artist, MultiverseID};
                     tbl.addRow(arr);
-                    //System.out.println(CardName +":" +ID +"\n");
                 }
                 
                 tblCardResult.setModel(tbl);
                 resizeColumnWidth(tblCardResult);
                 
             }
-            else if (searchCard.isEmpty() == false) //If User inputs anything in the search
+            else //If Search Settings are not default
             {
-                preparedStatement = connect.prepareStatement("select * from mtg_dbm.Card where CardName like ?");
-                preparedStatement.setString(1, "%" + searchCard + "%");
-                resultSet = preparedStatement.executeQuery();
+                boolean [] c = changedSearchSettings();                
+                String sqlStatement = "";
                 
+                //Printing
+                if (c[12] == true) // Prepare Statement for Cards based on Printings and if setting are not default
+                {
+                    int selection = comboSearchPrinting.getSelectedIndex(); //Currently Selected Option in Printing
+                    
+                    //Card
+                    if (selection == 1) //Original Printing
+                    {
+                        String temp = "SELECT s1.*\n" +
+                                    "FROM Card s1\n" +
+                                    "JOIN (\n" +
+                                    "  SELECT  MIN(ID) AS ID, CardName\n" +
+                                    "  FROM Card\n" +
+                                    "  GROUP BY CardName) AS s2\n" +
+                                    "  ON s1.CardName = s2.CardName AND s1.ID = s2.ID ";
+                        sqlStatement = temp;
+                    }
+                    else if (selection == 2) //All Printings
+                    {
+                        String temp = "SELECT s1.* FROM Card s1 ";
+                        sqlStatement = temp;
+                    }
+                    else if (selection == 3) //Reprints Only
+                    {
+                        String temp = "SELECT s1.*\n" +
+                                    "FROM Card s1\n" +
+                                    "JOIN (\n" +
+                                    "  SELECT  ID, CardName\n" +
+                                    "  FROM Card\n" +
+                                    "  WHERE ID NOT IN (SELECT MIN(ID) AS CardID FROM Card GROUP BY CardName)) AS s2\n" +
+                                    "  ON s1.CardName = s2.CardName AND s1.ID = s2.ID ";
+                        sqlStatement = temp;
+                    }
+                }
+                else    //Create Default Search for Most Recent Printing
+                {
+                    
+                    String temp = "SELECT s1.*\n" +
+                                    "FROM Card s1\n" +
+                                    "JOIN (\n" +
+                                    "  SELECT  MAX(ID) AS ID, CardName\n" +
+                                    "  FROM Card\n" +
+                                    "  GROUP BY CardName) AS s2\n" +
+                                    "  ON s1.CardName = s2.CardName AND s1.ID = s2.ID ";
+                    sqlStatement = temp;
+                    
+                }
+                
+                //Format
+                if (c[10] == true) //Adds SQLStatement based on Format non-default settings
+                {
+                    String temp = "";
+                    
+                    temp = "\nJOIN(\n" +
+                            "      SELECT CardID,\n" +
+                            "             BanType,\n" +
+                            "             FormatName\n" +
+                            "      FROM Format_Card \n" +
+                            "      WHERE BanType = \"Legal\" AND FormatName = \""+ (String)comboSearchFormat.getSelectedItem() + "\"\n" +
+                            "  ) fc ON fc.CardID = s1.ID ";
+                    sqlStatement +=  temp;
+                }
+                
+                //Set
+                if (c[11] == true) //Adds SQLStatement based on Set non-default settings
+                {
+                    String temp = "";
+                    
+                    temp = "\nJOIN(\n" +
+                            "      SELECT ID,\n" +
+                            "             SetName\n" +
+                            "      FROM Card \n" +
+                            "      WHERE SetName = \""+ (String)comboSearchSet.getSelectedItem() + "\"\n" +
+                            "  ) sc ON sc.ID = s1.ID ";
+                    sqlStatement +=  temp;
+                }
+                
+                //Color Identity
+                if (c[6] == true) //Adds SQL Statement based on Color Identity non-default settings
+                {
+                    String temp = "";
+                    int i = comboSearchColorIdentity.getSelectedIndex();
+                    boolean [] l = getChangedColors("Color Identity"); //Stores which buttons have been pressed
+                    ArrayList<String> s = new ArrayList<String>();  //Stores Colors selected
+                    
+                    
+                    if (i == 0) //Match Any Color(s)
+                    {
+                        temp = "JOIN (\n"
+                            + "      SELECT cc.CardID,\n"
+                            + "             cc.ColorID,\n"
+                            + "             c.ColorName\n"
+                            + "     FROM Card_ColorIdentity cc, ColorIdentity c\n"
+                            + "     WHERE cc.ColorID = c.ColorID AND (";
+                        
+                        if (l[0] == true)   //White Selected
+                        {
+                            s.add("c.ColorName = \"White\"");
+                        }
+                        
+                        if (l[1] == true)   //Blue Selected
+                        {
+                            s.add("c.ColorName = \"Blue\"");
+                        }
+                        
+                        if (l[2] == true)   //Black Selected
+                        {
+                            s.add("c.ColorName = \"Black\"");
+                        }
+                        
+                        if (l[3] == true)   //Red Selected
+                        {
+                            s.add("c.ColorName = \"Red\"");
+                        }
+                        
+                        if (l[4] == true)   //Green Selected
+                        {
+                            s.add("c.ColorName = \"Green\"");
+                        }
+                        
+                        for (int x = 0; x < s.size(); x++)
+                        {
+                            if (x != s.size()-1)
+                            {
+                                temp += s.get(x) + " OR ";
+                            }
+                            else
+                            {
+                                temp += s.get(x) + ")\n";
+                            }
+                        }
+                        temp += ") colorIdentity ON colorIdentity.CardID = s1.ID ";
+                    }
+                    else if (i == 1) //Match Exact Colors
+                    {
+                        temp = "JOIN (\n"
+                            + "      SELECT cc.CardID,\n"
+                            + "             c.ColorName\n"
+                            + "     FROM Card_ColorIdentity cc\n "
+                            + "     JOIN ColorIdentity c\n"
+                            + "     ON cc.ColorID = c.ColorID\n"
+                            + "     JOIN Card crd\n"
+                            + "     ON crd.ID = cc.CardID\n"
+                            + "     WHERE cc.CardID ";
+                        
+                        ArrayList<String> e = new ArrayList<String>();  //Stores Colors not selected
+                        
+                        if (l[0] == true)   //White Selected
+                        {
+                            s.add("c.ColorName = \"White\"");
+                        }
+                        else
+                        {
+                            e.add("3");
+                        }
+                        
+                        if (l[1] == true)   //Blue Selected
+                        {
+                            s.add("c.ColorName = \"Blue\"");
+                        }
+                        else
+                        {
+                            e.add("1");
+                        }
+                        
+                        if (l[2] == true)   //Black Selected
+                        {
+                            s.add("c.ColorName = \"Black\"");
+                        }
+                        else
+                        {
+                            e.add("2");
+                        }
+                        
+                        if (l[3] == true)   //Red Selected
+                        {
+                            s.add("c.ColorName = \"Red\"");
+                        }
+                        else
+                        {
+                            e.add("5");
+                        }
+                        
+                        if (l[4] == true)   //Green Selected
+                        {
+                            s.add("c.ColorName = \"Green\"");
+                        }
+                        else
+                        {
+                            e.add("4");
+                        }
+                        
+                        if (s.size() != 5 && s.size() != 0)  //If there are atleast 1 to 4 buttons selected in ColorIdentity
+                        {
+                            temp += "NOT IN (SELECT CardID FROM Card_ColorIdentity WHERE ColorID IN (";
+                            
+                            for (int x = 0; x < e.size(); x++)  //Select Cards with ColorIdentity more than what is currently selected
+                            {
+                                if ( x != e.size()-1)
+                                {
+                                    temp += e.get(x) + ",";
+                                }
+                                else
+                                {
+                                    temp += e.get(x) + ")) AND (";
+                                }   
+                            }
+                            
+                            for (int x = 0; x < s.size(); x++)
+                            {
+                                if (x != s.size()-1)
+                                {
+                                    temp += s.get(x) + " OR ";
+                                }
+                                else 
+                                {
+                                    temp += s.get(x) + ")\n";
+                                }
+                            }
+
+                            temp += ") colorIdentity ON colorIdentity.CardID = s1.ID ";
+                        }
+                        else if (s.size () == 5)    // For all 5 identities
+                        {
+                            temp += "IN (SELECT CardID FROM Card_ColorIdentity WHERE ColorID IN (1,2,3,4,5))";
+                            temp += ") colorIdentity ON colorIdentity.CardID = s1.ID ";
+                        }
+                        else if (s.size() == 0) //For Colorless Search
+                        {
+                            temp = "JOIN (SELECT crd.ID\n" +
+                                   "      FROM Card crd\n" +
+                                   "      WHERE crd.ID NOT IN (SELECT CardID FROM Card_ColorIdentity)";
+                            temp += ") colorIdentity ON colorIdentity.ID = s1.ID ";
+                        }
+                    }
+                    
+                    sqlStatement += temp;   //Adds Color SQL Statement to sqlStatement String
+                }
+                
+                //Color
+                if (c[5] == true) //Adds SQL Statement based on Set non-default settings
+                {
+                    String temp = "";
+                    int i = comboSearchColor.getSelectedIndex();
+                    boolean [] l = getChangedColors("Color"); //Stores which buttons have been pressed
+                    ArrayList<String> s = new ArrayList<String>();  //Stores Colors selected
+
+                    
+                    if (i == 0) //Match Any Color(s)
+                    {
+                        temp = "JOIN (\n"
+                            + "      SELECT cc.CardID,\n"
+                            + "             c.ColorName\n"
+                            + "     FROM Card_Color cc, Color c\n"
+                            + "     WHERE cc.ColorID = c.ColorID AND (";
+                        
+                        if (l[0] == true)   //White Selected
+                        {
+                            s.add("c.ColorName = \"White\"");
+                        }
+                        
+                        if (l[1] == true)   //Blue Selected
+                        {
+                            s.add("c.ColorName = \"Blue\"");
+                        }
+                        
+                        if (l[2] == true)   //Black Selected
+                        {
+                            s.add("c.ColorName = \"Black\"");
+                        }
+                        
+                        if (l[3] == true)   //Red Selected
+                        {
+                            s.add("c.ColorName = \"Red\"");
+                        }
+                        
+                        if (l[4] == true)   //Green Selected
+                        {
+                            s.add("c.ColorName = \"Green\"");
+                        }
+                        
+                        for (int x = 0; x < s.size(); x++)
+                        {
+                            if (x != s.size()-1)
+                            {
+                                temp += s.get(x) + " OR ";
+                            }
+                            else
+                            {
+                                temp += s.get(x) + ")\n";
+                            }
+                        }
+                        temp += ") color ON color.CardID = s1.ID ";
+                    }
+                    else if (i == 1) //Match Exact Colors
+                    {
+                        ArrayList<String> e = new ArrayList<String>();  //Stores Colors not selected
+                        
+                        temp = "JOIN (\n"
+                            + "      SELECT cc.CardID,\n"
+                            + "             c.ColorName\n"
+                            + "     FROM Card_Color cc\n "
+                            + "     JOIN Color c\n"
+                            + "     ON cc.ColorID = c.ColorID\n"
+                            + "     JOIN Card crd\n"
+                            + "     ON crd.ID = cc.CardID\n"
+                            + "     WHERE cc.CardID ";
+                        
+                        if (l[0] == true)   //White Selected
+                        {
+                            s.add("c.ColorName = \"White\"");
+                        }
+                        else
+                        {
+                            e.add("3");
+                        }
+                        
+                        if (l[1] == true)   //Blue Selected
+                        {
+                            s.add("c.ColorName = \"Blue\"");
+                        }
+                        else
+                        {
+                            e.add("1");
+                        }
+                        
+                        if (l[2] == true)   //Black Selected
+                        {
+                            s.add("c.ColorName = \"Black\"");
+                        }
+                        else
+                        {
+                            e.add("2");
+                        }
+                        
+                        if (l[3] == true)   //Red Selected
+                        {
+                            s.add("c.ColorName = \"Red\"");
+                        }
+                        else
+                        {
+                            e.add("5");
+                        }
+                        
+                        if (l[4] == true)   //Green Selected
+                        {
+                            s.add("c.ColorName = \"Green\"");
+                        }
+                        else
+                        {
+                            e.add("4");
+                        }
+                        
+                        if (s.size() != 5 && s.size() != 0)  //If there are atleast 1 to 4 buttons selected in ColorIdentity
+                        {
+                            temp += "NOT IN (SELECT CardID FROM Card_Color WHERE ColorID IN (";
+                            
+                            for (int x = 0; x < e.size(); x++)  //Select Cards with ColorIdentity more than what is currently selected
+                            {
+                                if ( x != e.size()-1)
+                                {
+                                    temp += e.get(x) + ",";
+                                }
+                                else
+                                {
+                                    temp += e.get(x) + ")) AND (";
+                                }   
+                            }
+                            
+                            for (int x = 0; x < s.size(); x++)
+                            {
+                                if (x != s.size()-1)
+                                {
+                                    temp += s.get(x) + " OR ";
+                                }
+                                else 
+                                {
+                                    temp += s.get(x) + ")\n";
+                                }
+                            }
+
+                            temp += ") color ON color.CardID = s1.ID ";
+                        }
+                        else if (s.size () == 5)    // For all 5 identities
+                        {
+                            temp += "IN (SELECT CardID FROM Card_Color WHERE ColorID IN (1,2,3,4,5))";
+                            temp += ") color ON color.CardID = s1.ID ";
+                        }
+                        else if (s.size() == 0) //For Colorless Search
+                        {
+                            temp = "JOIN (SELECT crd.ID\n" +
+                                   "      FROM Card crd\n" +
+                                   "      WHERE crd.ID NOT IN (SELECT CardID FROM Card_Color)";
+                            temp += ") color ON color.ID = s1.ID ";
+                        }
+                        
+                    }
+                    else if (i == 2) //Match Multicolored (2+ Colors)
+                    {
+                        int count= 0;   //MUST BE HIGHER THAN 2 TO EXECUTE SQL STATEMENT
+                        ArrayList<String> e = new ArrayList<String>();
+                        temp = "JOIN (\n"
+                            + "      SELECT cc.CardID,\n"
+                            + "             c.ColorName\n"
+                            + "     FROM Card_Color cc\n "
+                            + "     JOIN Color c\n"
+                            + "     ON cc.ColorID = c.ColorID\n"
+                            + "     JOIN Card crd\n"
+                            + "     ON crd.ID = cc.CardID\n"
+                            + "     WHERE cc.CardID ";
+                        
+                        if (l[0] == true)   //White Selected
+                        {
+                            s.add("c.ColorName = \"White\"");
+                        }
+                        else
+                        {
+                            e.add("3");
+                        }
+                        
+                        if (l[1] == true)   //Blue Selected
+                        {
+                            s.add("c.ColorName = \"Blue\"");
+                        }
+                        else
+                        {
+                            e.add("1");
+                        }
+                        
+                        if (l[2] == true)   //Black Selected
+                        {
+                            s.add("c.ColorName = \"Black\"");
+                        }
+                        else
+                        {
+                            e.add("2");
+                        }
+                        
+                        if (l[3] == true)   //Red Selected
+                        {
+                            s.add("c.ColorName = \"Red\"");
+                        }
+                        else
+                        {
+                            e.add("5");
+                        }
+                        
+                        if (l[4] == true)   //Green Selected
+                        {
+                            s.add("c.ColorName = \"Green\"");
+                        }
+                        else
+                        {
+                            e.add("4");
+                        }
+                        
+                        if (s.size() >= 2 && s.size() <5)   //Greater Than 2 and Less 5 Colors
+                        {
+                            temp += "NOT IN (SELECT CardID FROM Card_Color WHERE ColorID IN (";
+                            String n = Integer.toString(s.size());
+                            
+                            for (int x = 0; x < e.size(); x++)
+                            {
+                                if (x != e.size()-1)
+                                {
+                                    temp += e.get(x) + ",";
+                                }
+                                else
+                                {
+                                    temp += e.get(x) + ") ";
+                                }
+                            }
+                            
+                            temp+= ") AND cc.CardID NOT IN (SELECT CardID FROM Card_Color Group BY CardID HAVING COUNT(*) < " + n + ")";
+                            
+                            temp += ") color ON color.CardID = s1.ID ";
+                        }
+                        else if (s.size() == 5)
+                        {
+                            String n = Integer.toString(s.size());
+                            temp += "IN (SELECT CardID FROM Card_Color WHERE ColorID IN (1,2,3,4,5))\n"
+                                    + "AND cc.CardID NOT IN (SELECT CardID FROM Card_Color Group BY CardID HAVING COUNT(*) < " + n + ")";
+                            temp += ") color ON color.CardID = s1.ID ";
+                        }
+                        else
+                        {
+                            temp = "";
+                        }
+                    }
+                    
+                    sqlStatement += temp;   //Adds Color SQL Statement to sqlStatement String
+                }
+                
+                //Rarity
+                if (c[13] == true)  //Adds SQL Statement based on Rarity non-default settings
+                {
+                    String temp = "JOIN(\n"
+                            + "    SELECT ID\n"
+                            + "    FROM Card\n"
+                            + "    WHERE Rarity = ";
+                    
+                    ArrayList<String> s = new ArrayList<String>();
+                    
+                    if (cbSearchCommon.isSelected())
+                    {
+                        s.add("\"Common\"");
+                    }
+                    
+                    if (cbSearchUncommon.isSelected())
+                    {
+                        s.add("\"Uncommon\"");
+                    }
+                    
+                    if (cbSearchRare.isSelected())
+                    {
+                        s.add("\"Rare\"");
+                    }
+                    
+                    if (cbSearchMythicRare.isSelected())
+                    {
+                        s.add("\"Mythic Rare\"");
+                    }
+                    
+                    for (int x = 0; x < s.size(); x++)
+                    {
+                        if (x != s.size()-1)
+                        {
+                            temp += s.get(x) + " OR Rarity = ";
+                        }
+                        else
+                        {
+                            temp += s.get(x) + ") ";
+                        }
+                    }
+                    temp += "rarity ON rarity.ID = s1.ID ";
+                    sqlStatement += temp;
+                    
+                }
+                
+                //Card Name
+                if(c[0] == true) //Adds SQL Statement based on Card name non-default setting
+                {
+                    String temp = "JOIN (\n"
+                            + "         SELECT ID\n"
+                            + "         FROM Card\n"
+                            + "         WHERE CardName LIKE \"%" + txtCardName.getText() + "%\"\n"
+                            + "    ) cardName ON cardName.ID = s1.ID ";
+                    
+                    sqlStatement += temp;
+                }
+                
+                //Card Type
+                if(c[1] == true) //Adds SQL Statement based on Card Type non-default settings
+                {
+                    
+                    String temp = "JOIN (\n"
+                            + "         SELECT ct.CardID\n"
+                            + "         FROM Card_Type ct\n"
+                            + "         JOIN Type t\n"
+                            + "         ON  ct.TypeID = t.TypeID\n"
+                            + "         JOIN Card crd\n"
+                            + "         ON crd.ID = ct.CardID\n"
+                            + "         WHERE ct.TypeID IN (SELECT TypeID FROM Type WHERE Types LIKE ";
+                    
+                    if (comboSearchType.getSelectedIndex() == 0) //All types
+                    {
+                        String [] s = txtType.getText().split(" ");
+                        
+                        for (int x = 0; x < s.length ; x++)
+                        {
+                            if(x != s.length - 1)
+                            {
+                                temp += "\"%" + s[x] + "%\" OR Types LIKE ";
+                            }
+                            else
+                            {
+                                temp += "\"%" + s[x] + "%\" )\n";
+                            }
+                        }
+                        
+                        temp += " GROUP BY ct.CardID HAVING COUNT(*) = " + s.length
+                                + "\n) cardType ON cardType.CardID = s1.ID ";
+                        
+                        if (txtType.getText().trim().equals(""))
+                        {
+                            temp = "";
+                        }
+                        
+                        sqlStatement +=  temp;
+                    }
+                    else if (comboSearchType.getSelectedIndex() == 1) //Any type(s)
+                    {
+                        String [] s = txtType.getText().split(" ");
+                        for (int x = 0; x < s.length ; x++)
+                        {
+                            if(x != s.length - 1)
+                            {
+                                temp += "\"%" + s[x] + "%\" OR Types LIKE ";
+                            }
+                            else
+                            {
+                                temp += "\"%" + s[x] + "%\" )\n";
+                            }
+                        }
+                        
+                        temp += ") cardType ON cardType.CardID = s1.ID ";
+                        
+                        if (txtType.getText().trim().equals(""))
+                        {
+                            temp = "";
+                        }
+                        
+                        sqlStatement +=  temp;
+                    }
+                    else    //Exclude Selected
+                    {
+                        temp = "JOIN (\n"
+                            + "         SELECT ct.CardID\n"
+                            + "         FROM Card_Type ct\n"
+                            + "         JOIN Type t\n"
+                            + "         ON  ct.TypeID = t.TypeID\n"
+                            + "         JOIN Card crd\n"
+                            + "         ON crd.ID = ct.CardID\n"
+                            + "         WHERE ct.CardID NOT IN (SELECT CardID FROM Card_Type WHERE TypeID\n"
+                                + "                             IN (SELECT TypeID FROM Type WHERE Types LIKE ";
+                        
+                        String [] s = txtType.getText().split(" ");
+                        
+                        for (int x = 0; x < s.length ; x++)
+                        {
+                            if(x != s.length - 1)
+                            {
+                                temp += "\"%" + s[x] + "%\" OR Types LIKE ";
+                            }
+                            else
+                            {
+                                temp += "\"%" + s[x] + "%\")) \n";
+                            }
+                        }
+                        
+                        temp += ") cardType ON cardType.CardID = s1.ID ";
+                        
+                        if (txtType.getText().trim().equals(""))
+                        {
+                            temp = "";
+                        }
+                        
+                        sqlStatement +=  temp;
+                    }
+                }
+                
+                //Text
+                if (c[2] == true)
+                {
+                    String temp = "JOIN (\n"
+                            + "         SELECT ID\n"
+                            + "         FROM Card\n"
+                            + "         WHERE ID IN (SELECT ID FROM Card WHERE CardText LIKE ";
+                    String [] s = txtText.getText().split(" ");
+                    
+                    if (comboSearchText.getSelectedIndex() == 0) //All words
+                    {
+                        for (int x = 0; x < s.length; x++)
+                        {
+                            if(x != s.length - 1)
+                            {
+                                temp += "\"%" + s[x] + "%\" AND CardText LIKE ";
+                            }
+                            else
+                            {
+                                temp += "\"%" + s[x] + "%\")";
+                            }
+                        }
+                        
+                        temp +=  "\n) cardText ON cardText.ID = s1.ID ";
+                        
+                        if (txtText.getText().trim().equals(""))
+                        {
+                            temp = "";
+                        }
+                        
+                        sqlStatement +=  temp;
+                        
+                    }
+                    else if (comboSearchText.getSelectedIndex() == 1) //Any word(s)
+                    {
+                        for (int x = 0; x < s.length; x++)
+                        {
+                            if(x != s.length - 1)
+                            {
+                                temp += "\"%" + s[x] + "%\" OR CardText LIKE ";
+                            }
+                            else
+                            {
+                                temp += "\"%" + s[x] + "%\")";
+                            }
+                        }
+                        
+                        temp +=  "\n) cardText ON cardText.ID = s1.ID ";
+                        
+                        if (txtText.getText().trim().equals(""))
+                        {
+                            temp = "";
+                        }
+                        
+                        sqlStatement +=  temp;
+                    }
+                    else     //Exact Phrase
+                    {
+                        for (int x = 0; x < s.length; x++)
+                        {
+                            if(x != s.length - 1)
+                            {
+                                temp += "\"%" + s[x] + " ";
+                            }
+                            else
+                            {
+                                temp +=  s[x] + "%\")";
+                            }
+                        }
+                        
+                        temp +=  "\n) cardText ON cardText.ID = s1.ID ";
+                        
+                        if (txtText.getText().trim().equals(""))
+                        {
+                            temp = "";
+                        }
+                        
+                        sqlStatement +=  temp;
+                    }
+                }
+                
+                
+                //Flavor Text
+                if(c[3] == true)
+                {
+                    String temp = "JOIN (\n"
+                            + "         SELECT ID\n"
+                            + "         FROM Card\n"
+                            + "         WHERE ID IN (SELECT ID FROM Card WHERE FlavorText LIKE ";
+                    String [] s = txtFlavorText.getText().split(" ");
+                    
+                    if (comboSearchFlavorText.getSelectedIndex() == 0) //All words
+                    {
+                        for (int x = 0; x < s.length; x++)
+                        {
+                            if(x != s.length - 1)
+                            {
+                                temp += "\"%" + s[x] + "%\" AND FlavorText LIKE ";
+                            }
+                            else
+                            {
+                                temp += "\"%" + s[x] + "%\")";
+                            }
+                        }
+                        
+                        temp +=  "\n) cardFlavorText ON cardFlavorText.ID = s1.ID ";
+                        
+                        if (txtFlavorText.getText().trim().equals(""))
+                        {
+                            temp = "";
+                        }
+                        
+                        sqlStatement +=  temp;
+                        
+                    }
+                    else if (comboSearchFlavorText.getSelectedIndex() == 1) //Any word(s)
+                    {
+                        for (int x = 0; x < s.length; x++)
+                        {
+                            if(x != s.length - 1)
+                            {
+                                temp += "\"%" + s[x] + "%\" OR FlavorText LIKE ";
+                            }
+                            else
+                            {
+                                temp += "\"%" + s[x] + "%\")";
+                            }
+                        }
+                        
+                        temp +=  "\n) cardFlavorText ON cardFlavorText.ID = s1.ID ";
+                        
+                        if (txtFlavorText.getText().trim().equals(""))
+                        {
+                            temp = "";
+                        }
+                        
+                        sqlStatement +=  temp;
+                    }
+                    else     //Exact Phrase
+                    {
+                        for (int x = 0; x < s.length; x++)
+                        {
+                            if(x != s.length - 1)
+                            {
+                                temp += "\"%" + s[x] + " ";
+                            }
+                            else
+                            {
+                                temp +=  s[x] + "%\")";
+                            }
+                        }
+                        
+                        temp +=  "\n) cardFlavorText ON cardFlavorText.ID = s1.ID ";
+                        
+                        if (txtFlavorText.getText().trim().equals(""))
+                        {
+                            temp = "";
+                        }
+                        
+                        sqlStatement +=  temp;
+                    }
+                }
+                
+                
+                //Artist
+                if(c[4] == true)
+                {
+                    String temp = "";
+                    if (txtArtist.getText().trim().equals(""))
+                    {
+                        temp = "";
+                    }
+                    else
+                    {
+                        temp = "JOIN (\n"
+                           + "          SELECT ID\n"
+                           + "          FROM Card\n"
+                           + "          WHERE Artist LIKE \"%";
+                        String [] s = txtArtist.getText().split(" ");
+                        
+                        for (int x = 0; x < s.length; x++)
+                        {
+                            if(x != s.length - 1)
+                            {
+                                temp +=  s[x] + " ";
+                            }
+                            else
+                            {
+                                temp +=  s[x] + "%\"";
+                            }
+                        }
+                        
+                        temp +=  "\n) cardArtist ON cardArtist.ID = s1.ID ";
+                        sqlStatement +=  temp;
+                    }
+                }
+                
+                //Power
+                if(c[7] == true) //Adds SQL Statement based on Power non-default settings 
+                {
+                    int i = comboSearchPowerSign.getSelectedIndex();
+                    int p = comboSearchPower.getSelectedIndex();
+                    String temp = "JOIN (\n"
+                            + "         SELECT ID\n"
+                            + "         FROM Card\n"
+                            + "         WHERE Power ";
+                    
+                    if (i == 0) //Less than
+                    {
+                        temp += "< " + comboSearchPower.getItemAt(p)
+                                +   "\n) cardPower ON cardPower.ID = s1.ID ";
+                        sqlStatement += temp;
+                    }
+                    else if (i == 1) //Greater Than
+                    {
+                        if (p == 0) //Handle Incorrect Fields
+                        {
+                            temp = "";
+                        }
+                        else
+                        {
+                            temp += "> " + comboSearchPower.getItemAt(p)
+                                +   "\n) cardPower ON cardPower.ID = s1.ID ";
+                            sqlStatement += temp;
+                        }
+                    }
+                    else if (i == 2) //Less Than or Equal to
+                    {
+                        if (p == 0) //Handle Incorrect Fields
+                        {
+                            temp = "";
+                        }
+                        else
+                        {
+                            temp += "<= " + comboSearchPower.getItemAt(p)
+                                +   "\n) cardPower ON cardPower.ID = s1.ID ";
+                            sqlStatement += temp;
+                        }
+                    }
+                    else if (i == 3) //Greater Than or Equal to
+                    {
+                        if (p == 0) //Handle Incorrect Fields
+                        {
+                            temp = "";
+                        }
+                        else
+                        {
+                            temp += ">= " + comboSearchPower.getItemAt(p)
+                                +   "\n) cardPower ON cardPower.ID = s1.ID ";
+                            sqlStatement += temp;
+                        }
+                    }
+                    else if (i == 4) //Equal to
+                    {
+                        if (p == 0) //Handle Null Fields (Ancestrall Call, Lotus Bloom, etc...)
+                        {
+                            temp = "";
+                        }
+                        else
+                        {
+                            temp += "= " + comboSearchPower.getItemAt(p)
+                                +   "\n) cardPower ON cardPower.ID = s1.ID ";
+                            sqlStatement += temp;
+                        }
+                    }
+                }
+                
+                //Toughness
+                if(c[8] == true) //Adds SQL Statement based on Toughness non-default settings 
+                {
+                    int i = comboSearchToughnessSign.getSelectedIndex();
+                    int p = comboSearchToughness.getSelectedIndex();
+                    String temp = "JOIN (\n"
+                            + "         SELECT ID\n"
+                            + "         FROM Card\n"
+                            + "         WHERE Toughness ";
+                    
+                    if (i == 0) //Less than
+                    {
+                        temp += "< " + comboSearchToughness.getItemAt(p)
+                                +   "\n) cardToughness ON cardToughness.ID = s1.ID ";
+                        sqlStatement += temp;
+                    }
+                    else if (i == 1) //Greater Than
+                    {
+                        if (p == 0) //Handle Incorrect Fields
+                        {
+                            temp = "";
+                        }
+                        else
+                        {
+                            temp += "> " + comboSearchToughness.getItemAt(p)
+                                +   "\n) cardToughness ON cardToughness.ID = s1.ID ";
+                            sqlStatement += temp;
+                        }
+                    }
+                    else if (i == 2) //Less Than or Equal to
+                    {
+                        if (p == 0) //Handle Incorrect Fields
+                        {
+                            temp = "";
+                        }
+                        else
+                        {
+                            temp += "<= " + comboSearchToughness.getItemAt(p)
+                                +   "\n) cardToughness ON cardToughness.ID = s1.ID ";
+                            sqlStatement += temp;
+                        }
+                    }
+                    else if (i == 3) //Greater Than or Equal to
+                    {
+                        if (p == 0) //Handle Incorrect Fields
+                        {
+                            temp = "";
+                        }
+                        else
+                        {
+                            temp += ">= " + comboSearchToughness.getItemAt(p)
+                                +   "\n) cardToughness ON cardToughness.ID = s1.ID ";
+                            sqlStatement += temp;
+                        }
+                    }
+                    else if (i == 4) //Equal to
+                    {
+                        if (p == 0) //Handle Incorrect Fields
+                        {
+                            temp = "";
+                        }
+                        else
+                        {
+                            temp += "= " + comboSearchToughness.getItemAt(p)
+                                +   "\n) cardToughness ON cardToughness.ID = s1.ID ";
+                            sqlStatement += temp;
+                        }
+                    }
+                }
+                
+                //CMC
+                if(c[9] == true) //Adds SQL Statement based on CMC non-default settings 
+                {
+                    int i = comboSearchCMCSign.getSelectedIndex();
+                    int p = comboSearchCMC.getSelectedIndex();
+                    String temp = "JOIN (\n"
+                            + "         SELECT ID\n"
+                            + "         FROM Card\n"
+                            + "         WHERE CMC ";
+                    
+                    if (i == 0) //Less than
+                    {
+                        temp += "< " + comboSearchCMC.getItemAt(p)
+                                +   "\n) cardCMC ON cardCMC.ID = s1.ID ";
+                        sqlStatement += temp;
+                    }
+                    else if (i == 1) //Greater Than
+                    {
+                        if (p == 0) //Handle Incorrect Fields
+                        {
+                            temp = "";
+                        }
+                        else
+                        {
+                            temp += "> " + comboSearchCMC.getItemAt(p)
+                                +   "\n) cardCMC ON cardCMC.ID = s1.ID ";
+                            sqlStatement += temp;
+                        }
+                    }
+                    else if (i == 2) //Less Than or Equal to
+                    {
+                        if (p == 0) //Handle Incorrect Fields
+                        {
+                            temp = "";
+                        }
+                        else
+                        {
+                            temp += "<= " + comboSearchCMC.getItemAt(p)
+                                +   "\n) cardCMC ON cardCMC.ID = s1.ID ";
+                            sqlStatement += temp;
+                        }
+                    }
+                    else if (i == 3) //Greater Than or Equal to
+                    {
+                        if (p == 0) //Handle Incorrect Fields
+                        {
+                            temp = "";
+                        }
+                        else
+                        {
+                            temp += ">= " + comboSearchCMC.getItemAt(p)
+                                +   "\n) cardCMC ON cardCMC.ID = s1.ID ";
+                            sqlStatement += temp;
+                        }
+                    }
+                    else if (i == 4) //Equal to
+                    {
+                        if (p == 0) //Handle Incorrect Fields
+                        {
+                            temp = "";
+                        }
+                        else
+                        {
+                            temp += "= " + comboSearchCMC.getItemAt(p)
+                                +   "\n) cardCMC ON cardCMC.ID = s1.ID ";
+                            sqlStatement += temp;
+                        }
+                    }
+                }
+                
+                System.out.println( "\n"+ sqlStatement);
+                resultSet = statement.executeQuery(sqlStatement + "GROUP BY s1.ID ORDER BY s1.CardName ASC" ); // + "ORDER BY s1.CardName ASC" <- add this to order from A-Z
+
                  //Instanced Variables
                 DefaultTableModel tbl = (DefaultTableModel)tblCardResult.getModel();
 
@@ -485,6 +1879,7 @@ public class UserGUI extends javax.swing.JFrame {
 
                 while (resultSet.next())
                 {
+                    
                     int CardID = resultSet.getInt("ID");
                     String CardName = resultSet.getString("CardName");
                     String SetName = resultSet.getString("SetName");
@@ -498,7 +1893,6 @@ public class UserGUI extends javax.swing.JFrame {
                     Object [] arr = {CardID, CardName, SetName, Mana, CMC, Type,
                                      Power, Toughness, Artist, MultiverseID};
                     tbl.addRow(arr);
-                    //System.out.println(CardName +":" +ID +"\n");
                 }
                 
                 tblCardResult.setModel(tbl);
@@ -508,50 +1902,148 @@ public class UserGUI extends javax.swing.JFrame {
             //TODO: Check if there is available connection
             
             //Displaying Images on JLabels
-            URL url = new URL("http://gatherer.wizards.com/Handlers/Image.ashx?multiverseid=99595959&type=card");
-            BufferedImage img = ImageIO.read(url);
-            ImageIcon i = new ImageIcon(img);
-//            System.out.println("X: " + lblPictureTest.getLocation().x +
-//                               "\nY: " + lblPictureTest.getLocation().y +
-//                               "\nDimensions of Picture: (" + img.getHeight()+","+img.getWidth()+")"+
-//                                "\nDimensions of Label: (" + lblPictureTest.getHeight()+","+lblPictureTest.getWidth()+")");
-//            lblPictureTest.setBounds(539, 253, img.getWidth(), img.getHeight());
-//            lblPictureTest.setSize();
             
-            lblPicture.setIcon(i);
+            if (testConnection("http://gatherer.wizards.com/Handlers/Image.ashx?multiverseid=99595959&type=card"))
+            {
+                URL url = new URL("http://gatherer.wizards.com/Handlers/Image.ashx?multiverseid=99595959&type=card");
+                BufferedImage img = ImageIO.read(url);
+                ImageIcon i = new ImageIcon(img);
+
+                lblPicture.setIcon(i);
+            }
+            else
+            {
+                System.out.println("Error pulling image");
+            }
         }
         catch(Exception e)
         {
+            //e.printStackTrace();
             System.out.println("Error");
         }
     }//GEN-LAST:event_btnSearchActionPerformed
-
+    
+    /**
+     * tblCardResult Mouse Click Event
+     * -------------------------------------
+     * When user clicks on a row that is not null, it pulls the image of the
+     * card with the multiverseID associated to that card from the Gatherer.com
+     * 
+     */
     private void tblCardResultMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblCardResultMouseClicked
         JTable tbl = (JTable)evt.getSource();
-        
-        Object temp = tbl.getValueAt(tbl.getSelectedRow(), 9);
-        if (temp != null)
-        {
-            int x = (int)temp;
+        isFlip = false;
+        currentDisplayCard = 0;
+        Object temp;
         
         try
         {
-            //Displaying Images on JLabels
-            URL url = new URL("http://gatherer.wizards.com/Handlers/Image.ashx?multiverseid=" + x +"&type=card");
-            BufferedImage img = ImageIO.read(url);
-            ImageIcon i = new ImageIcon(img);
+            temp = tbl.getValueAt(tbl.getSelectedRow(), 9);
             
-            lblPicture.setSize(i.getIconWidth(), i.getIconHeight());
-            lblPicture.repaint();
-            lblPicture.setIcon(i);
-            
+            if (temp != null)
+            {   
+                int cID = (int)tbl.getValueAt(tbl.getSelectedRow(), 0); //Selected Card ID
+                boolean layout = false; //Stores the Layout of the Card
+
+                try
+                {   
+                    preparedStatement = connect.prepareStatement("select * from Card where ID = ?");
+                    preparedStatement.setInt(1,  cID);
+                    resultSet = preparedStatement.executeQuery();
+
+                     while (resultSet.next())
+                    {
+                        String cText = resultSet.getString("CardText");
+                        String fText = resultSet.getString("FlavorText");
+                        String lText = resultSet.getString("Layout");
+
+                        if (cText == null)
+                        {
+                            txtPanelInfo.setText(fText);
+                        }
+                        else if (fText == null)
+                        {
+                            txtPanelInfo.setText(cText);
+                        }
+                        else
+                        {
+                            txtPanelInfo.setText(cText + "\n\n" + fText);
+                        }
+
+                        if (lText.equals("split"))
+                        {
+                            layout = true;
+                        }
+
+                        if (lText.equals("double-faced") || lText.equals("flip") || lText.equals("meld") || lText.equals("aftermath"))
+                        {
+                            btnSearchCardFlip.setEnabled(true);
+                        }
+                        else
+                        {
+                            btnSearchCardFlip.setEnabled(false);
+                        }
+                        //txtPanelInfo.setText(cText + "\n\n" + fText);
+                    }
+                }
+                catch (Exception e)
+                {
+                    e.printStackTrace();
+                }
+
+                int x = (int)temp;
+
+                try
+                {
+                    //Displaying Images on JLabels
+                    if (layout == false)    //If card layout is normal
+                    {
+                        if (testConnection("http://gatherer.wizards.com/Handlers/Image.ashx?multiverseid=" + x +"&type=card"))
+                        {
+                            URL url = new URL("http://gatherer.wizards.com/Handlers/Image.ashx?multiverseid=" + x +"&type=card");
+                            BufferedImage img = ImageIO.read(url);
+                            ImageIcon i = new ImageIcon(img);
+
+                            lblPicture.setSize(i.getIconWidth(), i.getIconHeight());
+                            //lblPicture.repaint();
+                            lblPicture.setIcon(i);
+                        }
+                        else
+                        {
+                            throw new Exception();
+                        }
+                    }
+                    else //If card layout is not normal
+                    {
+                        if (testConnection("http://gatherer.wizards.com/Handlers/Image.ashx?multiverseid=" + x +"&type=card&options=rotate90"))
+                        {
+                            URL url = new URL("http://gatherer.wizards.com/Handlers/Image.ashx?multiverseid=" + x +"&type=card&options=rotate90");
+                            BufferedImage img = ImageIO.read(url);
+                            ImageIcon i = new ImageIcon(img);
+
+                            lblPicture.setSize(i.getIconWidth(), i.getIconHeight());
+                            //lblPicture.repaint();
+                            lblPicture.setIcon(i);
+                        }
+                        else
+                        {
+                            throw new Exception();
+                        }
+                    }
+                }
+                catch(Exception e)
+                {
+                    System.out.println("Error with pulling image...");
+                }
+            }
         }
-        catch(Exception e)
+        catch (Exception e)
         {
-            System.out.println("Error with pulling image...");
+            
         }
-        }
+        
     }//GEN-LAST:event_tblCardResultMouseClicked
+    
     /**
      * txtCardName Mouse Click Event
      * -------------------------------------
@@ -563,10 +2055,14 @@ public class UserGUI extends javax.swing.JFrame {
         
         if (s.equals("Name"))
             temp.setText("");
-        if (txtType.getText().equals("(Super)Type"))
+        if (txtType.getText().equals("Type"))
             txtType.setText("");
-        if (txtSubtype.getText().equals("Subtype"))
-            txtSubtype.setText("");
+        if (txtText.getText().equals("Text"))
+            txtText.setText("");
+        if (txtFlavorText.getText().equals("FlavorText"))
+            txtFlavorText.setText("");
+        if(txtArtist.getText().equals("Artist"))
+            txtArtist.setText("");
     }//GEN-LAST:event_txtCardNameMouseClicked
     
     /**
@@ -604,36 +2100,23 @@ public class UserGUI extends javax.swing.JFrame {
     /**
      * txtType Mouse Click Event
      * -------------------------------------
-     * Clears any default text on txtCardName, txtType, and txtSubtype JTextFields
+     * Clears any default text of all JTextFields in Search Pane
      */
     private void txtTypeMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_txtTypeMouseClicked
         JTextField temp = (JTextField)evt.getSource();
         String s = temp.getText();
         
-        if (s.equals("(Super)Type"))
+        if (s.equals("Type"))
             temp.setText("");
         if (txtCardName.getText().equals("Name"))
             txtCardName.setText("");
-        if (txtSubtype.getText().equals("Subtype"))
-            txtSubtype.setText("");
+        if (txtText.getText().equals("Text"))
+            txtText.setText("");
+        if (txtFlavorText.getText().equals("FlavorText"))
+            txtFlavorText.setText("");
+        if(txtArtist.getText().equals("Artist"))
+            txtArtist.setText("");
     }//GEN-LAST:event_txtTypeMouseClicked
-
-    /**
-     * txtSubtype Mouse Click Event
-     * -------------------------------------
-     * Clears any default text on txtCardName, txtType, and txtSubtype JTextField
-     */
-    private void txtSubtypeMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_txtSubtypeMouseClicked
-        JTextField temp = (JTextField)evt.getSource();
-        String s = temp.getText();
-        
-        if (s.equals("Subtype"))
-            temp.setText("");
-        if (txtCardName.getText().equals("Name"))
-            txtCardName.setText("");
-        if (txtType.getText().equals("(Super)Type"))
-            txtType.setText("");
-    }//GEN-LAST:event_txtSubtypeMouseClicked
 
     /**
      * btnResetAll Event
@@ -644,8 +2127,11 @@ public class UserGUI extends javax.swing.JFrame {
         
         //Reset Text Fields
         txtCardName.setText("Name");
-        txtType.setText("(Super)Type");
-        txtSubtype.setText("Subtype");
+        txtType.setText("Type");
+        txtText.setText("Text");
+        txtFlavorText.setText("FlavorText");
+        txtArtist.setText("Artist");
+        txtPanelInfo.setText("");
         
         //Reset Buttons
         cbSearchColorWhite.setSelected(false);
@@ -669,9 +2155,463 @@ public class UserGUI extends javax.swing.JFrame {
         comboSearchSet.setSelectedIndex(0);
         comboSearchColor.setSelectedIndex(0);
         comboSearchColorIdentity.setSelectedIndex(0);
+        comboSearchText.setSelectedIndex(0);
+        comboSearchPrinting.setSelectedIndex(0);
+        comboSearchFlavorText.setSelectedIndex(0);
+        comboSearchPowerSign.setSelectedIndex(0);
+        comboSearchToughnessSign.setSelectedIndex(0);
+        comboSearchCMCSign.setSelectedIndex(0);
+        comboSearchPower.setSelectedIndex(0);
+        comboSearchToughness.setSelectedIndex(0);
+        comboSearchCMC.setSelectedIndex(0);
         
     }//GEN-LAST:event_btnResetAllActionPerformed
 
+    /**
+     * txtText Mouse Click Event
+     * -------------------------------------
+     * Clears any default text of all JTextFields in Search Pane
+     */
+    private void txtTextMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_txtTextMouseClicked
+        JTextField temp = (JTextField)evt.getSource();
+        String s = temp.getText();
+        
+        if (s.equals("Text"))
+            temp.setText("");
+        if (txtCardName.getText().equals("Name"))
+            txtCardName.setText("");
+        if (txtType.getText().equals("Type"))
+            txtType.setText("");
+        if (txtFlavorText.getText().equals("FlavorText"))
+            txtFlavorText.setText("");
+        if(txtArtist.getText().equals("Artist"))
+            txtArtist.setText("");
+        
+    }//GEN-LAST:event_txtTextMouseClicked
+    /**
+     * btnResetPrinting Action Performed
+     * -------------------------------------
+     * Sets comboList back to "Most Recent Printing" of comboSearchPrinting
+     */
+    private void btnResetPrintingActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnResetPrintingActionPerformed
+        comboSearchPrinting.setSelectedIndex(0);
+    }//GEN-LAST:event_btnResetPrintingActionPerformed
+    
+    /**
+     * txtFlavorText Mouse Click Event
+     * -------------------------------------
+     * Clears any default text of all JTextFields in Search Pane
+     */
+    private void txtFlavorTextMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_txtFlavorTextMouseClicked
+        JTextField temp = (JTextField)evt.getSource();
+        String s = temp.getText();
+        
+        if (s.equals("FlavorText"))
+            temp.setText("");
+        if (txtCardName.getText().equals("Name"))
+            txtCardName.setText("");
+        if (txtType.getText().equals("Type"))
+            txtType.setText("");
+        if(txtText.getText().equals("Text"))
+            txtText.setText("");
+        if(txtArtist.getText().equals("Artist"))
+            txtArtist.setText("");
+    }//GEN-LAST:event_txtFlavorTextMouseClicked
+    
+    /**
+     * txtArtist Mouse Click Event
+     * -------------------------------------
+     * Clears any default text of all JTextFields in Search Pane
+     */
+    private void txtArtistMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_txtArtistMouseClicked
+        JTextField temp = (JTextField)evt.getSource();
+        String s = temp.getText();
+        
+        if (s.equals("Artist"))
+            temp.setText("");
+        if (txtCardName.getText().equals("Name"))
+            txtCardName.setText("");
+        if (txtType.getText().equals("Type"))
+            txtType.setText("");
+        if(txtText.getText().equals("Text"))
+            txtText.setText("");
+        if(txtFlavorText.getText().equals("FlavorText"))
+            txtFlavorText.setText("");
+    }//GEN-LAST:event_txtArtistMouseClicked
+
+    /**
+     * btnSearchDisplayRule Action Performed
+     * -------------------------------------
+     * Displays the rules of the Card that is currently selected in the table
+     */
+    private void btnSearchDisplayRuleActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSearchDisplayRuleActionPerformed
+        
+        if (tblCardResult.getSelectedRow() >= 0)
+        {
+            Object o = tblCardResult.getValueAt(tblCardResult.getSelectedRow(), 0);
+            int cID = (int)o;   //Holds Card ID
+            ArrayList<String> t = new ArrayList<String>();  //Holds Text Rulings of a Card
+            ArrayList<Date> y = new ArrayList<Date>();  //Holds Year of those rulings
+            String s = "";   //Used to concatenate both year and ruling
+            
+            if (currentDisplayCard != 0 && cID != currentDisplayCard)
+            {
+                try
+                {
+                    preparedStatement = connect.prepareStatement("SELECT TextRuling , RulingYear FROM Ruling WHERE CardID = ?");
+                    preparedStatement.setInt(1,  currentDisplayCard);
+                    resultSet = preparedStatement.executeQuery();
+
+
+                     while (resultSet.next())
+                    {
+                        t.add(resultSet.getString("TextRuling"));
+                        y.add(resultSet.getDate("RulingYear"));
+                    }
+
+                    //Concatenates each element of the ArrayList (Date and Ruling) to String s
+                    for (int x = 0; x < t.size(); x++)
+                    {
+                       String temp;
+                       temp = y.get(x) + ":" + t.get(x) + "\n\n";
+                       s += temp;
+                    }
+
+                     txtPanelInfo.setText(s); //Sets txtPanelInfo to String s
+                }
+                catch (Exception e)
+                {
+                    e.printStackTrace();
+                }
+            }
+            else
+            {
+                try
+                {
+                    preparedStatement = connect.prepareStatement("SELECT TextRuling , RulingYear FROM Ruling WHERE CardID = ?");
+                    preparedStatement.setInt(1,  cID);
+                    resultSet = preparedStatement.executeQuery();
+
+
+                     while (resultSet.next())
+                    {
+                        t.add(resultSet.getString("TextRuling"));
+                        y.add(resultSet.getDate("RulingYear"));
+                    }
+
+                    //Concatenates each element of the ArrayList (Date and Ruling) to String s
+                    for (int x = 0; x < t.size(); x++)
+                    {
+                       String temp;
+                       temp = y.get(x) + ":" + t.get(x) + "\n\n";
+                       s += temp;
+                    }
+
+                     txtPanelInfo.setText(s); //Sets txtPanelInfo to String s
+
+                }
+                catch (Exception e)
+                {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }//GEN-LAST:event_btnSearchDisplayRuleActionPerformed
+    
+    /**
+     * btnSearchDisplayText Action Performed
+     * -------------------------------------
+     * Displays the Text & Flavor Text of the Card that is currently selected in the table
+     */
+    private void btnSearchDisplayTextActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSearchDisplayTextActionPerformed
+      
+        if (tblCardResult.getSelectedRow() >= 0)
+        {
+            Object o = tblCardResult.getValueAt(tblCardResult.getSelectedRow(), 0);
+            int cID = (int)o;   //Holds Card ID
+            
+            if (currentDisplayCard != 0 && cID != currentDisplayCard) //Card is the flip side
+            {
+                try
+                {
+                    preparedStatement = connect.prepareStatement("SELECT CardText, FlavorText FROM Card WHERE ID = ?");
+                    preparedStatement.setInt(1,  currentDisplayCard);
+                    resultSet = preparedStatement.executeQuery();
+
+                     while (resultSet.next())
+                    {
+                        String cText = resultSet.getString("CardText");
+                        String fText = resultSet.getString("FlavorText");
+
+                        if (cText == null)
+                        {
+                            txtPanelInfo.setText(fText);
+                        }
+                        else if (fText == null)
+                        {
+                            txtPanelInfo.setText(cText);
+                        }
+                        else
+                        {
+                            txtPanelInfo.setText(cText + "\n\n" + fText);
+                        }
+                    }
+                }
+                catch (Exception e)
+                {
+                    e.printStackTrace();
+                }
+            }
+            else    //Card is not flipped
+            {
+            
+                try
+                {
+                    preparedStatement = connect.prepareStatement("SELECT CardText, FlavorText FROM Card WHERE ID = ?");
+                    preparedStatement.setInt(1,  cID);
+                    resultSet = preparedStatement.executeQuery();
+
+
+                     while (resultSet.next())
+                    {
+                        String cText = resultSet.getString("CardText");
+                        String fText = resultSet.getString("FlavorText");
+
+                        if (cText == null)
+                        {
+                            txtPanelInfo.setText(fText);
+                        }
+                        else if (fText == null)
+                        {
+                            txtPanelInfo.setText(cText);
+                        }
+                        else
+                        {
+                            txtPanelInfo.setText(cText + "\n\n" + fText);
+                        }
+                    }
+                }
+                catch (Exception e)
+                {
+                    e.printStackTrace();
+                }
+                
+            }
+        }
+    }//GEN-LAST:event_btnSearchDisplayTextActionPerformed
+
+    
+    /**
+     * btnSearchCardFlip Action Performed
+     * -------------------------------------
+     * Changes the image to the other half of the card if it is a flip card
+     * and changes txtPanelInfo accordingly to the other half
+     */
+    private void btnSearchCardFlipActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSearchCardFlipActionPerformed
+        //Declared Variables
+        String s = "";  //SQLStatement
+        boolean layout = false; //Stores the Layout of the Card
+        int multiverseID = 0;
+        
+        if (tblCardResult.getSelectedRow() >= 0)
+        {
+            Object o = tblCardResult.getValueAt(tblCardResult.getSelectedRow(), 0);
+            int cID = (int)o;   //Holds Card ID
+            String lText = "";
+            
+            try
+            {   
+                preparedStatement = connect.prepareStatement("SELECT Layout FROM Card WHERE ID = ?");
+                preparedStatement.setInt(1,  cID);
+                resultSet = preparedStatement.executeQuery();
+                
+                 while (resultSet.next())
+                {
+                    lText = resultSet.getString("Layout");
+                    
+                    if (lText.equals("flip"))
+                    {
+                        if (isFlip == false) //Current Card Being Displayed is not the Flip Side of it
+                        {
+                            s = "SELECT c.* "
+                                    + "FROM Card c\n"
+                                    + "JOIN (\n"
+                                + "    SELECT MAX(crd.ID) AS ID\n" +
+                            "               FROM Card crd\n" +
+                            "               JOIN (\n" +
+                            "               SELECT * FROM Split_Flip_Card WHERE CardID = " + cID + " AND NamesOnCard <> \"" + tblCardResult.getValueAt(tblCardResult.getSelectedRow(), 1) + "\"\n"
+                                    + "     ORDER BY SFPairID DESC LIMIT 1) SFCardT ON SFCardT.NamesOnCard = crd.CardName\n"
+                                    + ") SFCard ON SFCard.ID = c.ID ";
+                            isFlip = true;
+                        }
+                        else //Current displayed card is the flip side of it
+                        {
+                            s = "SELECT * FROM Card WHERE ID = " + cID;
+                            isFlip = false;
+                            currentDisplayCard = 0;
+                        }
+                        
+                    }
+                    else if (lText.equals("double-faced"))
+                    {
+                        if (isFlip == false) //Current Card Being Displayed is not the Flip Side of it
+                        {
+                            s = "SELECT c.* "
+                                    + "FROM Card c\n"
+                                    + "JOIN (\n"
+                                + "    SELECT MAX(crd.ID) AS ID\n" +
+                            "               FROM Card crd\n" +
+                            "               JOIN (\n" +
+                            "               SELECT * FROM Split_Flip_Card WHERE CardID = " + cID + " AND NamesOnCard <> \"" + tblCardResult.getValueAt(tblCardResult.getSelectedRow(), 1) + "\"\n"
+                                    + "     ORDER BY SFPairID DESC LIMIT 1) SFCardT ON SFCardT.NamesOnCard = crd.CardName\n"
+                                    + ") SFCard ON SFCard.ID = c.ID ";
+                            
+                            System.out.println(s);
+                            isFlip = true;
+                        }
+                        else //Current displayed card is the flip side of it
+                        {
+                            s = "SELECT * FROM Card WHERE ID = " + cID;
+                            isFlip = false;
+                            currentDisplayCard = 0;
+                        }
+                    }
+                    else if (lText.equals("meld") || lText.equals("aftermath"))
+                    {
+                        if (isFlip == false) //Current Card Being Displayed is not the Meld Side of it
+                        {
+                            s = "SELECT c.* "
+                                    + "FROM Card c\n"
+                                    + "JOIN (\n"
+                                + "    SELECT MAX(crd.ID) AS ID\n" +
+                            "               FROM Card crd\n" +
+                            "               JOIN (\n" +
+                            "               SELECT * FROM Split_Flip_Card WHERE CardID = " + cID + " AND NamesOnCard <> \"" + tblCardResult.getValueAt(tblCardResult.getSelectedRow(), 1) + "\"\n"
+                                    + "     ORDER BY SFPairID DESC LIMIT 1) SFCardT ON SFCardT.NamesOnCard = crd.CardName\n"
+                                    + ") SFCard ON SFCard.ID = c.ID ";
+                            isFlip = true;
+                        }
+                        else //Current displayed card is the Meld side of it
+                        {
+                            s = "SELECT * FROM Card WHERE ID = " + cID;
+                            isFlip = false;
+                            currentDisplayCard = 0;
+                        }
+                    }
+                }
+                 
+                 resultSet = statement.executeQuery(s);
+                 while(resultSet.next())
+                 {
+                    String cText = resultSet.getString("CardText");
+                    String fText = resultSet.getString("FlavorText");
+                    multiverseID = resultSet.getInt("MultiverseID");
+                    
+                    if (isFlip == true)
+                    {
+                        currentDisplayCard = resultSet.getInt("ID");
+                    }
+                    
+                    if (cText == null)
+                    {
+                        txtPanelInfo.setText(fText);
+                    }
+                    else if (fText == null)
+                    {
+                        txtPanelInfo.setText(cText);
+                    }
+                    else
+                    {
+                        txtPanelInfo.setText(cText + "\n\n" + fText);
+                    }
+                 }
+            }
+            catch (Exception e)
+            {
+                e.printStackTrace();
+            }
+            
+            try
+            {
+                if (isFlip == true && lText.equals("flip"))
+                {
+                    //Displaying Images on JLabels
+                    URL url = new URL("http://gatherer.wizards.com/Handlers/Image.ashx?multiverseid=" + multiverseID +"&type=card&options=rotate180");
+                    BufferedImage img = ImageIO.read(url);
+                    ImageIcon i = new ImageIcon(img);
+
+                    lblPicture.setSize(i.getIconWidth(), i.getIconHeight());
+                    lblPicture.setIcon(i);
+                }
+                else if (isFlip == true && lText.equals("aftermath"))
+                {
+                    //Displaying Images on JLabels
+                    URL url = new URL("http://gatherer.wizards.com/Handlers/Image.ashx?multiverseid=" + multiverseID +"&type=card&options=rotate270");
+                    BufferedImage img = ImageIO.read(url);
+                    ImageIcon i = new ImageIcon(img);
+
+                    lblPicture.setSize(i.getIconWidth(), i.getIconHeight());
+                    lblPicture.setIcon(i);
+                }
+                else
+                {
+                    //Displaying Images on JLabels
+                    URL url = new URL("http://gatherer.wizards.com/Handlers/Image.ashx?multiverseid=" + multiverseID +"&type=card");
+                    BufferedImage img = ImageIO.read(url);
+                    ImageIcon i = new ImageIcon(img);
+
+                    lblPicture.setSize(i.getIconWidth(), i.getIconHeight());
+                    lblPicture.setIcon(i);
+                }
+            }
+            catch(Exception e)
+            {
+                System.out.println("Error with pulling image...");
+            }
+        }
+    }//GEN-LAST:event_btnSearchCardFlipActionPerformed
+
+    private void btnEditActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEditActionPerformed
+        if (tblDecks.getSelectedRow() != -1)
+        {
+            DeckEditDialog editor = new DeckEditDialog((JFrame) SwingUtilities.getWindowAncestor(this)
+                , false, (int) tblDecks.getValueAt(tblDecks.getSelectedRow(), 3), connect);
+                editor.setVisible(true);
+        }
+    }//GEN-LAST:event_btnEditActionPerformed
+
+    private void btnNewActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNewActionPerformed
+        NewDeckDialog myDialogue = new NewDeckDialog((JFrame) SwingUtilities.getWindowAncestor(this)
+            , false);
+        myDialogue.setVisible(true);
+    }//GEN-LAST:event_btnNewActionPerformed
+
+    private void formWindowActivated(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowActivated
+        refresh();
+    }//GEN-LAST:event_formWindowActivated
+
+    private void btnDeleteDeckActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDeleteDeckActionPerformed
+        if (tblDecks.getSelectedRow() != -1)
+        {
+            try
+            {
+                int idDeck = (int)tblDecks.getValueAt(tblDecks.getSelectedRow(), 3);
+                preparedStatement = connect.
+                        prepareStatement("DELETE FROM Deck WHERE idDeck =?");
+                preparedStatement.setInt(1, idDeck);
+                preparedStatement.executeUpdate();
+                refresh();
+            }
+            catch (Exception e)
+            {
+                e.printStackTrace();
+                JOptionPane.showMessageDialog(null, "Error Deleting Deck","Error Deleting Deck",
+                                        JOptionPane.ERROR_MESSAGE);
+            }
+        }
+    }//GEN-LAST:event_btnDeleteDeckActionPerformed
+
+    
     /**
      * resizeColumnWidth(JTable table) function
      * -------------------------------------
@@ -711,19 +2651,11 @@ public class UserGUI extends javax.swing.JFrame {
     {
         //Declared Variables
         ArrayList<String> l = new ArrayList<String>();  //Stores ArrayList of Formats
-        Connection connect = null;
-        Statement statement = null;
-        ResultSet resultSet = null;
-        
         l.add("");  //Adds Default Blank 
         
         try 
-        {
-            connect = DriverManager.getConnection("jdbc:mysql://localhost/mtg_dbm?" 
-                                                + "user=root&password=q1w2e3r4");
-            statement = connect.createStatement();
-            
-            resultSet = statement.executeQuery("select * from mtg_dbm.Format");
+        {   
+            resultSet = statement.executeQuery("select * from Format");
             
             while(resultSet.next())
             {
@@ -748,19 +2680,12 @@ public class UserGUI extends javax.swing.JFrame {
     {
         //Declared Variables
         ArrayList<String> l = new ArrayList<String>();  //Stores ArrayList of Formats
-        Connection connect = null;
-        Statement statement = null;
-        ResultSet resultSet = null;
         
         l.add("");  //Adds Default Blank 
         
         try 
-        {
-            connect = DriverManager.getConnection("jdbc:mysql://localhost/mtg_dbm?" 
-                                                + "user=root&password=q1w2e3r4");
-            statement = connect.createStatement();
-            
-            resultSet = statement.executeQuery("select * from mtg_dbm.MTGSet");
+        {   
+            resultSet = statement.executeQuery("select * from MTGSet");
             
             while(resultSet.next())
             {
@@ -776,6 +2701,456 @@ public class UserGUI extends javax.swing.JFrame {
         return l;
     }
     
+    /**
+     * populateComboListNumber() function
+     * -------------------------------------
+     * Returns ArrayList<String> of empty string and #'s 0-10
+     */
+    public ArrayList<String> populateComboListNumber()
+    {
+        ArrayList<String> l = new ArrayList<String>();
+        l.add("");
+        
+        for (int x = 0; x < 11; x++)
+        {
+            l.add(Integer.toString(x));
+        }
+        
+        return l;
+    }
+    
+    /**
+     * isSearchSettingsDefault() function
+     * -------------------------------------
+     * Returns boolean true if all setting are default or if 
+     * txtFields are blank and the rest comboBoxes are default, 
+     * else return false
+     */
+    private boolean isSearchSettingsDefault()
+    {
+        boolean b = true;
+        
+        if(txtCardName.getText().equals("Name") || txtCardName.getText().equals(""))
+        {
+            if ((txtType.getText().equals("Type") || txtType.getText().equals(""))
+                    && comboSearchType.getSelectedIndex() == 0)
+            {
+                if((txtText.getText().equals("Text") || txtText.getText().equals(""))
+                        && comboSearchText.getSelectedIndex() == 0)
+                {
+                    if ((txtFlavorText.getText().equals("FlavorText") || txtFlavorText.getText().equals(""))
+                            && comboSearchFlavorText.getSelectedIndex() == 0)
+                    {
+                        if (txtArtist.getText().equals("Artist") || txtArtist.getText().equals(""))
+                        {
+                            if(cbSearchColorWhite.isSelected() == false 
+                                    && cbSearchColorBlue.isSelected() == false
+                                    && cbSearchColorBlack.isSelected() == false
+                                    && cbSearchColorRed.isSelected() == false
+                                    && cbSearchColorGreen.isSelected() == false
+                                    && comboSearchColor.getSelectedIndex() == 0)
+                            {
+                                if (cbSearchColorIdentityWhite.isSelected() == false
+                                        && cbSearchColorIdentityBlue.isSelected() == false
+                                        && cbSearchColorIdentityBlack.isSelected() == false
+                                        && cbSearchColorIdentityRed.isSelected() == false
+                                        && cbSearchColorIdentityGreen.isSelected() == false
+                                        && comboSearchColorIdentity.getSelectedIndex() == 0)
+                                {
+                                    if (comboSearchPowerSign.getSelectedIndex() == 0
+                                            && comboSearchToughnessSign.getSelectedIndex() == 0
+                                            && comboSearchCMCSign.getSelectedIndex() == 0
+                                            && comboSearchPower.getSelectedIndex() == 0
+                                            && comboSearchToughness.getSelectedIndex() == 0
+                                            && comboSearchCMC.getSelectedIndex() == 0)
+                                    {
+                                        if (comboSearchFormat.getSelectedIndex() == 0
+                                                && comboSearchSet.getSelectedIndex() == 0
+                                                && comboSearchPrinting.getSelectedIndex() == 0)
+                                        {
+                                            if (cbSearchCommon.isSelected() == false
+                                                    && cbSearchUncommon.isSelected() == false
+                                                    && cbSearchRare.isSelected() == false
+                                                    && cbSearchMythicRare.isSelected() == false)
+                                            {
+                                                b = true;
+                                            }
+                                            else //Rartiy are not default settings
+                                            {
+                                                b = false;
+                                            }
+                                        }
+                                        else //Format, Set, and Printing are not default settings
+                                        {
+                                            b = false;
+                                        }
+                                    }
+                                    else //Power, Toughness, and CMC settings are not default
+                                    {
+                                        b = false;
+                                    }
+                                }
+                                else //Color Identity settings are not default
+                                {
+                                    b = false;
+                                }
+                            } //Color settings are not default
+                            else
+                            {
+                                b = false;
+                            }
+                        }
+                        else //Artist settings are not default
+                        {
+                            b = false;
+                        }
+                    } //Flavor Text settings are not default
+                    else
+                    {
+                        b = false;
+                    }
+                    
+                } //Text settings are not default
+                else
+                {
+                    b = false;
+                }
+            }//Type settings are not default
+            else
+            {
+                b = false;
+            }
+        }//Name settings are not default
+        else
+        {
+            b = false;
+        }
+        
+        return b;
+    }
+    
+    /**
+     * changedSearchSetting() function
+     * -------------------------------------
+     * Returns boolean [] c of the Setting in the following Order:
+     *      c[0] = Name 
+     *      c[1] = Type
+     *      c[2] = Text
+     *      c[3] = FlavorText
+     *      c[4] = Artist
+     *      c[5] = Color 
+     *      c[6] = Color Identity
+     *      c[7] = Power
+     *      c[8] = Toughness
+     *      c[9] = CMC
+     *      c[10] = Format
+     *      c[11] = Set
+     *      c[12] = Printing
+     *      c[13] = Rarity
+     *  And each of these elements have a boolean that is 
+     *      1) True if the settings have changed 
+     *      2) False is settings are default
+     */
+    private boolean[] changedSearchSettings()
+    {
+        boolean [] c = new boolean[14]; //Holds 0's and 1's to signal change in each of the settings
+        
+        if (!(txtCardName.getText().equals("Name") ||  txtCardName.getText().equals("")))
+        {
+            c[0] = true; //Name settings are not default
+        }
+        else 
+        {
+            c[0] = false; //Name settings are default
+        }
+        
+        if (!(txtType.getText().equals("Type") || txtType.getText().equals(""))
+                || comboSearchType.getSelectedIndex() != 0)
+        {
+            c[1] = true; //Type setting are not default
+        }
+        else 
+        {
+            c[1] = false; //Type setting are default
+        }
+        
+        if (!(txtText.getText().equals("Text") || txtText.getText().equals(""))
+                || comboSearchText.getSelectedIndex() != 0)
+        {
+            c[2] = true; //Text setting are not default
+        }
+        else 
+        {
+            c[2] = false; //Text setting are default
+        }
+        
+        if (!(txtFlavorText.getText().equals("FlavorText") || txtFlavorText.getText().equals(""))
+                || comboSearchFlavorText.getSelectedIndex() != 0)
+        {
+            c[3] = true; //Flavor Text setting are not default
+        }
+        else 
+        {
+            c[3] = false; //Flavor Text setting are default
+        }
+        
+        if (!(txtArtist.getText().equals("Artist") || txtArtist.getText().equals("")))
+        {
+            c[4] = true; //Artist setting are not default
+        }
+        else 
+        {
+            c[4] = false; //Artist setting are default
+        }
+        
+        if (!(cbSearchColorWhite.isSelected() == false && cbSearchColorBlue.isSelected() == false
+                && cbSearchColorBlack.isSelected() == false && cbSearchColorRed.isSelected() == false
+                && cbSearchColorGreen.isSelected() == false) || comboSearchColor.getSelectedIndex() != 0)
+        {
+            c[5] = true; //Color settings are not default
+        }
+        else
+        {
+            c[5] = false; //Color settings are default
+        }
+        
+        if (!(cbSearchColorIdentityWhite.isSelected() == false && cbSearchColorIdentityBlue.isSelected() == false
+                && cbSearchColorIdentityBlack.isSelected() == false && cbSearchColorIdentityRed.isSelected() == false
+                && cbSearchColorIdentityGreen.isSelected() == false) || comboSearchColorIdentity.getSelectedIndex() != 0)
+        {
+            c[6] = true; //Color Identity settings are not default
+        }
+        else
+        {
+            c[6] = false; //Color Identity settings are not default
+        }
+        
+        if (comboSearchPowerSign.getSelectedIndex() != 0 ||comboSearchPower.getSelectedIndex() != 0)
+        {
+            c[7] = true; //Power settings are not default
+        }
+        else
+        {
+            c[7] = false; //Power settings are default
+        }
+        
+        if (comboSearchToughnessSign.getSelectedIndex() != 0 ||comboSearchToughness.getSelectedIndex() != 0)
+        {
+            c[8] = true; //Toughness settings are not default
+        }
+        else
+        {
+            c[8] = false; //Toughness settings are default
+        }
+        
+        if (comboSearchCMCSign.getSelectedIndex() != 0 ||comboSearchCMC.getSelectedIndex() != 0)
+        {
+            c[9] = true; //CMC settings are not default
+        }
+        else
+        {
+            c[9] = false; //CMC settings are default
+        }
+        
+        if (comboSearchFormat.getSelectedIndex() != 0)
+        {
+            c[10] = true; //Format Settings are not default
+        }
+        else
+        {
+            c[10] = false; //Format Settings are default   
+        }
+        
+        if (comboSearchSet.getSelectedIndex() != 0)
+        {
+            c[11] = true; //Set Settings are not default
+        }
+        else
+        {
+            c[11] = false; //Set Settings are default   
+        }
+        
+        if (comboSearchPrinting.getSelectedIndex() != 0)
+        {
+            c[12] = true; //Printing Settings are not default
+        }
+        else
+        {
+            c[12] = false; //Printing Settings are default   
+        }
+        
+        if (!(cbSearchCommon.isSelected() == false && cbSearchUncommon.isSelected() == false
+                && cbSearchRare.isSelected() == false && cbSearchMythicRare.isSelected() == false))
+        {
+            c[13] = true; //Rarity settings are not default
+        }
+        else
+        {
+            c[13] = false; //Rarity settings are default
+        }
+        
+        return c;
+    }
+    
+    /**
+     * getChangedColors(String s) function
+     * -------------------------------------------
+     *  Returns boolean [] l that stores 5 elements, each that represent the color
+     *  of either Color or Color Identity (Depending on the argument passes), that
+     *  are either true or false depending on whether the color is selected
+     */
+    private boolean [] getChangedColors(String s)
+    {
+        boolean [] l = new boolean [5];
+        
+        if (s.equals("Color"))
+        {
+            if (cbSearchColorWhite.isSelected() == true) //Color White Selected
+            {
+                l[0] = true;
+            }
+            else //Color White Not Selected
+            {
+                l[0] = false;
+            }
+            
+            if (cbSearchColorBlue.isSelected() == true) //Color Blue Selected
+            {
+                l[1] = true;
+            }
+            else //Color Blue Not Selected
+            {
+                l[1] = false;
+            }
+            
+            if (cbSearchColorBlack.isSelected() == true) //Color Black Selected
+            {
+                l[2] = true;
+            }
+            else //Color Black Not Selected
+            {
+                l[2] = false;
+            }
+            
+            if (cbSearchColorRed.isSelected() == true) //Color Red Selected
+            {
+                l[3] = true;
+            }
+            else //Color Red Not Selected
+            {
+                l[3] = false;
+            }
+            
+            if (cbSearchColorGreen.isSelected() == true) //Color Green Selected
+            {
+                l[4] = true;
+            }
+            else //Color Green Not Selected
+            {
+                l[4] = false;
+            }
+        }
+        else if (s.equals("Color Identity"))
+        {
+            if (cbSearchColorIdentityWhite.isSelected() == true) //Color Identity White Selected
+            {
+                l[0] = true;
+            }
+            else //Color Identity White Not Selected
+            {
+                l[0] = false;
+            }
+            
+            if (cbSearchColorIdentityBlue.isSelected() == true) //Color Identity Blue Selected
+            {
+                l[1] = true;
+            }
+            else //Color Identity Blue Not Selected
+            {
+                l[1] = false;
+            }
+            
+            if (cbSearchColorIdentityBlack.isSelected() == true) //Color Identity Black Selected
+            {
+                l[2] = true;
+            }
+            else //Color Identity Black Not Selected
+            {
+                l[2] = false;
+            }
+            
+            if (cbSearchColorIdentityRed.isSelected() == true) //Color Identity Red Selected
+            {
+                l[3] = true;
+            }
+            else //Color Identity Red Not Selected
+            {
+                l[3] = false;
+            }
+            
+            if (cbSearchColorIdentityGreen.isSelected() == true) //Color Identity Green Selected
+            {
+                l[4] = true;
+            }
+            else //Color Identity Green Not Selected
+            {
+                l[4] = false;
+            }
+        }
+        return l;
+    }
+    
+    private void refresh()
+    {
+        Authenticator auth = Authenticator.getInstance();
+        
+        ResultSet resultSet;
+        try
+        {
+            preparedStatement = connect.prepareStatement("SELECT d.idDeck, d.Deckname, d.Format, ud.Visible "
+                    + "FROM UserDeck ud "
+                    + "JOIN Deck d ON d.idDeck = ud.idDeck "
+                    + "WHERE ud.Username = ?");
+            preparedStatement.setString(1, auth.getLoggedInUser());
+            resultSet = preparedStatement.executeQuery();
+            DefaultTableModel tbl = (DefaultTableModel)tblDecks.getModel();
+            tbl.setRowCount(0); 
+            
+            while (resultSet.next())
+            {
+                String Name = resultSet.getString("DeckName");
+                String Format = resultSet.getString("Format");
+                String Visible = resultSet.getString("Visible");
+                int deckid = resultSet.getInt("idDeck");
+                Object [] arr = {Name, Format, Visible, deckid};
+                tbl.addRow(arr);
+            }
+            tblDecks.setModel(tbl);
+        }   
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+    }
+    
+    private boolean testConnection(String url)
+    {
+        try 
+        {
+            HttpURLConnection con = (HttpURLConnection) new URL(url).openConnection();
+            con.setConnectTimeout(3000); //set timeout to 3 seconds
+            
+            return true;
+        } 
+        catch (java.net.SocketTimeoutException e) 
+        {
+           return false;
+        } 
+        catch (java.io.IOException e)
+        {
+            return false;
+        }
+    }
     
     /**
      * @param args the command line arguments
@@ -812,11 +3187,22 @@ public class UserGUI extends javax.swing.JFrame {
         });
     }
 
+    //User Declared Variables
+    private boolean isFlip = false; //Whether Card is the flip side of it
+    private int currentDisplayCard = 0; //Keeps track of Current CardID being displayed (used for flip cards)
+    
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btnDeleteDeck;
+    private javax.swing.JButton btnEdit;
+    private javax.swing.JButton btnNew;
     private javax.swing.JButton btnResetAll;
     private javax.swing.JButton btnResetFormat;
+    private javax.swing.JButton btnResetPrinting;
     private javax.swing.JButton btnResetSet;
     private javax.swing.JButton btnSearch;
+    private javax.swing.JButton btnSearchCardFlip;
+    private javax.swing.JButton btnSearchDisplayRule;
+    private javax.swing.JButton btnSearchDisplayText;
     private javax.swing.JCheckBox cbSearchColorBlack;
     private javax.swing.JCheckBox cbSearchColorBlue;
     private javax.swing.JCheckBox cbSearchColorGreen;
@@ -831,25 +3217,44 @@ public class UserGUI extends javax.swing.JFrame {
     private javax.swing.JCheckBox cbSearchMythicRare;
     private javax.swing.JCheckBox cbSearchRare;
     private javax.swing.JCheckBox cbSearchUncommon;
+    private javax.swing.JComboBox<String> comboSearchCMC;
+    private javax.swing.JComboBox<String> comboSearchCMCSign;
     private javax.swing.JComboBox<String> comboSearchColor;
     private javax.swing.JComboBox<String> comboSearchColorIdentity;
+    private javax.swing.JComboBox<String> comboSearchFlavorText;
     private javax.swing.JComboBox<String> comboSearchFormat;
+    private javax.swing.JComboBox<String> comboSearchPower;
+    private javax.swing.JComboBox<String> comboSearchPowerSign;
+    private javax.swing.JComboBox<String> comboSearchPrinting;
     private javax.swing.JComboBox<String> comboSearchSet;
+    private javax.swing.JComboBox<String> comboSearchText;
+    private javax.swing.JComboBox<String> comboSearchToughness;
+    private javax.swing.JComboBox<String> comboSearchToughnessSign;
     private javax.swing.JComboBox<String> comboSearchType;
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel2;
-    private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
+    private javax.swing.JLabel jLabel7;
+    private javax.swing.JLabel jLabel8;
+    private javax.swing.JLabel jLabel9;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
+    private javax.swing.JPanel jPanel3;
+    private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JTabbedPane jTabbedPane1;
     private javax.swing.JLabel lblPicture;
     private javax.swing.JTable tblCardResult;
+    private javax.swing.JTable tblDecks;
+    private javax.swing.JTextField txtArtist;
     private javax.swing.JTextField txtCardName;
-    private javax.swing.JTextField txtSubtype;
+    private javax.swing.JTextField txtFlavorText;
+    private javax.swing.JTextPane txtPanelInfo;
+    private javax.swing.JTextField txtText;
     private javax.swing.JTextField txtType;
     // End of variables declaration//GEN-END:variables
 }

@@ -3,10 +3,8 @@ SET foreign_key_checks = 0;
 drop table if exists Card;
 drop table if exists MTGSet;
 drop table if exists Format;
-drop table if exists Set_Format;
 drop table if exists Format_Card;
 drop table if exists Type;
-drop table if exists Card_Types;
 drop table if exists Card_Type;
 drop table if exists Color;
 drop table if exists Card_Color;
@@ -14,6 +12,10 @@ drop table if exists Split_Flip_Card;
 drop table if exists Ruling;
 drop table if exists ColorIdentity;
 drop table if exists Card_ColorIdentity;
+drop table if exists User;
+drop table if exists UserDeck;
+drop table if exists Deck;
+drop table if exists Deck_has_Card;
 
 SET foreign_key_checks = 1;
 
@@ -174,4 +176,49 @@ CREATE TABLE Card_ColorIdentity
         ON UPDATE CASCADE
         ON DELETE CASCADE,
     PRIMARY KEY (ColorID, CardID)
+);
+
+CREATE TABLE User 
+(
+    Username VARCHAR (80) NOT NULL,
+        PRIMARY KEY (Username),
+    Password VARCHAR(45),
+    Role VARCHAR(45)
+);
+
+CREATE TABLE Deck
+(
+    idDeck INT NOT NULL AUTO_INCREMENT,
+        PRIMARY KEY (idDeck),
+    DeckName VARCHAR(45),
+    Format VARCHAR(80)
+);
+
+CREATE TABLE UserDeck
+(
+    Username VARCHAR(80),
+        FOREIGN KEY fk_Username(Username)
+        REFERENCES User(Username)
+        ON UPDATE CASCADE
+        ON DELETE CASCADE,
+    idDeck INT,
+        FOREIGN KEY fk_idDeck(idDeck)
+        REFERENCES Deck(idDeck)
+        ON UPDATE CASCADE
+        ON DELETE CASCADE,
+    Visible VARCHAR(45)
+);
+
+CREATE TABLE Deck_has_Card
+(
+    idDeck INT,
+        FOREIGN KEY fk_idDeck(idDeck)
+        REFERENCES Deck(idDeck)
+        ON UPDATE CASCADE
+        ON DELETE CASCADE,
+    Card_ID INT,
+        FOREIGN KEY fk_Card_ID(Card_ID)
+        REFERENCES Card(ID),
+    MainboardQty INT,
+    SideboardQty INT
 );

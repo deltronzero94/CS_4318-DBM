@@ -5,16 +5,29 @@
  */
 package mtg_dbm;
 
+import javax.swing.JOptionPane;
+
 /**
  *
  * @author reticent
  */
 public class LoginMenu extends javax.swing.JFrame {
+    
+    //Declared Private Member Variables
+    Database db;
 
     /**
      * Creates new form LoginMenu
      */
     public LoginMenu() {
+        initComponents();
+    }
+    
+    /**
+     * Creates new form LoginMenu
+     */
+    public LoginMenu(Database db) {
+        this.db = db;
         initComponents();
     }
 
@@ -154,14 +167,23 @@ public class LoginMenu extends javax.swing.JFrame {
     //********************************************************************
     private void loginBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_loginBtnActionPerformed
         
+        String username = userNameJField.getText();
         char [] temp = passWordJField.getPassword();
         String pass = new String(temp);
+        Authenticator auth = Authenticator.getInstance();
+        Credentials cred = new Credentials(username, pass);
         
-        if (userNameJField.getText().toLowerCase().equals("test") && pass.equals("test"))
+        if (db.checkLogin(username, pass))
         {
+            auth.authenticate(username, pass, cred);
             this.dispose();
-            UserGUI gui = new UserGUI();
+            UserGUI gui = new UserGUI(cred, auth);
             gui.setVisible(true);
+        }
+        else
+        {
+            JOptionPane.showMessageDialog(null, "Login Failed","Login Failed",
+                                        JOptionPane.ERROR_MESSAGE);
         }
     }//GEN-LAST:event_loginBtnActionPerformed
 
@@ -172,7 +194,7 @@ public class LoginMenu extends javax.swing.JFrame {
     // account.
     //********************************************************************
     private void createUserBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_createUserBtnActionPerformed
-        CreateUser gui = new CreateUser();
+        CreateUser gui = new CreateUser(db);
         gui.setVisible(true);
     }//GEN-LAST:event_createUserBtnActionPerformed
 

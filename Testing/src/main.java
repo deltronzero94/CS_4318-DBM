@@ -7,7 +7,7 @@
 //          Compile:
 //              javac -cp gson.jar:/home/reticent/netbeans-8.2/ide/modules/ext/mysql-connector-java-5.1.23-bin.jar: -d ./ main.java
 //          Running:
-//              java -cp gson.jar:/home/reticent/netbeans-8.2/ide/modules/ext/mysql-connector-java-5.1.23-bin.jar: testing/java
+//              java -cp gson.jar:/home/reticent/netbeans-8.2/ide/modules/ext/mysql-connector-java-5.1.23-bin.jar: testing/main
 //      *ASSUMING THAT YOU ARE IN FOLDER THAT MAIN.JAVA IS IN (which is .../Testing/src)
 //      *Replace .jar paths with wherever .jar file is found on computer & the dir for the JSON file
 //      * .jar files include the Google GSON.jar file & the mysql connector .jar file
@@ -362,6 +362,7 @@ public class main {
                         }
 
 
+                        
                         //****************************************************** */
                         // Checks if subtypes is not null 
                         // then adds to subtypes to ArrayList subtypes 
@@ -393,6 +394,7 @@ public class main {
                         }
 
 
+                        
                         //****************************************************** */
                         // Checks if text is not null 
                         // then adds to text ArrayList.
@@ -405,6 +407,7 @@ public class main {
                         {
                             text.add(null);
                         }
+
 
                         //****************************************************** */
                         // Checks if flavor text is not null 
@@ -451,7 +454,10 @@ public class main {
                         //****************************************************** */
                         if (c.getAsJsonObject().get("loyalty") != null)
                         {
-                            loyalty.add(c.getAsJsonObject().get("loyalty").getAsInt());
+                            if (c.getAsJsonObject().get("name").getAsString().equals("Nissa, Steward of Elements"))
+                                loyalty.add(0);
+                            else
+                                loyalty.add(c.getAsJsonObject().get("loyalty").getAsInt());
                         }
                         else if (c.getAsJsonObject().get("loyalty") == null)
                         {
@@ -489,6 +495,7 @@ public class main {
         }
         catch (Exception e)
         {
+            e.printStackTrace();
             System.out.println("Error with JSON!");
         }  
 
@@ -503,18 +510,18 @@ public class main {
             PreparedStatement preparedStatement = null;
             ResultSet resultSet = null;
 
-            connect = DriverManager.getConnection("jdbc:mysql://localhost/mtg_testing?" + "user=root&password=q1w2e3r4");
+            connect = DriverManager.getConnection("jdbc:mysql://localhost/mtg_dbm?" + "user=root&password=q1w2e3r4");
 
             statement = connect.createStatement();
 
             //Storing Information into MTGSet Table
             for (int x = 0; x < setName.size(); x++)
             {
-                SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-                Date parsed = format.parse(releaseDate.get(x));
+                SimpleDateFormat f = new SimpleDateFormat("yyyy-MM-dd");
+                Date parsed = f.parse(releaseDate.get(x));
                 java.sql.Date data = new java.sql.Date(parsed.getTime());
                 
-                preparedStatement = connect.prepareStatement("insert into mtg_testing.MTGSet values (?, ?, ?, ?, ?)");
+                preparedStatement = connect.prepareStatement("insert into mtg_dbm.MTGSet values (?, ?, ?, ?, ?)");
                 preparedStatement.setString(1, setName.get(x));
                 preparedStatement.setString(2, code.get(x));
                 preparedStatement.setString(3, setType.get(x));
@@ -526,7 +533,7 @@ public class main {
             //Storing Information to Type Table
             for (int x =0; x < typeName.size(); x++)
             {
-                preparedStatement = connect.prepareStatement("insert into mtg_testing.Type values (default, ?, ?)");
+                preparedStatement = connect.prepareStatement("insert into mtg_dbm.Type values (default, ?, ?)");
                 preparedStatement.setString(1, typeName.get(x));
                 preparedStatement.setString(2, typeT.get(x));
                 preparedStatement.executeUpdate();
@@ -535,9 +542,9 @@ public class main {
             // Storing Information into Card Table
             for (int x = 0; x < cardName.size(); x++)
             {
-                preparedStatement = connect.prepareStatement("insert into mtg_testing.Card values (default, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                preparedStatement = connect.prepareStatement("insert into mtg_dbm.Card values (default, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
 
-                //System.out.println(cardName.get(x) + ":" + x);   //For Testing
+                System.out.println(cardName.get(x) + ":" + x);   //For Testing
                 preparedStatement.setString(1,cardName.get(x));
                 preparedStatement.setInt(2,cardID.get(x));
                 preparedStatement.setString(3,layout.get(x));
@@ -576,16 +583,16 @@ public class main {
             // Storing Information into Ruling Table
             for (int x = 0; x < rulings.size(); x++)
             {
-                SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+                SimpleDateFormat f = new SimpleDateFormat("yyyy-MM-dd");
                 java.sql.Date data;
 
-                preparedStatement = connect.prepareStatement("insert into mtg_testing.Ruling values (?, ?, ?)");
+                preparedStatement = connect.prepareStatement("insert into mtg_dbm.Ruling values (?, ?, ?)");
 
                 if (rulings.get(x) != null)
                 {
                     for (int counter = 0; counter < rulings.get(x).size(); counter++)
                     {
-                        Date parsed = format.parse(rulingsDate.get(x).get(counter));
+                        Date parsed = f.parse(rulingsDate.get(x).get(counter));
                         data = new java.sql.Date(parsed.getTime()); 
 
                         preparedStatement.setInt(1, x+1);
@@ -608,7 +615,7 @@ public class main {
                     {
                         //Searches for TypeID
                         int id = 0;
-                        preparedStatement = connect.prepareStatement("select * from mtg_testing.Type where Types=?");
+                        preparedStatement = connect.prepareStatement("select * from mtg_dbm.Type where Types=?");
                         preparedStatement.setString(1,supertypes.get(x).get(counter));
                         //System.out.println(supertypes.get(x).get(counter));    //For Testing
                     
@@ -618,7 +625,7 @@ public class main {
                             id = resultSet.getInt("TypeID");
                         }
 
-                        preparedStatement = connect.prepareStatement("insert into mtg_testing.Card_Type values (?, ?)");
+                        preparedStatement = connect.prepareStatement("insert into mtg_dbm.Card_Type values (?, ?)");
                         preparedStatement.setInt(1, x+1);   //Card ID
                         preparedStatement.setInt(2, id);    //TypeID
                         preparedStatement.executeUpdate();
@@ -632,7 +639,7 @@ public class main {
                     {
                         //Searches for TypeID
                         int id = 0;
-                        preparedStatement = connect.prepareStatement("select * from mtg_testing.Type where Types=?");
+                        preparedStatement = connect.prepareStatement("select * from mtg_dbm.Type where Types=?");
                         preparedStatement.setString(1,types.get(x).get(counter));
                         //System.out.println(types.get(x).get(counter)); //FOR TESTING
                     
@@ -642,7 +649,7 @@ public class main {
                             id = resultSet.getInt("TypeID");
                         }
 
-                        preparedStatement = connect.prepareStatement("insert into mtg_testing.Card_Type values (?, ?)");
+                        preparedStatement = connect.prepareStatement("insert into mtg_dbm.Card_Type values (?, ?)");
                         preparedStatement.setInt(1, x+1);   //Card ID
                         preparedStatement.setInt(2, id);    //TypeID
                         preparedStatement.executeUpdate();
@@ -656,7 +663,7 @@ public class main {
                     {
                         //Searches for TypeID
                         int id = 0;
-                        preparedStatement = connect.prepareStatement("select * from mtg_testing.Type where Types=?");
+                        preparedStatement = connect.prepareStatement("select * from mtg_dbm.Type where Types=?");
                         preparedStatement.setString(1,subtypes.get(x).get(counter));
                         //System.out.println(subtypes.get(x).get(counter));  //FOR TESTING
                     
@@ -666,7 +673,7 @@ public class main {
                             id = resultSet.getInt("TypeID");
                         }
 
-                        preparedStatement = connect.prepareStatement("insert into mtg_testing.Card_Type values (?, ?)");
+                        preparedStatement = connect.prepareStatement("insert into mtg_dbm.Card_Type values (?, ?)");
                         preparedStatement.setInt(1, x+1);   //Card ID
                         preparedStatement.setInt(2, id);    //TypeID
                         preparedStatement.executeUpdate();
@@ -687,7 +694,7 @@ public class main {
                         //Searches for ColorID
                         int id = 0;
                         //System.out.println(colors.get(x).get(counter));    //FOR TESTING
-                        preparedStatement = connect.prepareStatement("select * from mtg_testing.Color where ColorName=?");
+                        preparedStatement = connect.prepareStatement("select * from mtg_dbm.Color where ColorName=?");
                         preparedStatement.setString(1,colors.get(x).get(counter));
                     
                         resultSet = preparedStatement.executeQuery();   //Get TypeID of supertypes
@@ -696,7 +703,7 @@ public class main {
                             id = resultSet.getInt("ColorID");
                         }
 
-                        preparedStatement = connect.prepareStatement("insert into mtg_testing.Card_Color values (?, ?)");
+                        preparedStatement = connect.prepareStatement("insert into mtg_dbm.Card_Color values (?, ?)");
                         preparedStatement.setInt(1, x+1);   //Card ID
                         preparedStatement.setInt(2, id);    //TypeID
                         preparedStatement.executeUpdate();
@@ -715,7 +722,7 @@ public class main {
                         //Searches for ColorID
                         int id = 0;
                         //System.out.println(colorIdentity.get(x).get(counter));    //FOR TESTING
-                        preparedStatement = connect.prepareStatement("select * from mtg_testing.ColorIdentity where ColorSymbol=?");
+                        preparedStatement = connect.prepareStatement("select * from mtg_dbm.ColorIdentity where ColorSymbol=?");
                         preparedStatement.setString(1,colorIdentity.get(x).get(counter));
                     
                         resultSet = preparedStatement.executeQuery();   //Get TypeID of colorIdentity
@@ -724,7 +731,7 @@ public class main {
                             id = resultSet.getInt("ColorID");
                         }
 
-                        preparedStatement = connect.prepareStatement("insert into mtg_testing.Card_ColorIdentity values (?, ?)");
+                        preparedStatement = connect.prepareStatement("insert into mtg_dbm.Card_ColorIdentity values (?, ?)");
                         preparedStatement.setInt(1, x+1);   //Card ID
                         preparedStatement.setInt(2, id);    //TypeID
                         preparedStatement.executeUpdate();
@@ -740,7 +747,7 @@ public class main {
                 {
                     for(int counter = 0; counter < names.get(x).size(); counter++)
                     {
-                        preparedStatement = connect.prepareStatement("insert into mtg_testing.Split_Flip_Card values (default, ?, ?)");
+                        preparedStatement = connect.prepareStatement("insert into mtg_dbm.Split_Flip_Card values (default, ?, ?)");
                         preparedStatement.setInt(1, x+1);   //Card ID
                         preparedStatement.setString(2, names.get(x).get(counter));    //TypeID
                         preparedStatement.executeUpdate();
@@ -751,7 +758,7 @@ public class main {
             //Storing Information into Format Table
             for (int x = 0; x < listFormat.size(); x++)
             {
-                preparedStatement = connect.prepareStatement("insert into mtg_testing.Format values (?)");
+                preparedStatement = connect.prepareStatement("insert into mtg_dbm.Format values (?)");
                 preparedStatement.setString(1, listFormat.get(x));
                 preparedStatement.executeUpdate();   
             }
@@ -765,12 +772,12 @@ public class main {
                 {
                     for (int counter = 0; counter < legality.get(x).size(); counter++)
                     {
-                        preparedStatement = connect.prepareStatement("insert into mtg_testing.Format_Card values (?, ?, ?)");
+                        preparedStatement = connect.prepareStatement("insert into mtg_dbm.Format_Card values (?, ?, ?)");
                         preparedStatement.setInt(1, x+1);   //CardID
                         preparedStatement.setString(2, format.get(x).get(counter));    //Format Name
                         preparedStatement.setString(3, legality.get(x).get(counter));    //Legality of Card
 
-                        //System.out.println("Card: " + x + " | Format: " + format.get(x).get(counter) +  " | Legality: " + legality.get(x).get(counter));  //For Testing
+                        System.out.println("Card: " + x + " | Format: " + format.get(x).get(counter) +  " | Legality: " + legality.get(x).get(counter));  //For Testing
                         preparedStatement.executeUpdate();
                     }
                 }
@@ -779,6 +786,7 @@ public class main {
         }
         catch (Exception e)
         {
+            e.printStackTrace();
             System.out.println("Error with Database!");
         }   
     }
